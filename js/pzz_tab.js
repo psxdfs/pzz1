@@ -1,5 +1,5 @@
 /* ============================================================
-   作者：倪铭浩
+   作者：朴哲震
    建立时间：2026-11-02 13:39
    使用模型：GLM-5.3-Flash
    功能名称及简介：pzz_tab.js —— 可复用的 Tab 选项卡组件
@@ -13,7 +13,7 @@
 "use strict";
 
 /**
- * 作者：倪铭浩 | 建立时间：2026-11-02 13:39 | 使用模型：GLM-5.3-Flash
+ * 作者：朴哲震 | 建立时间：2026-11-02 13:39 | 使用模型：GLM-5.3-Flash
  * 功能：pzz_initTabs —— 初始化一组选项卡（可复用入口）
  * @param {string} pzz_tabBoxId   选项卡按钮容器 id
  * @param {string} pzz_panelBoxId 内容面板容器 id（子元素顺序与按钮一一对应）
@@ -26,7 +26,7 @@ function pzz_initTabs(pzz_tabBoxId, pzz_panelBoxId) {
   var pzz_panels = pzz_panelBox.children;
 
   /**
-   * 作者：倪铭浩 | 建立时间：2026-11-02 13:39 | 使用模型：GLM-5.3-Flash
+   * 作者：朴哲震 | 建立时间：2026-11-02 13:39 | 使用模型：GLM-5.3-Flash
    * 功能：pzz_clearActive —— 清除所有选项卡与面板的选中状态（移除 pzz_active 类）
    */
   function pzz_clearActive() {
@@ -40,7 +40,7 @@ function pzz_initTabs(pzz_tabBoxId, pzz_panelBoxId) {
   }
 
   /**
-   * 作者：倪铭浩 | 建立时间：2026-11-02 13:39 | 使用模型：GLM-5.3-Flash
+   * 作者：朴哲震 | 建立时间：2026-11-02 13:39 | 使用模型：GLM-5.3-Flash
    * 功能：pzz_setActive —— 设置第 pzz_index 个选项卡与对应面板为选中状态
    */
   function pzz_setActive(pzz_index) {
@@ -49,7 +49,7 @@ function pzz_initTabs(pzz_tabBoxId, pzz_panelBoxId) {
   }
 
   /**
-   * 作者：倪铭浩 | 建立时间：2026-11-02 13:39 | 使用模型：GLM-5.3-Flash
+   * 作者：朴哲震 | 建立时间：2026-11-02 13:39 | 使用模型：GLM-5.3-Flash
    * 功能：pzz_switchTo —— 切换到第 pzz_index 个选项卡
    *       核心模式：先清除所有选中状态，再设置当前元素的选中状态
    */
