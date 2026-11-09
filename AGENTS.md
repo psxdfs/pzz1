@@ -13,7 +13,7 @@
 - `stack004.*`、`picture_above004.*`、`layout004.*`、`grid.html` —— CSS 布局练习
 - `css3.*` —— CSS3 选择器与动画
 - `svg004.*` —— SVG 图标与导航
-- `starter-level1-0611nmh.html`、`starter-level2-0611nmh.html` —— 成绩面板实战（等级一/二）
+- `starter-level1-0606pzz.html`、`starter-level2-0606pzz.html` —— 成绩面板实战（等级一/二）
 - `data.js`、`js_obj_fun.html` —— JS 数据与对象函数练习
 - `cdn/`、`font/`、`img/`、`iconfont-*` —— 静态资源与图标页面
 
@@ -26,8 +26,8 @@
 - 新增页面内容保持与现有页面一致的中文表述
 - 新增练习时，同步更新 `index.html` 目录（练习计数 +1），样式与现有条目保持一致
 - 保持资源路径不变（`css/`、`img/`、`font/`、`cdn/`）
-- 所有 CSS 类名、id 名、JS 变量以 `nmh_` 开头
-- 所有新建 HTML 文件必须包含回首页 `index.html` 的超链接（类名用 `nmh_home_link`）
+- 所有 CSS 类名、id 名、JS 变量以 `pzz_` 开头
+- 所有新建 HTML 文件必须包含回首页 `index.html` 的超链接（类名用 `pzz_home_link`）
 
 ## 注释规范（新建 HTML 文件时强制执行）
 - 新建任何 `.html` 文件必须加入注释，**尤其是 `<script>` 中每个函数的主要功能实现**都要有注释
@@ -48,7 +48,7 @@
   ```
 
 ## Git 与提示词日志
-- 提示词在执行前以追加方式写入 `nmh_prompt.md`（含时间、模型、原文）；含敏感信息必须先脱敏
+- 提示词在执行前以追加方式写入 `pzz_prompt.md`（含时间、模型、原文）；含敏感信息必须先脱敏
 - 双仓库：`origin` → Gitee（skill：git-push-gitee），`github` → GitHub（skill：git-push-github）
 - 禁止强制推送，除非用户明确授权重写历史
 
