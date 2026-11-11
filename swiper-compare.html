@@ -250,7 +250,11 @@
            功能：对比页两个 Swiper 实例
            oldSwiper：loop:true + autoplay:true（默认 3s 无限循环）
            newSwiper：loop:false + delay:3200 + stopOnLastSlide:true（一轮后停）
-           ⚠ stopOnLastSlide 只能在 loop:false 时生效！*/
+           ⚠ stopOnLastSlide 只能在 loop:false 时生效！
+           ⚠ 用 var 提前声明，否则 Swiper 初始化时回调访问 oldSwiper/newSwiper 会触发 TDZ ReferenceError */
+
+        // 先声明，解决 const 的暂时性死区（TDZ）问题
+        var oldSwiper, newSwiper;
 
         // ---- 左边：修改前 · 粗糙（loop + 默认 autoplay） ----
         var oldEl = document.getElementById('oldSwiper');
@@ -258,7 +262,7 @@
         var oldIdxEl  = document.getElementById('old_idx');
         var oldStopEl = document.getElementById('old_stop');
 
-        const oldSwiper = new Swiper(oldEl, {
+        oldSwiper = new Swiper(oldEl, {
             loop: true,
             autoplay: { delay: 3000, disableOnInteraction: false },
             effect: 'cube',
@@ -277,13 +281,13 @@
         var newIdxEl  = document.getElementById('new_idx');
         var newStopEl = document.getElementById('new_stop');
 
-        const newSwiper = new Swiper(newEl, {
-            loop: false,                              /* ← 关键：必须 false 才能 stopOnLastSlide */
+        newSwiper = new Swiper(newEl, {
+            loop: false,
             effect: 'cube',
             cubeEffect: { slideShadows: false, shadow: false },
             autoplay: {
                 delay: 3200,
-                stopOnLastSlide: true,               /* ← 只有 loop:false 时生效 */
+                stopOnLastSlide: true,
                 disableOnInteraction: false,
             },
             pagination: { el: newEl.querySelector('.swiper-pagination'), clickable: true },
@@ -299,7 +303,7 @@
             },
         });
 
-        /* 计时器：每 100ms 更新已播放时长 */
+        /* 计时器 */
         function startTimer(swiper, timeEl) {
             var t = 0;
             var timer = setInterval(function () {
