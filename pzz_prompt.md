@@ -435,3 +435,22 @@ https://spontaneous-valkyrie-4e4229.netlify.app/swiper-lesson 参考该网页的
 - commit `be3b9e7` 推送到 psxdfs/pzz1
 
 ---
+
+## 2026-11-11 18:00
+
+**使用模型**：Trae 专有模型
+
+**用户提示词**：
+```
+他得有新加的第八个模块（配截图：7 种 effect 切换栏）
+```
+
+**执行记录**：
+- 为 swiper-demo250.html 加第 8 个模块：效果切换栏
+- 7 个按钮：slide 平推 / fade 淡入淡出 / cube 3D 立方体 / coverflow 画廊堆叠 / flip 翻页 / cards 卡片 / creative 电影墙
+- JS 实现：点按钮 → destroy 旧实例 → 用新 effect 重建（`swiper.destroy(true,true)` + `new Swiper()`）
+- coverflow/creative 有专属配置（slidesPerView:'auto' + centeredSlides:true 等）
+- 按钮 active 态切换 + 状态条 effect 名同步更新 + 演示区标题同步更新
+- commit `e50ab88` 推送到 psxdfs/pzz1
+
+---
