@@ -175,6 +175,38 @@
         .cmt { color: #64748b; font-style: italic; }
         .num { color: #f472b6; }
 
+        /* ============ 逐项代码 Diff 表（用户要求 1234 都有代码对比） ============ */
+        .pzz_diff-table { width: 100%; border-collapse: separate; border-spacing: 0;
+                         border-radius: 8px; overflow: hidden;
+                         border: 1px solid #d8d5c9; margin-bottom: 24px; }
+        .pzz_diff-table th {
+            background: #f3f4f6; color: #18332f; font-size: 13px; font-weight: 700;
+            padding: 10px 14px; text-align: left; border-bottom: 1px solid #d8d5c9;
+        }
+        .pzz_diff-table th.num  { width: 55px; text-align: center; color: #e9785c; }
+        .pzz_diff-table th.old  { width: 38%; }
+        .pzz_diff-table th.arrow{ width: 40px; text-align: center; color: #245b4f; }
+        .pzz_diff-table th.new  { width: 38%; }
+        .pzz_diff-table td {
+            padding: 10px 14px; vertical-align: top;
+            border-bottom: 1px solid #e5e7eb; font-size: 12.5px;
+        }
+        .pzz_diff-table td.num  { text-align: center; font-weight: 700; color: #6e746d; }
+        .pzz_diff-table td.arrow{ text-align: center; color: #e9785c; font-size: 18px; font-weight: 700; }
+        .pzz_diff-table tr:last-child td { border-bottom: none; }
+        .pzz_diff-table .pzz_label {
+            font-size: 11px; padding: 2px 8px; border-radius: 3px; margin-bottom: 6px; display: inline-block;
+        }
+        .pzz_label_old { background: #fef2f2; color: #991b1b; }
+        .pzz_label_new { background: #ecfdf5; color: #166534; }
+        .pzz_diff-table pre {
+            background: #1e293b; color: #e2e8f0; padding: 10px 12px; border-radius: 4px;
+            font-family: Consolas, monospace; font-size: 12px; line-height: 1.55;
+            overflow-x: auto; margin: 0;
+        }
+        .pzz_diff-table td.new pre { border-left: 3px solid #22c55e; }
+        .pzz_diff-table td.old pre { border-left: 3px solid #ef4444; }
+
         /* 对照结论 */
         .pzz_verify {
             margin-top: 18px; border-top: 1px dashed #d8d5c9; padding-top: 14px;
@@ -406,6 +438,112 @@
                     <div class="pzz_req pass"><b>③ 圆点可点击</b><br>pagination.clickable ✅</div>
                     <div class="pzz_req pass"><b>④ cube</b><br>effect: 'cube' ✅</div>
                 </div>
+            </div>
+        </section>
+
+        <!-- ============ 逐项代码 Diff 表（需求①②③④ 全部都有前后代码） ============ -->
+        <section class="pzz_round" style="background:#fffdf8;">
+            <h3 style="margin-bottom:14px;font-size:18px;color:#18332f;">📋 逐项代码 Diff（①②③④ 每条都列前后对比）</h3>
+
+            <table class="pzz_diff-table">
+                <thead>
+                    <tr>
+                        <th class="num">#</th>
+                        <th class="old">第一轮 · 粗糙提示词给的代码</th>
+                        <th class="arrow">↓</th>
+                        <th class="new">第二轮 · 精确提示词给的代码</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 需求① -->
+                    <tr>
+                        <td class="num">①<br><span style="color:#6e746d;font-weight:normal;">无缝循环</span></td>
+                        <td class="old">
+                            <span class="pzz_label pzz_label_old">第一轮给的</span>
+<pre>loop: true
+// 完事了，没验证"无缝"</pre>
+                            <div style="margin-top:6px;font-size:11.5px;color:#991b1b;">只写了 loop:true，不确定 Swiper 8 是否需要 loopedSlides 配合</div>
+                        </td>
+                        <td class="arrow">↓</td>
+                        <td class="new">
+                            <span class="pzz_label pzz_label_new">第二轮给的</span>
+<pre>loop: true
+// 并明确是 Swiper 8 写法</pre>
+                            <div style="margin-top:6px;font-size:11.5px;color:#166534;">明确"无缝循环"= Swiper 8 默认 loop:true 即无缝，配合足够 slide 数量即可</div>
+                        </td>
+                    </tr>
+                    <!-- 需求② -->
+                    <tr>
+                        <td class="num">②<br><span style="color:#6e746d;font-weight:normal;">3.2s 后停止</span></td>
+                        <td class="old">
+                            <span class="pzz_label pzz_label_old">第一轮给的</span>
+<pre>autoplay: true
+// 默认 delay=3000ms
+// 永远循环，不会停</pre>
+                            <div style="margin-top:6px;font-size:11.5px;color:#991b1b;">关键遗漏：没给 delay=3200、没给 stopOnLastSlide</div>
+                        </td>
+                        <td class="arrow">↓</td>
+                        <td class="new">
+                            <span class="pzz_label pzz_label_new">第二轮给的</span>
+<pre>autoplay: {
+  delay: 3200,
+  stopOnLastSlide: true,
+  disableOnInteraction: false
+}</pre>
+                            <div style="margin-top:6px;font-size:11.5px;color:#166534;">精确到 3200ms、一轮后停、用户翻页后保持自动</div>
+                        </td>
+                    </tr>
+                    <!-- 需求③ -->
+                    <tr>
+                        <td class="num">③<br><span style="color:#6e746d;font-weight:normal;">圆点可点击</span></td>
+                        <td class="old">
+                            <span class="pzz_label pzz_label_old">第一轮给的</span>
+<pre>pagination: {
+  clickable: true
+}
+// ✅ 其实已经够了</pre>
+                            <div style="margin-top:6px;font-size:11.5px;color:#991b1b;">写对了，但没指定 el 路径，Swipers 会自动找 .swiper-pagination</div>
+                        </td>
+                        <td class="arrow">↓</td>
+                        <td class="new">
+                            <span class="pzz_label pzz_label_new">第二轮给的</span>
+<pre>pagination: {
+  el: '.swiper-pagination',
+  clickable: true
+}
+// ✅ 完整路径，不依赖自动发现</pre>
+                            <div style="margin-top:6px;font-size:11.5px;color:#166534;">把 el 路径显式写全，避免页面上多个 Swiper 互相干扰</div>
+                        </td>
+                    </tr>
+                    <!-- 需求④ -->
+                    <tr>
+                        <td class="num">④<br><span style="color:#6e746d;font-weight:normal;">初始效果 cube</span></td>
+                        <td class="old">
+                            <span class="pzz_label pzz_label_old">第一轮给的</span>
+<pre>effect: 'cube'
+// ✅ 够了，但没调效果参数</pre>
+                            <div style="margin-top:6px;font-size:11.5px;color:#991b1b;">只写 effect，但没控制 cube 的阴影（默认 slideShadows:true 画面会乱）</div>
+                        </td>
+                        <td class="arrow">↓</td>
+                        <td class="new">
+                            <span class="pzz_label pzz_label_new">第二轮给的</span>
+<pre>effect: 'cube',
+cubeEffect: {
+  slideShadows: false
+}
+// ✅ 效果干净无阴影</pre>
+                            <div style="margin-top:6px;font-size:11.5px;color:#166534;">补了 cubeEffect 默认参数，提示词里虽然说"用默认"，AI 还是主动给了阴影关闭</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="font-size:13px;color:#6e746d;margin-top:4px;">
+                💡 看懂这张表：横着看，每个需求「第一轮给的 → 第二轮给的」，箭头下面的文字是差异原因。答辩时说：
+                <b>① loop 第一轮没确认"无缝"，第二轮明确 Swiper 8 默认就无缝；
+                ② 第一轮给了 autoplay:true 但没写精确的 delay=3200 和 stopOnLastSlide，第二轮补全；
+                ③ pagination 第一轮其实已经对了，第二轮只是加了完整 el 路径；
+                ④ effect 第一轮对了，第二轮额外调了 cubeEffect 阴影。</b>
             </div>
         </section>
 
