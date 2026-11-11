@@ -454,3 +454,22 @@ https://spontaneous-valkyrie-4e4229.netlify.app/swiper-lesson 参考该网页的
 - commit `e50ab88` 推送到 psxdfs/pzz1
 
 ---
+
+## 2026-11-11 18:30
+
+**使用模型**：Trae 专有模型
+
+**用户提示词**：
+```
+不要给我新建网页把新建的取消了 根据swipe demo250 在任务四新增第八个按钮
+```
+
+**执行记录**：
+- 删掉我不该新建的 `swiper-demo250.html`（commit 297be21 新建的，用户不认可）
+- 在 `swiper-task.html` **任务四·八种效果随心换**里加第 8 个按钮 `demo 250 · flip（官方原版·默认）`，data-fx="flip"，带 wy-on 默认选中态
+- 原 slide 的 wy-on 移到新按钮，标题"六种效果随心换"→"八种效果随心换"
+- 初始 effect 从 "slide" 改为 "flip"（匹配 demo 250 官方原版）
+- index.html 去掉 21 / SWIPER 卡片（swiper-demo250），21 改为 COMING SOON
+- commit `7fa156c` 推送到 psxdfs/pzz1
+
+---
