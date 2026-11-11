@@ -413,3 +413,25 @@ https://spontaneous-valkyrie-4e4229.netlify.app/swiper-lesson 参考该网页的
 - commit `297be21` 推送到 psxdfs/pzz1
 
 ---
+
+## 2026-11-11 17:30
+
+**使用模型**：Trae 专有模型
+
+**用户提示词**：
+```
+① 为光影展添加第六件展品爱达·魔都号(首艘国产大型邮轮，2024年1月首航)，图片用 AI生成(横版 16:9)，slide 结构完整;
+② 挑一个课堂上没讲过的 Swiper 能力加上去:keyboard 键盘控制/mousewheel 滚轮/zoom 双击缩放
+```
+
+**执行记录**：
+- 用 AI 生成爱达·魔都号邮轮 16:9 横版图（蓝天白云大海上航行的白邮轮带红色条纹）
+- 覆盖 `swiper-imgs/adora_1.jpg`（641KB，2560×1440）
+- `swiper-demo250.html` 已有 6 张展品 slide（天宫/复兴号/C919/奋斗者号/天眼/爱达·魔都号），结构完整
+- 加了两个课堂没讲过的 Swiper 能力：
+  - `keyboard: { enabled:true, onlyInViewport:false }` —— ← → 方向键翻页
+  - `mousewheel: { sensitivity:1 }` —— 鼠标滚轮翻页
+- 状态条、代码展示区、info-cards（新增两张红色 NEW 卡）全部同步更新
+- commit `be3b9e7` 推送到 psxdfs/pzz1
+
+---
