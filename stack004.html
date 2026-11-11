@@ -1,37 +1,419 @@
+<!--
+    作者：朴哲震
+    建立时间：2026-11-11 14:45
+    使用模型：Trae 专有模型
+    功能名称及简介：任务一 · 层叠与继承 + 盒模型 —— 重写后的练习页：保留原始通关答案，
+      新增两轮「效果 + 源码并排展示」，每轮含实际渲染区与 HTML/CSS 代码面板，
+      顶部与底部各留 cf-prompt（pzz_prompt.md）入口链接
+-->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>层叠与继承+盒模型</title>
-    <link rel="stylesheet" href="./stack004.css">
+    <title>任务一 · 层叠与继承 + 盒模型</title>
+    <style>
+        /* ============ 页面骨架 ============ */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "微软雅黑", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #fff4e6 0%, #e8f4e8 100%);
+            color: #2d3a2e;
+            line-height: 1.65;
+        }
+
+        /* 顶部导航 */
+        .pzz_topbar {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 32px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #e2d5c1;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        }
+        .pzz_topbar a {
+            color: #2d3a2e; text-decoration: none;
+            font-size: 14px; font-weight: 600;
+            transition: color .2s;
+        }
+        .pzz_topbar a:hover { color: #e9785c; }
+        .pzz_home_link::before { content: "← "; }
+        .pzz_cfentry {
+            padding: 6px 14px;
+            background: #245b4f; color: #fffdf8 !important;
+            border-radius: 4px; font-size: 13px;
+            transition: background .2s;
+        }
+        .pzz_cfentry:hover { background: #1d4a3f; }
+
+        /* 主容器 */
+        .pzz_wrap { max-width: 1180px; margin: 0 auto; padding: 40px 32px 80px; }
+
+        /* 页面标题 */
+        .pzz_page-head {
+            text-align: center; margin-bottom: 56px;
+        }
+        .pzz_page-head h1 {
+            font-size: 42px; font-weight: 700;
+            color: #18332f; margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+        .pzz_page-head p {
+            font-size: 15px; color: #6e746d;
+        }
+
+        /* ============ 通用：原始练习区块 ============ */
+        .pzz_section {
+            background: #fffdf8;
+            border: 1px solid #e2d5c1;
+            border-radius: 8px;
+            padding: 28px 32px;
+            margin-bottom: 36px;
+            box-shadow: 0 4px 14px rgba(36,91,79,.06);
+        }
+        .pzz_section h2 {
+            font-size: 22px; color: #18332f;
+            border-left: 4px solid #e9785c;
+            padding-left: 12px; margin-bottom: 20px;
+        }
+
+        /* 原始练习里的卡片 */
+        .pzz_card-wrap {
+            background-color: #245b4f;
+            padding: 16px 24px;
+            border-radius: 6px;
+        }
+        .pzz_card {
+            background: #fff;
+            border-radius: 6px; overflow: hidden;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+            max-width: 260px;
+        }
+        .pzz_card img { width: 100%; display: block; }
+        .pzz_card h3 { padding: 10px 16px 4px; font-size: 16px; color: #18332f; }
+        .pzz_card p { padding: 0 16px 14px; font-size: 13px; color: #6e746d; }
+        .pzz_ol {
+            margin-top: 18px; padding-left: 20px;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+        }
+        .pzz_ol li { font-size: 13px; color: #245b4f; padding: 4px 0; }
+
+        /* ============ 效果 + 源码 双列展示 ============ */
+        .pzz_demo { margin-bottom: 36px; }
+        .pzz_demo-head { margin-bottom: 18px; }
+        .pzz_demo-head h3 {
+            font-size: 20px; color: #18332f; margin-bottom: 6px;
+        }
+        .pzz_demo-head .pzz_subtitle {
+            font-size: 13px; color: #6e746d;
+        }
+
+        .pzz_split {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+        }
+        @media (max-width: 820px) {
+            .pzz_split { grid-template-columns: 1fr; }
+            .pzz_ol { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* 效果区 */
+        .pzz_effect {
+            background: #fff;
+            border: 1px solid #d8d5c9;
+            border-radius: 6px;
+            padding: 24px;
+            min-height: 220px;
+            position: relative;
+        }
+        .pzz_effect::before {
+            content: "实际效果"; position: absolute; top: -10px; left: 12px;
+            background: #e9785c; color: #fff;
+            font-size: 11px; padding: 2px 10px; border-radius: 3px;
+            letter-spacing: 1px;
+        }
+
+        /* 代码面板 */
+        .pzz_code {
+            background: #1e293b;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        .pzz_code-tabs {
+            display: flex; background: #0f172a;
+        }
+        .pzz_code-tab {
+            padding: 8px 18px; font-size: 12px;
+            color: #94a3b8; cursor: pointer;
+            border: none; background: transparent;
+            font-family: Consolas, monospace;
+            transition: color .2s;
+        }
+        .pzz_code-tab.active {
+            color: #fff; background: #1e293b;
+            border-bottom: 2px solid #e9785c;
+        }
+        .pzz_code-tab:hover { color: #e2e8f0; }
+        .pzz_code-view {
+            padding: 18px 20px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12.5px; line-height: 1.7;
+            color: #e2e8f0;
+            overflow-x: auto;
+            flex: 1;
+        }
+        .pzz_code-view pre { white-space: pre; }
+        .pzz_code-hidden { display: none; }
+
+        /* 代码高亮配色（纯 CSS，无外部库） */
+        .kw { color: #c084fc; }          /* 关键字 */
+        .sel { color: #60a5fa; }         /* 选择器 */
+        .prop { color: #34d399; }        /* 属性 */
+        .val { color: #fbbf24; }         /* 值 */
+        .cmt { color: #64748b; font-style: italic; } /* 注释 */
+        .tag { color: #f87171; }         /* HTML 标签 */
+        .attr { color: #34d399; }        /* HTML 属性 */
+
+        /* ============ 页脚 cf-prompt ============ */
+        .pzz_footer-entry {
+            text-align: center; padding: 28px; margin-top: 40px;
+            background: #dce9df; border-radius: 8px;
+            border: 1px dashed #245b4f;
+        }
+        .pzz_footer-entry a {
+            color: #245b4f; font-weight: 600;
+            text-decoration: underline; text-decoration-style: dotted;
+            text-underline-offset: 4px;
+        }
+        .pzz_footer-entry a:hover { color: #e9785c; }
+        .pzz_footer-entry p { font-size: 13px; color: #6e746d; margin-top: 8px; }
+    </style>
 </head>
 <body>
-        <!--div.container回车-->
-        <div class="container">
-            <h2>层叠与继承</h2>
-            <div class="card-wrap">
-                <div class="card">
-                    <img src="./img/1.jpg" alt="">
+    <!-- 顶部导航 + cf-prompt 入口 -->
+    <nav class="pzz_topbar">
+        <a href="index.html" class="pzz_home_link">返回课堂目录</a>
+        <a href="pzz_prompt.md" class="pzz_cfentry" target="_blank" rel="noopener">cf-prompt 提示词</a>
+    </nav>
+
+    <main class="pzz_wrap">
+        <header class="pzz_page-head">
+            <h1>任务一 · 层叠与继承 + 盒模型</h1>
+            <p>每一轮都有「左/上：实际渲染效果」+「右/下：HTML + CSS 源码」，对照着学更清楚</p>
+        </header>
+
+        <!-- ============ 原始练习：层叠与继承 + 通关答案 ============ -->
+        <section class="pzz_section">
+            <h2>原始练习 · 层叠与继承 + 盒模型</h2>
+            <div class="pzz_card-wrap">
+                <div class="pzz_card">
+                    <img src="./img/1.jpg" alt="盒模型示意图">
                     <h3>盒模型</h3>
-                    <p class="card-desc">盒模型：padding,border,margin</p>
+                    <p>盒模型：padding、border、margin</p>
                 </div>
             </div>
-            <!-- ol>li*10回车 -->
-        <!-- 通关游戏答案 -->
-        <h2>通关游戏答案</h2>
-        <ol>
-            <li>plate</li>
-            <li>bento</li>
-            <li>#fancy</li>
-            <li>plate apple</li>
-            <li>#fancy pickle</li>
-            <li>small</li>
-            <li>orange.small</li>
-            <li>bento orange.small</li>
-            <li>plate, bento</li>
-            <li>*</li>
-        </ol>
+            <h2 style="margin-top: 24px;">通关游戏答案</h2>
+            <ol class="pzz_ol">
+                <li>plate</li>
+                <li>bento</li>
+                <li>#fancy</li>
+                <li>plate apple</li>
+                <li>#fancy pickle</li>
+                <li>small</li>
+                <li>orange.small</li>
+                <li>bento orange.small</li>
+                <li>plate, bento</li>
+                <li>*</li>
+            </ol>
+        </section>
+
+        <!-- ============ 第一轮：盒模型三件套 ============ -->
+        <section class="pzz_demo">
+            <div class="pzz_demo-head">
+                <h3>第一轮 · 盒模型三件套</h3>
+                <p class="pzz_subtitle">content-box vs border-box · padding 和 margin 的区别 · border 样式</p>
+            </div>
+            <div class="pzz_split">
+                <!-- 效果区 -->
+                <div class="pzz_effect">
+                    <!-- （演示 CSS 写在下方代码区，这里只放 DOM 结构） -->
+                    <style>
+                        /* ===== 第一轮效果专用样式（仅供演示，教学用） ===== */
+                        .r1_demo > div[data-box] {
+                            width: 160px; height: 100px;
+                            padding: 20px; margin: 6px;
+                            border: 3px dashed #e9785c;
+                            background: #fff4e6; font-size: 12px;
+                            display: inline-block; text-align: center;
+                        }
+                        .r1_demo > div[data-box="content"] { box-sizing: content-box; }
+                        .r1_demo > div[data-box="border"]  { box-sizing: border-box; }
+                        .r1_demo .label { font-weight: 700; color: #245b4f; display: block; margin-bottom: 6px; }
+                        .r1_margin .box {
+                            width: 80px; height: 40px; background: #245b4f;
+                            display: inline-block; color: #fff; text-align: center;
+                            line-height: 40px; margin: 0 10px;
+                        }
+                        .r1_margin .box.a { padding: 10px 20px; }
+                        .r1_margin .box.b { padding: 0; }
+                    </style>
+                    <div class="r1_demo" style="margin-bottom: 16px;">
+                        <span class="label">box-sizing: content-box（默认，宽只算 content）</span>
+                        <div data-box="content">宽 160 + padding 40 + border 6<br>= 206px 实际占位</div>
+                    </div>
+                    <div class="r1_demo" style="margin-bottom: 16px;">
+                        <span class="label">box-sizing: border-box（推荐，宽含 padding + border）</span>
+                        <div data-box="border">宽 160 = content + padding + border</div>
+                    </div>
+                    <div class="r1_margin">
+                        <span class="label">padding（内边距，撑大元素）vs margin（外边距，推开邻居）</span>
+                        <span class="box a">padding 10 20</span>
+                        <span class="box b">无 padding</span>
+                    </div>
+                </div>
+
+                <!-- 代码面板 -->
+                <div class="pzz_code">
+                    <div class="pzz_code-tabs">
+                        <button class="pzz_code-tab active" data-target="r1-html">HTML</button>
+                        <button class="pzz_code-tab" data-target="r1-css">CSS</button>
+                    </div>
+                    <div class="pzz_code-view">
+<pre id="r1-html"><span class="cmt">&lt;!-- 盒模型三件套：content-box vs border-box、padding vs margin --&gt;</span>
+<span class="tag">&lt;<span class="attr">div</span> <span class="attr">class</span>=<span class="val">"r1_demo"</span>&gt;</span>
+  <span class="tag">&lt;<span class="attr">span</span> <span class="attr">class</span>=<span class="val">"label"</span>&gt;</span>box-sizing: content-box<span class="tag">&lt;/<span class="attr">span</span>&gt;</span>
+  <span class="tag">&lt;<span class="attr">div</span> <span class="attr">data-box</span>=<span class="val">"content"</span>&gt;</span>宽 160 + padding 40 + border 6 = 206px<span class="tag">&lt;/<span class="attr">div</span>&gt;</span>
+<span class="tag">&lt;/<span class="attr">div</span>&gt;</span>
+
+<span class="tag">&lt;<span class="attr">div</span> <span class="attr">class</span>=<span class="val">"r1_margin"</span>&gt;</span>
+  <span class="tag">&lt;<span class="attr">span</span> <span class="attr">class</span>=<span class="val">"box a"</span>&gt;</span>padding 10 20<span class="tag">&lt;/<span class="attr">span</span>&gt;</span>
+  <span class="tag">&lt;<span class="attr">span</span> <span class="attr">class</span>=<span class="val">"box b"</span>&gt;</span>无 padding<span class="tag">&lt;/<span class="attr">span</span>&gt;</span>
+<span class="tag">&lt;/<span class="attr">div</span>&gt;</span></pre>
+<pre id="r1-css" class="pzz_code-hidden"><span class="sel">[data-box]</span> <span class="kw">{</span>
+  <span class="prop">width</span>: <span class="val">160px</span>; <span class="prop">height</span>: <span class="val">100px</span>;
+  <span class="prop">padding</span>: <span class="val">20px</span>; <span class="prop">margin</span>: <span class="val">6px</span>;
+  <span class="prop">border</span>: <span class="val">3px dashed #e9785c</span>;
+<span class="kw">}</span>
+<span class="sel">[data-box="content"]</span> <span class="kw">{</span> <span class="prop">box-sizing</span>: <span class="val">content-box</span>; <span class="kw">}</span>  <span class="cmt">/* 默认 */</span>
+<span class="sel">[data-box="border"]</span>  <span class="kw">{</span> <span class="prop">box-sizing</span>: <span class="val">border-box</span>;  <span class="kw">}</span>  <span class="cmt">/* 推荐 */</span>
+
+<span class="sel">.box.a</span> <span class="kw">{</span> <span class="prop">padding</span>: <span class="val">10px 20px</span>; <span class="kw">}</span>  <span class="cmt">/* 内边距撑大自身 */</span>
+<span class="sel">.box.b</span> <span class="kw">{</span> <span class="prop">padding</span>: <span class="val">0</span>;          <span class="kw">}</span>
+<span class="sel">.box</span>    <span class="kw">{</span> <span class="prop">margin</span>: <span class="val">0 10px</span>;   <span class="kw">}</span>  <span class="cmt">/* 外边距推开邻居 */</span></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 第二轮：层叠优先级可视化 ============ -->
+        <section class="pzz_demo">
+            <div class="pzz_demo-head">
+                <h3>第二轮 · 层叠优先级可视化</h3>
+                <p class="pzz_subtitle">选择器优先级标签 &lt; 类 &lt; id · 后代选择器叠加 · !important 一锤定音</p>
+            </div>
+            <div class="pzz_split">
+                <!-- 效果区 -->
+                <div class="pzz_effect">
+                    <style>
+                        /* ===== 第二轮效果专用样式（仅演示） ===== */
+                        .r2_demo { padding: 8px 0; }
+                        .r2_priority .tag-sel { color: #60a5fa; }          /* 标签选择器 */
+                        .r2_priority .cls-sel { color: #34d399; }          /* 类选择器覆盖 */
+                        .r2_priority #r2_id   { color: #e9785c; }          /* id 选择器再次覆盖 */
+                        .r2_desc .a .b        { font-weight: 700; }        /* 后代选择器叠加 */
+                        .r2_desc .b           { font-weight: normal; }     /* 单层类被后代覆盖 */
+                        .r2_imp .c            { color: #60a5fa; !important } /* !important 最高 */
+                        .r2_imp .c            { color: #34d399; }            /* 普通声明被 !important 压掉 */
+                    </style>
+                    <div class="r2_priority" style="margin-bottom: 18px;">
+                        <span class="label">选择器优先级：标签 &lt; 类 &lt; id</span>
+                        <div class="tag-sel cls-sel" id="r2_id">这行文字依次被三层选择器染色 —— 最终是 id 的橙色</div>
+                    </div>
+                    <div class="r2_desc" style="margin-bottom: 18px;">
+                        <span class="label">后代选择器层数越多优先级越高</span>
+                        <div class="a"><span class="b">我是双层后代 .a .b —— 加粗</span></div>
+                        <span class="b">我是单层 .b —— 不加粗</span>
+                    </div>
+                    <div class="r2_imp">
+                        <span class="label">!important：谁带谁赢（独立于优先级）</span>
+                        <div class="c">同一个 .c：前面蓝色 !important 压掉后面绿色普通声明</div>
+                    </div>
+                </div>
+
+                <!-- 代码面板 -->
+                <div class="pzz_code">
+                    <div class="pzz_code-tabs">
+                        <button class="pzz_code-tab active" data-target="r2-html">HTML</button>
+                        <button class="pzz_code-tab" data-target="r2-css">CSS</button>
+                    </div>
+                    <div class="pzz_code-view">
+<pre id="r2-html"><span class="cmt">&lt;!-- 层叠优先级：标签 &lt; 类 &lt; id --&gt;</span>
+<span class="tag">&lt;<span class="attr">div</span> <span class="attr">class</span>=<span class="val">"tag-sel cls-sel"</span> <span class="attr">id</span>=<span class="val">"r2_id"</span>&gt;</span>
+  三层选择器都命中 → 最终以 id 橙色为准
+<span class="tag">&lt;/<span class="attr">div</span>&gt;</span>
+
+<span class="cmt">&lt;!-- 后代选择器叠加 —— .a .b 两层比单层 .b 优先 --&gt;</span>
+<span class="tag">&lt;<span class="attr">div</span> <span class="attr">class</span>=<span class="val">"a"</span>&gt;</span>
+  <span class="tag">&lt;<span class="attr">span</span> <span class="attr">class</span>=<span class="val">"b"</span>&gt;</span>我是双层后代 .a .b<span class="tag">&lt;/<span class="attr">span</span>&gt;</span>
+<span class="tag">&lt;/<span class="attr">div</span>&gt;</span>
+<span class="tag">&lt;<span class="attr">span</span> <span class="attr">class</span>=<span class="val">"b"</span>&gt;</span>我是单层 .b<span class="tag">&lt;/<span class="attr">span</span>&gt;</span>
+
+<span class="cmt">&lt;!-- !important 一锤定音，与选择器优先级无关 --&gt;</span>
+<span class="tag">&lt;<span class="attr">div</span> <span class="attr">class</span>=<span class="val">"c"</span>&gt;</span>同一个 .c<span class="tag">&lt;/<span class="attr">div</span>&gt;</span></pre>
+<pre id="r2-css" class="pzz_code-hidden"><span class="cmt">/* 1. 标签 &lt; 类 &lt; id */</span>
+<span class="sel">.tag-sel</span> <span class="kw">{</span> <span class="prop">color</span>: <span class="val">#60a5fa</span>; <span class="kw">}</span>  <span class="cmt">/* 最底 */</span>
+<span class="sel">.cls-sel</span> <span class="kw">{</span> <span class="prop">color</span>: <span class="val">#34d399</span>; <span class="kw">}</span>  <span class="cmt">/* 覆盖标签 */</span>
+<span class="sel">#r2_id</span>   <span class="kw">{</span> <span class="prop">color</span>: <span class="val">#e9785c</span>; <span class="kw">}</span>  <span class="cmt">/* 覆盖类 */</span>
+
+<span class="cmt">/* 2. 后代叠加：层数越多越优先 */</span>
+<span class="sel">.a .b</span>  <span class="kw">{</span> <span class="prop">font-weight</span>: <span class="val">700</span>;  <span class="kw">}</span>
+<span class="sel">.b</span>     <span class="kw">{</span> <span class="prop">font-weight</span>: <span class="val">normal</span>; <span class="kw">}</span>
+
+<span class="cmt">/* 3. !important 独立于优先级，谁带谁赢 */</span>
+<span class="sel">.c</span> <span class="kw">{</span> <span class="prop">color</span>: <span class="val">#60a5fa</span> <span class="kw">!important</span>; <span class="kw">}</span>  <span class="cmt">/* 先写但带 !important */</span>
+<span class="sel">.c</span> <span class="kw">{</span> <span class="prop">color</span>: <span class="val">#34d399</span>; <span class="kw">}</span>           <span class="cmt">/* 后写也被压掉 */</span></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 页脚 cf-prompt 入口 ============ -->
+        <div class="pzz_footer-entry">
+            <strong>📎 查看本次任务的完整提示词（cf-prompt）→</strong>
+            <a href="pzz_prompt.md" target="_blank" rel="noopener">pzz_prompt.md</a>
+            <p>提示词以追加方式写入，含时间、模型、原文，供课堂作业回溯</p>
         </div>
+    </main>
+
+    <!-- ============ 代码面板 Tab 切换脚本 ============ -->
+    <script>
+        /* 作者：朴哲震 | 建立时间：2026-11-11 14:45 | 使用模型：Trae 专有模型
+           功能：initCodeTabs —— 给所有带有 .pzz_code-tab 的代码面板绑定点击事件，
+           切换 active 类并通过 id 前缀 + 后缀（html / css）匹配对应 <pre> 显示/隐藏 */
+        function pzz_initCodeTabs() {
+            var panels = document.querySelectorAll('.pzz_code');
+            panels.forEach(function (panel) {
+                var tabs = panel.querySelectorAll('.pzz_code-tab');
+                tabs.forEach(function (tab) {
+                    tab.addEventListener('click', function () {
+                        // 切换激活状态
+                        tabs.forEach(function (t) { t.classList.remove('active'); });
+                        tab.classList.add('active');
+                        // 显示对应代码块
+                        var targetId = tab.getAttribute('data-target');
+                        var views = panel.querySelectorAll('.pzz_code-view pre');
+                        views.forEach(function (pre) {
+                            pre.classList.add('pzz_code-hidden');
+                        });
+                        var target = document.getElementById(targetId);
+                        if (target) target.classList.remove('pzz_code-hidden');
+                    });
+                });
+            });
+        }
+        // DOM 就绪后立即绑定
+        document.addEventListener('DOMContentLoaded', pzz_initCodeTabs);
+    </script>
 </body>
 </html>
