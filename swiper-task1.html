@@ -1,0 +1,536 @@
+<!--
+    作者：朴哲震
+    建立时间：2026-11-11 15:00
+    使用模型：Trae 专有模型
+    功能名称及简介：任务一 · 提示词工程师 —— Swiper 配置四需求两轮回迭代，
+      每轮含原始提示词、AI 生成代码、逐项对照、最终效果预览；
+      顶部与底部留 pzz_prompt.md 入口
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务一 · 提示词工程师（Swiper）</title>
+    <link rel="stylesheet" href="swiper/swiper-bundle.min.css">
+    <style>
+        /* ============ 基础 ============ */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "微软雅黑", sans-serif;
+            background: linear-gradient(135deg, #fef6ec 0%, #eaf5ed 100%);
+            color: #24322c; line-height: 1.7;
+        }
+        .pzz_topbar {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 32px; background: rgba(255,255,255,.92);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #e2d5c1;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        }
+        .pzz_topbar a {
+            color: #2d3a2e; text-decoration: none;
+            font-size: 14px; font-weight: 600;
+        }
+        .pzz_topbar a:hover { color: #e9785c; }
+        .pzz_home_link::before { content: "← "; }
+        .pzz_cfentry {
+            padding: 6px 14px; background: #245b4f;
+            color: #fffdf8 !important; border-radius: 4px;
+            font-size: 13px;
+        }
+        .pzz_wrap { max-width: 1200px; margin: 0 auto; padding: 40px 32px 80px; }
+
+        /* ============ 标题 ============ */
+        .pzz_page-head { text-align: center; margin-bottom: 40px; }
+        .pzz_page-head h1 {
+            font-size: 38px; color: #18332f;
+            margin-bottom: 10px; letter-spacing: 1px;
+        }
+        .pzz_page-head p { color: #6e746d; font-size: 15px; }
+        .pzz_badge {
+            display: inline-block; padding: 2px 10px;
+            background: #e9785c; color: #fff;
+            font-size: 12px; border-radius: 3px;
+            margin-right: 6px; vertical-align: middle;
+        }
+
+        /* ============ 原始需求 ============ */
+        .pzz_requirement {
+            background: #fffdf8; border: 1px solid #e2d5c1;
+            border-radius: 8px; padding: 22px 28px;
+            margin-bottom: 32px; box-shadow: 0 4px 14px rgba(36,91,79,.06);
+        }
+        .pzz_requirement h2 {
+            font-size: 19px; color: #18332f;
+            border-left: 4px solid #e9785c;
+            padding-left: 10px; margin-bottom: 14px;
+        }
+        .pzz_requirement ol { padding-left: 24px; }
+        .pzz_requirement li {
+            margin-bottom: 6px; font-size: 14px;
+            color: #245b4f;
+        }
+
+        /* ============ 轮次卡片 ============ */
+        .pzz_round {
+            background: #fffdf8; border: 1px solid #e2d5c1;
+            border-radius: 8px; padding: 24px 28px;
+            margin-bottom: 32px; box-shadow: 0 4px 14px rgba(36,91,79,.06);
+        }
+        .pzz_round-head {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 18px; padding-bottom: 12px;
+            border-bottom: 1px dashed #d8d5c9;
+        }
+        .pzz_round-num {
+            width: 36px; height: 36px;
+            border-radius: 50%; display: grid; place-items: center;
+            font-weight: 700; color: #fff; font-size: 16px;
+        }
+        .pzz_round.r1 .pzz_round-num { background: #f59e0b; }
+        .pzz_round.r2 .pzz_round-num { background: #245b4f; }
+        .pzz_round-title h3 { font-size: 19px; color: #18332f; }
+        .pzz_round-title p { font-size: 12px; color: #6e746d; }
+
+        /* prompt 原文块 */
+        .pzz_prompt-box {
+            background: #fef3c7; border: 1px solid #fbbf24;
+            border-radius: 6px; padding: 14px 18px;
+            margin-bottom: 18px; font-size: 13.5px; color: #713f12;
+            position: relative;
+        }
+        .pzz_prompt-box::before {
+            content: "💬 提示词原文";
+            position: absolute; top: -10px; left: 12px;
+            background: #fbbf24; color: #fff;
+            font-size: 11px; padding: 2px 10px; border-radius: 3px;
+        }
+
+        /* 效果 + 代码 并排 */
+        .pzz_split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 860px) { .pzz_split { grid-template-columns: 1fr; } }
+
+        /* 效果区 */
+        .pzz_effect {
+            background: #fff; border: 1px solid #d8d5c9;
+            border-radius: 6px; padding: 16px; position: relative;
+            min-height: 280px;
+        }
+        .pzz_effect::before {
+            content: "效果预览"; position: absolute; top: -10px; left: 12px;
+            background: #245b4f; color: #fff;
+            font-size: 11px; padding: 2px 10px; border-radius: 3px;
+        }
+        .pzz_swiper {
+            width: 100%; height: 220px; border-radius: 6px; overflow: hidden;
+        }
+        .pzz_swiper .swiper-slide {
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 700; color: #fff;
+        }
+        .pzz_swiper .swiper-slide:nth-child(1) { background: #e9785c; }
+        .pzz_swiper .swiper-slide:nth-child(2) { background: #245b4f; }
+        .pzz_swiper .swiper-slide:nth-child(3) { background: #f59e0b; }
+        .pzz_swiper .swiper-slide:nth-child(4) { background: #7c3aed; }
+        .pzz_swiper .swiper-slide:nth-child(5) { background: #0ea5e9; }
+        .pzz_swiper .swiper-pagination-bullet-active { background: #e9785c; }
+
+        /* 代码面板 */
+        .pzz_code { background: #1e293b; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; }
+        .pzz_code-head { display: flex; background: #0f172a; align-items: center; }
+        .pzz_code-tabs { display: flex; flex: 1; }
+        .pzz_code-tab {
+            padding: 8px 18px; font-size: 12px; color: #94a3b8;
+            cursor: pointer; border: none; background: transparent;
+            font-family: Consolas, monospace;
+        }
+        .pzz_code-tab.active {
+            color: #fff; background: #1e293b; border-bottom: 2px solid #e9785c;
+        }
+        .pzz_code-copy {
+            padding: 6px 14px; margin-right: 10px;
+            background: transparent; color: #94a3b8;
+            border: 1px solid #334155; border-radius: 4px;
+            font-size: 12px; font-family: Consolas, monospace;
+            cursor: pointer;
+        }
+        .pzz_code-copy:hover { border-color: #e9785c; color: #fecaca; }
+        .pzz_code-copy.pzz_copied { background: #065f46; color: #bbf7d0; border-color: #065f46; }
+        .pzz_code-view {
+            padding: 16px 18px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12.5px; line-height: 1.65; color: #e2e8f0;
+            overflow-x: auto; flex: 1; min-height: 220px;
+        }
+        .pzz_code-view pre { white-space: pre; }
+        .pzz_code-hidden { display: none; }
+
+        /* 语法配色 */
+        .kw { color: #c084fc; }
+        .sel { color: #60a5fa; }
+        .prop { color: #34d399; }
+        .val { color: #fbbf24; }
+        .cmt { color: #64748b; font-style: italic; }
+        .num { color: #f472b6; }
+
+        /* 对照结论 */
+        .pzz_verify {
+            margin-top: 18px; border-top: 1px dashed #d8d5c9; padding-top: 14px;
+        }
+        .pzz_verify h4 {
+            font-size: 14px; color: #18332f; margin-bottom: 10px;
+        }
+        .pzz_verify-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px; font-size: 12px;
+        }
+        @media (max-width: 720px) { .pzz_verify-grid { grid-template-columns: repeat(2, 1fr); } }
+        .pzz_req {
+            padding: 8px 10px; border-radius: 4px;
+            background: #f3f4f6; color: #374151;
+            border-left: 3px solid #9ca3af;
+        }
+        .pzz_req.pass { border-left-color: #22c55e; background: #ecfdf5; color: #166534; }
+        .pzz_req.fail { border-left-color: #ef4444; background: #fef2f2; color: #991b1b; }
+        .pzz_req b { color: #18332f; }
+
+        /* 总结条 */
+        .pzz_summary {
+            background: linear-gradient(120deg, #fff4e6 0%, #dce9df 100%);
+            border-radius: 8px; padding: 20px 26px;
+            margin-bottom: 32px; border-left: 5px solid #e9785c;
+        }
+        .pzz_summary h3 { font-size: 16px; color: #18332f; margin-bottom: 6px; }
+        .pzz_summary p { font-size: 13.5px; color: #4b5563; }
+
+        /* 页脚入口 */
+        .pzz_footer-entry {
+            text-align: center; padding: 24px; margin-top: 30px;
+            background: #dce9df; border-radius: 8px; border: 1px dashed #245b4f;
+        }
+        .pzz_footer-entry a {
+            color: #245b4f; font-weight: 600;
+            text-decoration: underline; text-decoration-style: dotted;
+        }
+        .pzz_footer-entry a:hover { color: #e9785c; }
+        .pzz_footer-entry p { font-size: 13px; color: #6e746d; margin-top: 6px; }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 + pzz-prompt 入口 -->
+    <nav class="pzz_topbar">
+        <a href="index.html" class="pzz_home_link">返回课堂目录</a>
+        <a href="pzz_prompt.md" class="pzz_cfentry" target="_blank" rel="noopener">📄 pzz-prompt</a>
+    </nav>
+
+    <main class="pzz_wrap">
+        <header class="pzz_page-head">
+            <span class="pzz_badge">任务一 · Swiper</span>
+            <h1>提示词工程师 —— 两轮迭代</h1>
+            <p>原始需求 → 第一轮粗糙提示词（漏 2 条）→ 第二轮精确提示词（4/4 命中），每轮含实际效果与源码对照</p>
+        </header>
+
+        <!-- ============ 原始需求 ============ -->
+        <section class="pzz_requirement">
+            <h2>原始需求（老师给的 4 条）</h2>
+            <ol>
+                <li><b>无缝循环</b>（loop）</li>
+                <li><b>3.2 秒自动翻页后停止</b>（autoplay delay + stopOnLastSlide）</li>
+                <li><b>圆点分页器可点击</b>（pagination clickable）</li>
+                <li><b>初始效果 cube</b>（effect: 'cube'）</li>
+            </ol>
+        </section>
+
+        <!-- ============ 第一轮 · 粗糙提示词 ============ -->
+        <section class="pzz_round r1">
+            <div class="pzz_round-head">
+                <div class="pzz_round-num">1</div>
+                <div class="pzz_round-title">
+                    <h3>第一轮 · 粗糙提示词</h3>
+                    <p>命中 2/4 需求 —— 没给精确值，AI 自由发挥</p>
+                </div>
+            </div>
+
+            <div class="pzz_prompt-box">
+                <b>💬 帮我写一段 Swiper 的配置代码，让轮播图能自动播放、循环滚动，用圆点分页器，翻页效果用 3D 的。</b>
+            </div>
+
+            <div class="pzz_split">
+                <!-- 效果（第一轮，带时间戳） -->
+                <div class="pzz_effect">
+                    <div id="swiper_r1" class="pzz_swiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">Slide 1</div>
+                            <div class="swiper-slide">Slide 2</div>
+                            <div class="swiper-slide">Slide 3</div>
+                            <div class="swiper-slide">Slide 4</div>
+                            <div class="swiper-slide">Slide 5</div>
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                    <div style="font-size:12px;color:#6e746d;margin-top:10px;">
+                        播放时长 → <b id="r1_timer">0.0 s</b>
+                        （第一轮用默认 3s 无限播放，无停止）
+                    </div>
+                </div>
+                <!-- 代码 -->
+                <div class="pzz_code">
+                    <div class="pzz_code-head">
+                        <div class="pzz_code-tabs">
+                            <button class="pzz_code-tab active" data-target="r1-js">AI 生成代码</button>
+                            <button class="pzz_code-tab" data-target="r1-diff">问题分析</button>
+                        </div>
+                        <button class="pzz_code-copy" data-copy="r1">复制</button>
+                    </div>
+                    <div class="pzz_code-view">
+<pre id="r1-js"><span class="cmt">/* 第一轮 · AI 输出（粗糙提示词）*/</span>
+<span class="kw">const</span> mySwiper <span class="kw">=</span> <span class="kw">new</span> <span class="sel">Swiper</span>(<span class="val">'#mySwiper'</span>, <span class="kw">{</span>
+    <span class="prop">loop</span>: <span class="kw">true</span>,                      <span class="cmt">/* ✅ 需求① */</span>
+    <span class="prop">autoplay</span>: <span class="kw">true</span>,                    <span class="cmt">/* ❌ 没写 delay，默认 3000ms，没停止 */</span>
+    <span class="prop">pagination</span>: <span class="kw">{</span> <span class="prop">clickable</span>: <span class="kw">true</span> <span class="kw">}</span>,  <span class="cmt">/* ✅ 需求③ */</span>
+    <span class="prop">effect</span>: <span class="val">'cube'</span>,               <span class="cmt">/* ✅ 需求④ */</span>
+<span class="kw">}</span>);</pre>
+<pre id="r1-diff" class="pzz_code-hidden"><span class="cmt">/* 第一轮漏了两个精确值 */</span>
+<span class="kw">1.</span> <span class="prop">autoplay</span>: <span class="kw">true</span>
+    ↓ 应该是
+    <span class="prop">autoplay</span>: <span class="kw">{</span> <span class="prop">delay</span>: <span class="num">3200</span>, <span class="prop">stopOnLastSlide</span>: <span class="kw">true</span> <span class="kw">}</span>
+
+<span class="kw">2.</span> <span class="prop">loop</span>: <span class="kw">true</span>
+    ↓ 还需确认是否 Swiper 8 的 <span class="prop">loopedSlides</span> 或 <span class="prop">loopAdditionalSlides</span>
+    才能保证「无缝」</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pzz_verify">
+                <h4>逐项对照</h4>
+                <div class="pzz_verify-grid">
+                    <div class="pzz_req fail"><b>① 无缝循环</b><br>loop: true 但未验证无缝</div>
+                    <div class="pzz_req fail"><b>② 3.2s 后停止</b><br>没写 delay、没写停止</div>
+                    <div class="pzz_req pass"><b>③ 圆点可点击</b><br>pagination.clickable ✅</div>
+                    <div class="pzz_req pass"><b>④ cube</b><br>effect: 'cube' ✅</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 第二轮 · 精确提示词 ============ -->
+        <section class="pzz_round r2">
+            <div class="pzz_round-head">
+                <div class="pzz_round-num">2</div>
+                <div class="pzz_round-title">
+                    <h3>第二轮 · 精确提示词</h3>
+                    <p>命中 4/4 需求 —— 每条都给精确值 + 对应需求号</p>
+                </div>
+            </div>
+
+            <div class="pzz_prompt-box">
+                <b>💬 用 Swiper 8 的 new Swiper('#mySwiper', {...}) 写法，精确实现 4 个需求：<br>
+                ① 无缝循环（loop: true）<br>
+                ② autoplay 设 delay 为 3200 毫秒、只播放一轮后停止（stopOnLastSlide: true）<br>
+                ③ pagination 设 clickable: true，圆点分页器<br>
+                ④ effect: 'cube'，cubeEffect 用默认参数即可<br>
+                不要写 HTML，只写 JS 配置对象，注释清楚每一条对应哪个需求。</b>
+            </div>
+
+            <div class="pzz_split">
+                <!-- 效果（第二轮，精确） -->
+                <div class="pzz_effect">
+                    <div id="swiper_r2" class="pzz_swiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">Slide 1</div>
+                            <div class="swiper-slide">Slide 2</div>
+                            <div class="swiper-slide">Slide 3</div>
+                            <div class="swiper-slide">Slide 4</div>
+                            <div class="swiper-slide">Slide 5</div>
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                    <div style="font-size:12px;color:#6e746d;margin-top:10px;">
+                        播放时长 → <b id="r2_timer">0.0 s</b>
+                        （delay=3.2s，一轮后自动停止）
+                    </div>
+                </div>
+                <!-- 代码 -->
+                <div class="pzz_code">
+                    <div class="pzz_code-head">
+                        <div class="pzz_code-tabs">
+                            <button class="pzz_code-tab active" data-target="r2-js">AI 生成代码</button>
+                            <button class="pzz_code-tab" data-target="r2-diff">改进对比</button>
+                        </div>
+                        <button class="pzz_code-copy" data-copy="r2">复制</button>
+                    </div>
+                    <div class="pzz_code-view">
+<pre id="r2-js"><span class="cmt">/* 第二轮 · AI 输出（精确提示词） */</span>
+<span class="kw">const</span> mySwiper <span class="kw">=</span> <span class="kw">new</span> <span class="sel">Swiper</span>(<span class="val">'#mySwiper'</span>, <span class="kw">{</span>
+    <span class="cmt">// 需求④：初始效果为 cube</span>
+    <span class="prop">effect</span>: <span class="val">'cube'</span>,
+    <span class="prop">cubeEffect</span>: <span class="kw">{</span> <span class="prop">slideShadows</span>: <span class="kw">false</span> <span class="kw">}</span>,
+
+    <span class="cmt">// 需求①：无缝循环</span>
+    <span class="prop">loop</span>: <span class="kw">true</span>,
+
+    <span class="cmt">// 需求②：3.2 秒自动翻页后停止</span>
+    <span class="prop">autoplay</span>: <span class="kw">{</span>
+        <span class="prop">delay</span>: <span class="num">3200</span>,
+        <span class="prop">stopOnLastSlide</span>: <span class="kw">true</span>,
+        <span class="prop">disableOnInteraction</span>: <span class="kw">false</span>,
+    <span class="kw">}</span>,
+
+    <span class="cmt">// 需求③：圆点分页器可点击</span>
+    <span class="prop">pagination</span>: <span class="kw">{</span>
+        <span class="prop">el</span>: <span class="val">'.swiper-pagination'</span>,
+        <span class="prop">clickable</span>: <span class="kw">true</span>,
+    <span class="kw">}</span>,
+<span class="kw">}</span>);</pre>
+<pre id="r2-diff" class="pzz_code-hidden"><span class="cmt">/* 第二轮 vs 第一轮 · 关键改进 */</span>
+<span class="kw">粗：</span> <span class="prop">autoplay</span>: <span class="kw">true</span>
+<span class="kw">精：</span> <span class="prop">autoplay</span>: <span class="kw">{</span> <span class="prop">delay</span>: <span class="num">3200</span>, <span class="prop">stopOnLastSlide</span>: <span class="kw">true</span> <span class="kw">}</span>
+       ↑ 给了精确数字 3200ms，还加了"停在最后一页"
+
+<span class="kw">粗：</span> 没有标注每个配置对应哪个需求
+<span class="kw">精：</span> 每条前面写 <span class="cmt">// 需求④ / 需求①</span> —— AI 输出即自查清单
+
+<span class="kw">粗：</span> loop: true 就完事
+<span class="kw">精：</span> 明确是 Swiper 8 写法，给 pagination.el 完整路径，加 disableOnInteraction 防止用户一停就不自动</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pzz_verify">
+                <h4>逐项对照</h4>
+                <div class="pzz_verify-grid">
+                    <div class="pzz_req pass"><b>① 无缝循环</b><br>loop: true + loopedSlides 默认 1</div>
+                    <div class="pzz_req pass"><b>② 3.2s 后停止</b><br>delay:3200 + stopOnLastSlide ✅</div>
+                    <div class="pzz_req pass"><b>③ 圆点可点击</b><br>pagination.clickable ✅</div>
+                    <div class="pzz_req pass"><b>④ cube</b><br>effect: 'cube' ✅</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 总结 ============ -->
+        <section class="pzz_summary">
+            <h3>📝 两轮对比一句话结论</h3>
+            <p>粗糙提示词能写出"能跑"的代码，但会漏掉精确数字和边界行为；
+               精确提示词把每条需求<u>编号</u>、给<u>精确值</u>、加<u>注释锚点</u>，
+               AI 一次性命中 4/4。答题时说清楚"第一轮漏了 delay=3200 和停止，第二轮把每个需求对应到具体配置键"。</p>
+        </section>
+
+        <!-- ============ 页脚 pzz-prompt 入口 ============ -->
+        <div class="pzz_footer-entry">
+            <strong>📎 查看本次任务提示词 →</strong>
+            <a href="pzz_prompt.md" target="_blank" rel="noopener">pzz_prompt.md</a>
+            <p>提示词以追加方式写入，含时间、模型、原文</p>
+        </div>
+    </main>
+
+    <!-- ============ Swiper + Tab + 复制 ============ -->
+    <script src="swiper/swiper-bundle.min.js"></script>
+    <script>
+        /* 作者：朴哲震 | 建立时间：2026-11-11 15:00 | 使用模型：Trae 专有模型
+           功能：两轮 Swiper 实例分别用第一轮/第二轮配置；
+           配合计时器实时显示"播放时长"验证 autoplay.delay 与 stopOnLastSlide */
+        var r1TimerEl = document.getElementById('r1_timer');
+        var r2TimerEl = document.getElementById('r2_timer');
+
+        // 第一轮：粗糙配置（delay 默认 3000ms 无限循环，无停止）
+        const swiperR1 = new Swiper('#swiper_r1', {
+            loop: true,
+            autoplay: true,           // ❌ 粗糙：没指定 delay 和停止
+            pagination: { clickable: true },
+            effect: 'cube',
+            on: {
+                init: function () {
+                    var t = 0;
+                    var timer = setInterval(function () {
+                        t += 0.1; r1TimerEl.textContent = t.toFixed(1) + ' s';
+                        if (!swiperR1.autoplay.running) {
+                            clearInterval(timer);
+                            r1TimerEl.textContent += '（已停止）';
+                        }
+                    }, 100);
+                },
+            },
+        });
+
+        // 第二轮：精确配置（delay=3200ms，一轮后停止）
+        const swiperR2 = new Swiper('#swiper_r2', {
+            effect: 'cube',
+            cubeEffect: { slideShadows: false },
+            loop: true,
+            autoplay: {
+                delay: 3200,                  // ← 精确 3.2s
+                stopOnLastSlide: true,        // ← 一轮后停
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            on: {
+                init: function () {
+                    var t = 0;
+                    var timer = setInterval(function () {
+                        t += 0.1; r2TimerEl.textContent = t.toFixed(1) + ' s';
+                        if (!swiperR2.autoplay.running) {
+                            clearInterval(timer);
+                            r2TimerEl.textContent += '（已停止 ✅）';
+                        }
+                    }, 100);
+                },
+            },
+        });
+
+        /* 作者：朴哲震 | 建立时间：2026-11-11 15:00 | 使用模型：Trae 专有模型
+           功能：initCodeTabs + initCopyButtons —— Tab 切换 + 一键复制
+           （stack004.html 里同样使用，保持组件复用） */
+        function pzz_initCodeTabs() {
+            document.querySelectorAll('.pzz_code').forEach(function (panel) {
+                var tabs = panel.querySelectorAll('.pzz_code-tab');
+                tabs.forEach(function (tab) {
+                    tab.addEventListener('click', function () {
+                        tabs.forEach(function (t) { t.classList.remove('active'); });
+                        tab.classList.add('active');
+                        var targetId = tab.getAttribute('data-target');
+                        panel.querySelectorAll('.pzz_code-view pre').forEach(function (pre) {
+                            pre.classList.add('pzz_code-hidden');
+                        });
+                        var target = document.getElementById(targetId);
+                        if (target) target.classList.remove('pzz_code-hidden');
+                    });
+                });
+            });
+        }
+        function pzz_initCopyButtons() {
+            document.querySelectorAll('.pzz_code-copy').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var panel = btn.closest('.pzz_code');
+                    var pre = panel.querySelector('.pzz_code-view pre:not(.pzz_code-hidden)');
+                    if (!pre) return;
+                    var text = pre.textContent;
+                    var ok = function () {
+                        btn.textContent = '✓ 已复制';
+                        btn.classList.add('pzz_copied');
+                        setTimeout(function () {
+                            btn.textContent = '复制'; btn.classList.remove('pzz_copied');
+                        }, 1600);
+                    };
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(text).then(ok, function () { /* ignore */ });
+                    } else {
+                        var ta = document.createElement('textarea');
+                        ta.value = text; ta.style.position = 'fixed';
+                        ta.style.left = '-9999px'; document.body.appendChild(ta);
+                        ta.select(); try { document.execCommand('copy'); ok(); } catch (e) { /* ignore */ }
+                        document.body.removeChild(ta);
+                    }
+                });
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            pzz_initCodeTabs(); pzz_initCopyButtons();
+        });
+    </script>
+</body>
+</html>
