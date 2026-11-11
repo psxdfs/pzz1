@@ -139,18 +139,20 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f6f8fc;c
       <div class="status-bar">
         <span>📍 当前页 <b id="flipIdx">1 / 6</b></span>
         <span>🎯 效果 <b>flip（3D 翻转）</b></span>
-        <span>✋ 可用鼠标拖拽 <b>grabCursor:true</b></span>
+        <span>✋ 鼠标拖拽 <b>grabCursor</b></span>
+        <span>⌨️ <b>← →</b> 方向键翻页 <span style="color:#dc2626">NEW</span></span>
+        <span>🖱 滚轮翻页 <b>mousewheel</b> <span style="color:#dc2626">NEW</span></span>
         <span>🔁 自动播放 <b>3.2s · 循环</b></span>
       </div>
     </div>
 
     <!-- 代码展示 -->
-    <div class="cfg-box"><pre><span class="cmt">/* Swiper Demo 250 · flip 翻转效果完整配置 */</span>
+    <div class="cfg-box"><pre><span class="cmt">/* Swiper Demo 250 · flip 翻转效果 + 键盘滚轮（课堂没讲过的 NEW） */</span>
 <span class="kw">new</span> Swiper(<span class="val">"#flipSwiper"</span>, <span class="kw">{</span>
-  <span class="prop">effect</span>: <span class="val">"flip"</span>,           <span class="cmt">// 关键：翻牌效果</span>
-  <span class="prop">grabCursor</span>: <span class="kw">true</span>,       <span class="cmt">// 鼠标变手型，可拖拽翻页</span>
-  <span class="prop">speed</span>: <span class="num">800</span>,              <span class="cmt">// 翻页动画时长 800ms</span>
-  <span class="prop">loop</span>: <span class="kw">true</span>,                <span class="cmt">// 循环播放</span>
+  <span class="prop">effect</span>: <span class="val">"flip"</span>,
+  <span class="prop">grabCursor</span>: <span class="kw">true</span>,
+  <span class="prop">speed</span>: <span class="num">800</span>,
+  <span class="prop">loop</span>: <span class="kw">true</span>,
   <span class="prop">autoplay</span>: <span class="kw">{</span>
     <span class="prop">delay</span>: <span class="num">3200</span>,
     <span class="prop">disableOnInteraction</span>: <span class="kw">false</span>
@@ -159,12 +161,14 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f6f8fc;c
   <span class="prop">navigation</span>: <span class="kw">{</span>
     <span class="prop">nextEl</span>: <span class="val">".swiper-button-next"</span>,
     <span class="prop">prevEl</span>: <span class="val">".swiper-button-prev"</span>
-  <span class="kw">}</span>
+  <span class="kw">}</span>,
+  <span class="prop">keyboard</span>: <span class="kw">{</span> <span class="prop">enabled</span>: <span class="kw">true</span>, <span class="prop">onlyInViewport</span>: <span class="kw">false</span> <span class="kw">}</span>,  <span class="cmt">// NEW: ⌨️ ← → 方向键翻页</span>
+  <span class="prop">mousewheel</span>: <span class="kw">{</span> <span class="prop">sensitivity</span>: <span class="num">1</span> <span class="kw">}</span>                                       <span class="cmt">// NEW: 🖱 滚轮翻页</span>
 <span class="kw">})</span>;</pre></div>
   </div>
 
-  <!-- 三个参数说明 -->
-  <div class="info-cards">
+  <!-- 五个参数说明 -->
+  <div class="info-cards" style="grid-template-columns:repeat(5,1fr)">
     <div class="info-card">
       <div class="label">核心参数</div>
       <div class="value">effect: "flip"</div>
@@ -180,6 +184,16 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f6f8fc;c
       <div class="value">flip vs cube</div>
       <div style="font-size:12px;color:#6b7280;margin-top:4px">cube 像转动立方体；flip 像翻牌，更轻量</div>
     </div>
+    <div class="info-card" style="border-color:#fca5a5;background:#fff5f5">
+      <div class="label" style="color:#dc2626">课堂没讲过 ⌨️</div>
+      <div class="value" style="color:#991b1b">keyboard: true</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">← → 方向键翻页，onlyInViewport:false 全局生效</div>
+    </div>
+    <div class="info-card" style="border-color:#fca5a5;background:#fff5f5">
+      <div class="label" style="color:#dc2626">课堂没讲过 🖱</div>
+      <div class="value" style="color:#991b1b">mousewheel: true</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">鼠标滚轮向下 = 下一页，sensitivity 可调灵敏度</div>
+    </div>
   </div>
 
   <div class="footer-entry">
@@ -191,7 +205,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f6f8fc;c
 
 <script>
 /* 作者：朴哲震 | 建立时间：2026-11-11 16:30 | 使用模型：Trae 专有模型
-   功能：pzz_initFlip —— 初始化 flip 3D 翻转效果，带 loop + autoplay 3.2s + 左右箭头 + 分页器 */
+   功能：pzz_initFlip —— flip 翻转效果 + keyboard(←→) + mousewheel(滚轮) 课堂没讲过的能力 */
 function pzz_initFlip() {
   var swiperFlip = new Swiper("#flipSwiper", {
     effect: "flip",
@@ -204,6 +218,10 @@ function pzz_initFlip() {
       nextEl: ".swiper-button-next",
       prevEl: ".swiper-button-prev",
     },
+    // ⌨️ 课堂没讲过：键盘 ← → 方向键翻页
+    keyboard: { enabled: true, onlyInViewport: false },
+    // 🖱 课堂没讲过：鼠标滚轮翻页
+    mousewheel: { sensitivity: 1 },
     on: {
       slideChange: function () {
         document.getElementById("flipIdx").textContent =
