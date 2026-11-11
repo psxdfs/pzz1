@@ -54,25 +54,13 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f6f8fc;c
 .card .prompt-text{font-size:12.5px;color:#6b7280;line-height:1.7;margin-bottom:14px;background:rgba(0,0,0,.04);padding:10px 12px;border-radius:6px;font-style:italic}
 
 /* Swiper 容器 */
-.swiper-box{width:100%;height:200px;border-radius:10px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.1)}
+.swiper-box{width:100%;height:220px;border-radius:10px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.1)}
 .swiper-box .swiper{width:100%;height:100%}
-.swiper-box .swiper-slide{display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative}
-.swiper-box .swiper-slide::after{content:attr(data-sub);position:absolute;bottom:12px;left:18px;font-size:12px;font-weight:400;opacity:.85}
+.swiper-box .swiper-slide{position:relative}
+.swiper-box .swiper-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.swiper-box .cap{position:absolute;left:0;right:0;bottom:0;padding:18px 14px 10px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.72));font-size:12px}
+.swiper-box .cap h4{font-size:14px;font-weight:700;margin-bottom:2px;letter-spacing:1px}
 .swiper-box .swiper-pagination-bullet-active{background:#fff!important;opacity:1;width:16px;border-radius:6px}
-
-/* 红卡用暖色渐变 */
-.card.bad .swiper-slide:nth-child(1){background:linear-gradient(135deg,#e9785c,#b91c1c)}
-.card.bad .swiper-slide:nth-child(2){background:linear-gradient(135deg,#f59e0b,#b45309)}
-.card.bad .swiper-slide:nth-child(3){background:linear-gradient(135deg,#dc2626,#7f1d1d)}
-.card.bad .swiper-slide:nth-child(4){background:linear-gradient(135deg,#ea580c,#9a3412)}
-.card.bad .swiper-slide:nth-child(5){background:linear-gradient(135deg,#d97706,#78350f)}
-
-/* 绿卡用冷色渐变 */
-.card.good .swiper-slide:nth-child(1){background:linear-gradient(135deg,#245b4f,#065f46)}
-.card.good .swiper-slide:nth-child(2){background:linear-gradient(135deg,#0ea5e9,#0369a1)}
-.card.good .swiper-slide:nth-child(3){background:linear-gradient(135deg,#22c55e,#15803d)}
-.card.good .swiper-slide:nth-child(4){background:linear-gradient(135deg,#7c3aed,#4c1d95)}
-.card.good .swiper-slide:nth-child(5){background:linear-gradient(135deg,#0891b2,#164e63)}
 
 /* 点圆点测试提示 */
 .card .test-line{margin-top:10px;font-size:12px;color:#6b7280;padding:8px 12px;border-radius:6px}
@@ -128,11 +116,11 @@ table.req-table tr:hover td{background:#fafafa}
 
             <div class="swiper-box" id="swiperBad">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide" data-sub="Slide 1 · 红">红色 · 第一面</div>
-                    <div class="swiper-slide" data-sub="Slide 2 · 橙">橙色 · 第二面</div>
-                    <div class="swiper-slide" data-sub="Slide 3 · 深红">深红 · 第三面</div>
-                    <div class="swiper-slide" data-sub="Slide 4 · 棕">棕色 · 第四面</div>
-                    <div class="swiper-slide" data-sub="Slide 5 · 金">金色 · 第五面</div>
+                    <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="cap"><h4>天宫空间站</h4>2022 年全面建成</div></div>
+                    <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="cap"><h4>复兴号动车组</h4>350 km/h · 世界商业最高</div></div>
+                    <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="cap"><h4>C919 大飞机</h4>2023 年商业首航</div></div>
+                    <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="cap"><h4>奋斗者号</h4>10909 米触底</div></div>
+                    <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="cap"><h4>中国天眼 FAST</h4>500 米口径</div></div>
                 </div>
                 <div class="swiper-pagination"></div>
             </div>
@@ -157,11 +145,11 @@ table.req-table tr:hover td{background:#fafafa}
 
             <div class="swiper-box" id="swiperGood">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide" data-sub="Slide 1 · 墨绿">墨绿 · 第一面</div>
-                    <div class="swiper-slide" data-sub="Slide 2 · 蓝">蓝色 · 第二面</div>
-                    <div class="swiper-slide" data-sub="Slide 3 · 绿">绿色 · 第三面</div>
-                    <div class="swiper-slide" data-sub="Slide 4 · 紫">紫色 · 第四面</div>
-                    <div class="swiper-slide" data-sub="Slide 5 · 青">青色 · 第五面</div>
+                    <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="cap"><h4>天宫空间站</h4>三舱结构 · 神舟乘组常年值守</div></div>
+                    <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="cap"><h4>复兴号动车组</h4>京张高铁智能驾驶</div></div>
+                    <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="cap"><h4>C919 大飞机</h4>让中国人的大飞机梦照进现实</div></div>
+                    <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="cap"><h4>奋斗者号</h4>深海探测进入"中国时代"</div></div>
+                    <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="cap"><h4>中国天眼 FAST</h4>南仁东先生 22 年铸就</div></div>
                 </div>
                 <div class="swiper-pagination"></div>
             </div>
