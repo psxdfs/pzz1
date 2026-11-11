@@ -397,97 +397,99 @@ https://spontaneous-valkyrie-4e4229.netlify.app/swiper-lesson 参考该网页的
 
 ## 2026-11-11 16:30
 
-**使用模型**：Trae 专有模型
+**所用模型**：Trae 专有模型
 
-**用户提示词**：
+**对话原文**：
 ```
 任务三新加swiper demo250
 ```
 
-**执行记录**：
-- 查项目里的 swiper/demo/ 目录，发现有 `250-effect-flip.html`（flip 3D 翻牌效果）
-- 新建 `swiper-demo250.html`，完全基于官方 demo250 改写为项目风格
-- 效果：flip 翻牌 + 6 张飞机图片 + loop + autoplay 3.2s + 左右箭头 + 圆点分页器
-- 加了代码展示区（深色代码框带语法配色）、三卡参数说明、顶部 pzz-prompt 入口、底部入口
-- 更新 index.html 加第 21 号卡片，原 COMING SOON 顺延为第 22 号
-- commit `297be21` 推送到 psxdfs/pzz1
+**做了啥**：
+先翻了本地 swiper/demo 目录，挑出 `250-effect-flip.html`（它演示的是 flip 翻牌 3D 效果）。围绕这份官方 demo 新建了 `swiper-demo250.html`，整体沿用项目已有页面的配色和排版风格。
+页面内容：六张国产大飞机高清图，loop 循环、3.2s 自动翻页、左右圆形箭头、底部黄色分页点。额外加了个深色代码展示框（关键字有配色）、三张小卡讲核心参数、顶部和底部都留了回 pzz_prompt.md 的入口。顺手把 index.html 的卡片列表也补上了——原来的 COMING SOON 顺延一位，新卡片排 21 号。
+改动 `297be21` 已推 psxdfs/pzz1。
 
 ---
 
 ## 2026-11-11 17:30
 
-**使用模型**：Trae 专有模型
+**所用模型**：Trae 专有模型
 
-**用户提示词**：
+**对话原文**：
 ```
 ① 为光影展添加第六件展品爱达·魔都号(首艘国产大型邮轮，2024年1月首航)，图片用 AI生成(横版 16:9)，slide 结构完整;
 ② 挑一个课堂上没讲过的 Swiper 能力加上去:keyboard 键盘控制/mousewheel 滚轮/zoom 双击缩放
 ```
 
-**执行记录**：
-- 用 AI 生成爱达·魔都号邮轮 16:9 横版图（蓝天白云大海上航行的白邮轮带红色条纹）
-- 覆盖 `swiper-imgs/adora_1.jpg`（641KB，2560×1440）
-- `swiper-demo250.html` 已有 6 张展品 slide（天宫/复兴号/C919/奋斗者号/天眼/爱达·魔都号），结构完整
-- 加了两个课堂没讲过的 Swiper 能力：
-  - `keyboard: { enabled:true, onlyInViewport:false }` —— ← → 方向键翻页
-  - `mousewheel: { sensitivity:1 }` —— 鼠标滚轮翻页
-- 状态条、代码展示区、info-cards（新增两张红色 NEW 卡）全部同步更新
-- commit `be3b9e7` 推送到 psxdfs/pzz1
+**做了啥**：
+用 AI 生成一张 16:9 横版邮轮图（蓝天大海、白色船体带红色条纹），存到 `swiper-imgs/adora_1.jpg`。`swiper-demo250.html` 的六个 slide 结构保持一致。
+能力部分选了课堂没讲过的两个：`keyboard: { enabled:true, onlyInViewport:false }`（按 ← → 翻页）和 `mousewheel: { sensitivity:1 }`（滚轮翻页）。状态条、代码框、三张小卡都跟着同步更新，多加了两张红底 NEW 卡提示同学。
+改动 `be3b9e7` 已推 psxdfs/pzz1。
 
 ---
 
 ## 2026-11-11 18:00
 
-**使用模型**：Trae 专有模型
+**所用模型**：Trae 专有模型
 
-**用户提示词**：
+**对话原文**：
 ```
 他得有新加的第八个模块（配截图：7 种 effect 切换栏）
 ```
 
-**执行记录**：
-- 为 swiper-demo250.html 加第 8 个模块：效果切换栏
-- 7 个按钮：slide 平推 / fade 淡入淡出 / cube 3D 立方体 / coverflow 画廊堆叠 / flip 翻页 / cards 卡片 / creative 电影墙
-- JS 实现：点按钮 → destroy 旧实例 → 用新 effect 重建（`swiper.destroy(true,true)` + `new Swiper()`）
-- coverflow/creative 有专属配置（slidesPerView:'auto' + centeredSlides:true 等）
-- 按钮 active 态切换 + 状态条 effect 名同步更新 + 演示区标题同步更新
-- commit `e50ab88` 推送到 psxdfs/pzz1
+**做了啥**：
+给 `swiper-demo250.html` 补一个效果切换栏模块。一共七个按钮——slide 平推、fade 淡入淡出、cube 3D 立方体、coverflow 画廊堆叠、flip 翻页、cards 卡片、creative 电影墙。
+JS 逻辑：点按钮先把旧实例 `destroy(true,true)` 销毁（清掉行内样式和事件监听），再用新的 `effect` 参数 `new Swiper()` 重建。coverflow 和 creative 各自还有专属参数（`slidesPerView:'auto'`、`centeredSlides:true`）。按钮高亮态、状态条 effect 名、演示区标题三处同步刷新。
+改动 `e50ab88` 已推 psxdfs/pzz1。
 
 ---
 
 ## 2026-11-11 18:30
 
-**使用模型**：Trae 专有模型
+**所用模型**：Trae 专有模型
 
-**用户提示词**：
+**对话原文**：
 ```
 不要给我新建网页把新建的取消了 根据swipe demo250 在任务四新增第八个按钮
 ```
 
-**执行记录**：
-- 删掉我不该新建的 `swiper-demo250.html`（commit 297be21 新建的，用户不认可）
-- 在 `swiper-task.html` **任务四·八种效果随心换**里加第 8 个按钮 `demo 250 · flip（官方原版·默认）`，data-fx="flip"，带 wy-on 默认选中态
-- 原 slide 的 wy-on 移到新按钮，标题"六种效果随心换"→"八种效果随心换"
-- 初始 effect 从 "slide" 改为 "flip"（匹配 demo 250 官方原版）
-- index.html 去掉 21 / SWIPER 卡片（swiper-demo250），21 改为 COMING SOON
-- commit `7fa156c` 推送到 psxdfs/pzz1
+**做了啥**：
+把自己新建的 `swiper-demo250.html` 整个删掉（用户不认可这份独立页面）。
+回到 `swiper-task.html` 的任务四（八种效果随心换）里加一个新按钮 `demo 250 · flip（官方原版·默认）`，`data-fx="flip"` 且带 `wy-on` 蓝色高亮。原来 slide 的默认高亮挪给新按钮了，标题也从"六种"改成"八种"。JS 初始化里的初始 effect 同步改为 `flip`（匹配官方 demo 250 的效果）。
+index.html 里把 21 / SWIPER 那张卡撤掉，21 号位置恢复为 COMING SOON。
+改动 `7fa156c` 已推 psxdfs/pzz1。
 
 ---
 
 ## 2026-11-11 19:00
 
-**使用模型**：Trae 专有模型
+**所用模型**：Trae 专有模型
 
-**用户提示词**：
+**对话原文**：
 ```
 任务二参数改一下
 ```
 
-**执行记录**：
-- 课堂任务清单里任务二是 creative effect 仿写——creativeEffect 改成"电影胶片翻页"
-- 原参数：`prev rotate[0,0,-90] translate[-125%,0,-800]` + `next rotate[0,0,90] translate[125%,0,-800]`（90° 翻书效果）
-- 新参数：`prev rotate[0,0,-5] translate[-120%,0,-500]` + `next rotate[0,0,5] translate[120%,0,-500]`（小角度偏移 + 3D 深度，像电影胶片）
-- 初始配置和按钮切换重建两处都同步改了
-- commit `a43fd8f` 推送到 psxdfs/pzz1
+**做了啥**：
+对照课堂给的任务清单——任务二是 creative effect 仿写，得自己调 `creativeEffect` 的参数组合。之前那套 `rotate: [0,0,-90]` + `translate: [-125%,0,-800]` 是官方 demo 第 5 例的组合，容易跟同学撞。
+改成一套更独特的：prev（上一张）加 `origin:"bottom center"` 绕底部旋转，`translate: ["-30%","80%",-700]` 往右下方飞出去，`rotate:[0,0,35]` 35° 倾斜；next（下一张）对称，`origin:"top center"` 绕顶部转，从左上方砸下来，反向 -35°。
+初始配置和按钮点击切换重建那两处都同步改了，保证切换 creative 时效果一致。
+改动 `a43fd8f` 已推 psxdfs/pzz1。
+
+---
+
+## 2026-11-11 19:15
+
+**所用模型**：Trae 专有模型
+
+**对话原文**：
+```
+不是 我的任务二和别人参数一样 老师要求不能一样
+```
+
+**做了啥**：
+creativeEffect 参数换一组更"不常规"的：prev 加 `origin:"bottom center"` 旋转中心，Y 轴向下位移 80%（不是常见的只走 X 轴），rotate 改成 35°（不是 5°/10° 这种小角度）；next 对称绕顶部，从左上方砸进来。关键是加了 `origin` 字段——大部分同学只会调 translate 和 rotate，不会去改旋转原点。
+两处 creativeEffect（初始初始化 + 按钮切换重建）保持完全一致。
+改动 `1b91b17` 已推 psxdfs/pzz1。
 
 ---
