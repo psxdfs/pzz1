@@ -4,7 +4,7 @@
     使用模型：Trae 专有模型
     功能名称及简介：任务一 · 效果对比（前 → 后）—— 红蓝两卡并排展示
       第一轮（粗糙提示词 · 圈了需求）vs 第二轮（精确提示词 · 补齐需求），
-      带真实图片 Swiper 效果 + 需求→参数对照表 + CDN 引入 Swiper
+      完全照搬 swiper-task.html 的图片渲染写法（它的 cube + img 一直正常）
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -12,82 +12,71 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>任务一 · 效果对比（前 → 后）</title>
-<!-- 和 swiper-task.html 保持完全一致的 CDN 引入，file:// 也能正常加载 -->
+<!-- 和 swiper-task.html 完全一致的 CDN -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f6f8fc;color:#1f2937;min-height:100vh}
 
-/* 顶部导航 */
 .topbar{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:14px 32px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e2d5c1}
 .topbar a{color:#2d3a2e;text-decoration:none;font-size:14px;font-weight:600}
-.topbar a:hover{color:#e9785c}
 .topbar .cfentry{padding:6px 14px;background:#245b4f;color:#fffdf8!important;border-radius:4px;font-size:13px}
 
 .wrap{max-width:1000px;margin:0 auto;padding:40px 20px 60px}
 .head{text-align:center;margin-bottom:30px}
-.head .badge{display:inline-block;padding:4px 12px;background:#e9785c;color:#fff;font-size:12px;border-radius:3px;margin-right:6px}
 .head h1{font-size:28px;color:#111827;margin-bottom:8px}
 .head p{color:#6b7280;font-size:14px}
 
-/* ======== 红蓝两卡并排 ======== */
+/* ======== 红蓝两卡 ======== */
 .compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px}
 @media(max-width:780px){.compare{grid-template-columns:1fr}}
 
-.card{border-radius:16px;padding:22px 22px 18px;position:relative;border:1px solid}
+.card{border-radius:16px;padding:20px 20px 16px;position:relative;border:1px solid}
 .card.bad{background:#fff5f5;border-color:#fecaca}
 .card.good{background:#f0fdf4;border-color:#bbf7d0}
-
-.card .card-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .card .num{font-size:18px;font-weight:700}
 .card.bad .num{color:#991b1b}
 .card.good .num{color:#166534}
-
-.card .tag{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:700;letter-spacing:1px}
+.card .tag{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:700}
 .card.bad .tag{background:#fecaca;color:#991b1b}
 .card.good .tag{background:#bbf7d0;color:#166534}
-
 .card h3{font-size:15px;margin-bottom:6px}
 .card.bad h3{color:#991b1b}
 .card.good h3{color:#166534}
-.card .prompt-text{font-size:12.5px;color:#6b7280;line-height:1.7;margin-bottom:14px;background:rgba(0,0,0,.04);padding:10px 12px;border-radius:6px;font-style:italic}
+.prompt-text{font-size:12.5px;color:#6b7280;line-height:1.7;margin-bottom:12px;background:rgba(0,0,0,.04);padding:10px 12px;border-radius:6px;font-style:italic}
 
-/* Swiper 容器 —— 用 background-image 而非 <img>，避免 cube 3D 因图片加载错位 */
-.swiper-box{width:100%;border-radius:10px;overflow:visible!important;box-shadow:0 6px 18px rgba(0,0,0,.1)}
-.swiper-box .swiper{width:100%;border-radius:10px;overflow:hidden}
-.swiper-box .swiper-slide{
-    position:relative;height:220px;
-    background-size:cover;background-position:center;background-repeat:no-repeat;
-    background-color:#374151; /* 加载前的兜底色 */
+/* ======== Swiper —— 完全照搬 swiper-task.html 能正常显示图片的写法 ======== */
+.my-swiper{width:100%;border-radius:12px;overflow:visible!important;margin:0}
+.my-swiper .swiper{border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+.my-swiper .swiper-slide{position:relative;height:200px}
+.my-swiper .swiper-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.my-swiper .cap{
+    position:absolute;left:0;right:0;bottom:0;
+    padding:24px 14px 10px;color:#fff;
+    background:linear-gradient(transparent,rgba(0,0,0,.75));
 }
-.swiper-box .cap{position:absolute;left:0;right:0;bottom:0;padding:18px 14px 10px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.75));font-size:12px}
-.swiper-box .cap h4{font-size:14px;font-weight:700;margin-bottom:2px;letter-spacing:1px}
-.swiper-box .swiper-pagination-bullet-active{background:#fff!important;opacity:1;width:16px;border-radius:6px}
-/* 防止 Swiper 给 slide 加的 inline style 盖掉背景 */
-.swiper-box .swiper-slide[style*="transform"]{background-size:cover!important;background-position:center!important}
-
-/* 点圆点测试提示 */
-.card .test-line{margin-top:10px;font-size:12px;color:#6b7280;padding:8px 12px;border-radius:6px}
-.card.bad .test-line{background:#fee2e2;color:#991b1b}
-.card.good .test-line{background:#dcfce7;color:#166534}
+.my-swiper .cap h4{font-size:14px;font-weight:700;margin-bottom:2px}
+.my-swiper .cap p{font-size:12px;opacity:.9}
+.my-swiper .swiper-pagination-bullet-active{background:#fff!important;opacity:1;width:16px;border-radius:6px}
 
 /* 状态行 */
 .status-row{margin-top:10px;font-size:11.5px;color:#6b7280;display:flex;gap:14px;flex-wrap:wrap}
 .status-row b{color:#111827}
+.card .test-line{margin-top:8px;font-size:12px;color:#6b7280;padding:8px 12px;border-radius:6px}
+.card.bad .test-line{background:#fee2e2;color:#991b1b}
+.card.good .test-line{background:#dcfce7;color:#166534}
 
 /* ======== 需求 → 参数对照表 ======== */
-.table-wrap{background:#fff;border-radius:14px;padding:22px 24px;margin-bottom:28px;border:1px solid #e5e7eb;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.table-wrap{background:#fff;border-radius:14px;padding:22px 24px;margin-bottom:28px;border:1px solid #e5e7eb}
 .table-wrap h2{font-size:17px;color:#111827;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .table-wrap h2::before{content:"";display:inline-block;width:4px;height:18px;background:#e9785c;border-radius:2px}
 table.req-table{width:100%;border-collapse:collapse;font-size:13.5px}
 table.req-table th,table.req-table td{padding:10px 14px;text-align:left;border-bottom:1px solid #f3f4f6}
 table.req-table th{background:#f9fafb;color:#374151;font-weight:600;font-size:12.5px}
-table.req-table td b{color:#111827}
 table.req-table td code{background:#f3f4f6;color:#7c3aed;padding:1px 7px;border-radius:4px;font-family:Consolas,monospace;font-size:12.5px}
-table.req-table tr:hover td{background:#fafafa}
 
-/* 页脚入口 */
 .footer-entry{text-align:center;padding:20px;background:#dce9df;border-radius:10px;border:1px dashed #245b4f}
 .footer-entry a{color:#245b4f;font-weight:600;text-decoration:underline dotted}
 .footer-entry p{font-size:12px;color:#6b7280;margin-top:6px}
@@ -102,70 +91,71 @@ table.req-table tr:hover td{background:#fafafa}
 
 <main class="wrap">
     <header class="head">
-        <span class="badge">效果 + 代码 + 验证</span>
         <h1>提示词工程 · 两轮换照</h1>
-        <p>以"圆点分页器可点击"为例：第 1 轮提示词只写"分页器"，AI 漏了 clickable；第 2 轮补一句"必须能点击跳转"，AI 立刻补上。上、下方两个轮播可直接操作验证。</p>
+        <p>同一组 Swiper 轮播图，第 1 轮提示词漏了 clickable，第 2 轮补一句立刻解决。上、下可直接操作验证。</p>
     </header>
 
     <!-- ======== 红蓝两卡 ======== -->
     <section class="compare">
 
-        <!-- 红卡：第一轮 · 圈了需求 -->
         <div class="card bad">
             <div class="card-title">
                 <span class="num">第 1 轮</span>
                 <span class="tag">圈了需求</span>
             </div>
             <h3>圆点只能看，不能点</h3>
-            <div class="prompt-text">💬 "帮我写一段 Swiper 配置，让轮播图能自动播放、循环滚动，用圆点分页器，翻页效果用 3D 的。"</div>
+            <div class="prompt-text">"帮我写一段 Swiper 配置，让轮播图能自动播放、循环滚动，用圆点分页器，翻页效果用 3D 的。"</div>
 
-            <div class="swiper-box" id="swiperBad">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide" style="background-image:url('swiper-imgs/tiangong_1.jpg')"><div class="cap"><h4>天宫空间站</h4>2022 年全面建成</div></div>
-                    <div class="swiper-slide" style="background-image:url('swiper-imgs/fuxing_1.jpg')"><div class="cap"><h4>复兴号动车组</h4>350 km/h · 世界商业最高</div></div>
-                    <div class="swiper-slide" style="background-image:url('swiper-imgs/c919_1.jpg')"><div class="cap"><h4>C919 大飞机</h4>2023 年商业首航</div></div>
-                    <div class="swiper-slide" style="background-image:url('swiper-imgs/fendouzhe_1.jpg')"><div class="cap"><h4>奋斗者号</h4>10909 米触底</div></div>
-                    <div class="swiper-slide" style="background-image:url('swiper-imgs/fast_1.jpg')"><div class="cap"><h4>中国天眼 FAST</h4>500 米口径</div></div>
+            <div class="my-swiper" id="swiperBad">
+                <div class="swiper">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="cap"><h4>天宫空间站</h4><p>2022 年全面建成 · 第 1 轮</p></div></div>
+                        <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="cap"><h4>复兴号动车组</h4><p>350 km/h · 第 1 轮</p></div></div>
+                        <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="cap"><h4>C919 大飞机</h4><p>2023 年商业首航 · 第 1 轮</p></div></div>
+                        <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="cap"><h4>奋斗者号</h4><p>10909 米触底 · 第 1 轮</p></div></div>
+                        <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="cap"><h4>中国天眼 FAST</h4><p>500 米口径 · 第 1 轮</p></div></div>
+                    </div>
+                    <div class="swiper-pagination"></div>
                 </div>
-                <div class="swiper-pagination"></div>
             </div>
 
             <div class="status-row">
-                <span>⏱ delay: <b>3000ms（默认）</b></span>
-                <span>🔁 <b>autoplay:true</b> 永远循环</span>
+                <span>⏱ <b>3000ms 默认</b></span>
+                <span>🔁 <b>loop:true 无限循环</b></span>
                 <span>📍 <b id="badIdx">1 / 5</b></span>
                 <span>⏳ <b id="badTime">0.0s</b></span>
             </div>
-            <div class="test-line">⚠ 第 1 轮漏掉了 <code>clickable:true</code>，圆点只是装饰，点了没反应</div>
+            <div class="test-line">⚠ 漏了 <code>clickable:true</code>，圆点不能跳</div>
         </div>
 
-        <!-- 绿卡：第二轮 · 补齐需求 -->
         <div class="card good">
             <div class="card-title">
                 <span class="num">第 2 轮</span>
                 <span class="tag">补齐需求</span>
             </div>
             <h3>圆点是遥控器，不是装饰</h3>
-            <div class="prompt-text">💬 "用 Swiper 8 写法：① loop:true 无缝循环 ② autoplay delay=3200 + stopOnLastSlide:true ③ pagination clickable:true ④ effect:'cube'。同一个 AI，只把需求说清楚，立刻补上 clickable。"</div>
+            <div class="prompt-text">"Swiper 8 写法：① loop:true ② delay:3200 + stopOnLastSlide:true ③ pagination clickable:true ④ effect:cube"</div>
 
-            <div class="swiper-box" id="swiperGood">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide" style="background-image:url('swiper-imgs/tiangong_1.jpg')"><div class="cap"><h4>天宫空间站</h4>三舱结构 · 神舟乘组常年值守</div></div>
-                    <div class="swiper-slide" style="background-image:url('swiper-imgs/fuxing_1.jpg')"><div class="cap"><h4>复兴号动车组</h4>京张高铁智能驾驶</div></div>
-                    <div class="swiper-slide" style="background-image:url('swiper-imgs/c919_1.jpg')"><div class="cap"><h4>C919 大飞机</h4>让中国人的大飞机梦照进现实</div></div>
-                    <div class="swiper-slide" style="background-image:url('swiper-imgs/fendouzhe_1.jpg')"><div class="cap"><h4>奋斗者号</h4>深海探测进入"中国时代"</div></div>
-                    <div class="swiper-slide" style="background-image:url('swiper-imgs/fast_1.jpg')"><div class="cap"><h4>中国天眼 FAST</h4>南仁东先生 22 年铸就</div></div>
+            <div class="my-swiper" id="swiperGood">
+                <div class="swiper">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="cap"><h4>天宫空间站</h4><p>三舱结构 · 第 2 轮</p></div></div>
+                        <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="cap"><h4>复兴号动车组</h4><p>京张高铁智能驾驶 · 第 2 轮</p></div></div>
+                        <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="cap"><h4>C919 大飞机</h4><p>让大飞机梦照进现实 · 第 2 轮</p></div></div>
+                        <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="cap"><h4>奋斗者号</h4><p>深海探测进入中国时代 · 第 2 轮</p></div></div>
+                        <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="cap"><h4>中国天眼 FAST</h4><p>南仁东先生 22 年铸就 · 第 2 轮</p></div></div>
+                    </div>
+                    <div class="swiper-pagination"></div>
                 </div>
-                <div class="swiper-pagination"></div>
             </div>
 
             <div class="status-row">
-                <span>⏱ delay: <b>3200ms（精确指定）</b></span>
-                <span>🔁 <b>stopOnLastSlide:true</b> 一轮后停</span>
+                <span>⏱ <b>3200ms 精确指定</b></span>
+                <span>🔁 <b>stopOnLastSlide:true 一轮后停</b></span>
                 <span>📍 <b id="goodIdx">1 / 5</b></span>
                 <span>⏳ <b id="goodTime">0.0s</b></span>
             </div>
-            <div class="test-line">✅ 第 2 轮给了 <code>clickable:true</code>，点第 3 个圆点 → 立刻跳到第 3 张</div>
+            <div class="test-line">✅ 加了 <code>clickable:true</code>，点第 3 个圆点 → 跳到第 3 张</div>
         </div>
     </section>
 
@@ -195,60 +185,58 @@ table.req-table tr:hover td{background:#fafafa}
 
 <script>
 /* 作者：朴哲震 | 建立时间：2026-11-11 15:30 | 使用模型：Trae 专有模型
-   功能：用 background-image 而非 <img>，彻底避免 cube 3D 因图片加载错位
-   slide 高度固定 220px，Swiper 按最终尺寸初始化，background-size:cover 自适应 */
+   功能：updateOnImagesReady:true 让 Swiper 等所有 slide 图片加载完再初始化尺寸
+   这是 Swiper 官方提供的图片轮播专用选项 —— swiper-task.html 就是这么用的 */
 
-initSwipers();
+var swiperBad, swiperGood;
 
-function initSwipers() {
-    var swiperBad, swiperGood;
-
-    swiperBad = new Swiper('#swiperBad', {
-        loop: true,
-        autoplay: { delay: 3000, disableOnInteraction: false },
-        effect: 'cube',
-        cubeEffect: { slideShadows: true, shadow: true },
-        pagination: { el: '#swiperBad .swiper-pagination', clickable: true },
-        on: {
-            slideChange: function () {
-                document.getElementById('badIdx').textContent =
-                    (swiperBad.realIndex + 1) + ' / ' + swiperBad.slides.length;
-            },
+swiperBad = new Swiper('#swiperBad .swiper', {
+    loop: true,
+    autoplay: { delay: 3000, disableOnInteraction: false },
+    effect: 'cube',
+    cubeEffect: { slideShadows: true, shadow: true },
+    pagination: { clickable: true },
+    updateOnImagesReady: true,
+    on: {
+        slideChange: function () {
+            document.getElementById('badIdx').textContent =
+                (swiperBad.realIndex + 1) + ' / ' + swiperBad.slides.length;
         },
-    });
+    },
+});
 
-    swiperGood = new Swiper('#swiperGood', {
-        loop: false,
-        effect: 'cube',
-        cubeEffect: { slideShadows: false, shadow: false },
-        autoplay: {
-            delay: 3200,
-            stopOnLastSlide: true,
-            disableOnInteraction: false,
+swiperGood = new Swiper('#swiperGood .swiper', {
+    loop: false,
+    effect: 'cube',
+    cubeEffect: { slideShadows: false, shadow: false },
+    autoplay: {
+        delay: 3200,
+        stopOnLastSlide: true,
+        disableOnInteraction: false,
+    },
+    pagination: { clickable: true },
+    updateOnImagesReady: true,
+    on: {
+        slideChange: function () {
+            document.getElementById('goodIdx').textContent =
+                (swiperGood.activeIndex + 1) + ' / ' + swiperGood.slides.length;
         },
-        pagination: { el: '#swiperGood .swiper-pagination', clickable: true },
-        on: {
-            slideChange: function () {
-                document.getElementById('goodIdx').textContent =
-                    (swiperGood.activeIndex + 1) + ' / ' + swiperGood.slides.length;
-            },
-            autoplayStop: function () {
-                document.getElementById('goodIdx').textContent += '（已停）';
-            },
+        autoplayStop: function () {
+            document.getElementById('goodIdx').textContent += '（已停）';
         },
-    });
+    },
+});
 
-    function startTimer(swiper, el) {
-        var t = 0;
-        var timer = setInterval(function () {
-            t += 0.1;
-            el.textContent = t.toFixed(1) + 's';
-            if (!swiper.autoplay.running) clearInterval(timer);
-        }, 100);
-    }
-    startTimer(swiperBad, document.getElementById('badTime'));
-    startTimer(swiperGood, document.getElementById('goodTime'));
+function startTimer(swiper, el) {
+    var t = 0;
+    var timer = setInterval(function () {
+        t += 0.1;
+        el.textContent = t.toFixed(1) + 's';
+        if (!swiper.autoplay.running) clearInterval(timer);
+    }, 100);
 }
+startTimer(swiperBad, document.getElementById('badTime'));
+startTimer(swiperGood, document.getElementById('goodTime'));
 </script>
 </body>
 </html>
