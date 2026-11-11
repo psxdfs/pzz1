@@ -394,3 +394,22 @@ https://spontaneous-valkyrie-4e4229.netlify.app/swiper-lesson 参考该网页的
 ```
 
 ---
+
+## 2026-11-11 16:30
+
+**使用模型**：Trae 专有模型
+
+**用户提示词**：
+```
+任务三新加swiper demo250
+```
+
+**执行记录**：
+- 查项目里的 swiper/demo/ 目录，发现有 `250-effect-flip.html`（flip 3D 翻牌效果）
+- 新建 `swiper-demo250.html`，完全基于官方 demo250 改写为项目风格
+- 效果：flip 翻牌 + 6 张飞机图片 + loop + autoplay 3.2s + 左右箭头 + 圆点分页器
+- 加了代码展示区（深色代码框带语法配色）、三卡参数说明、顶部 pzz-prompt 入口、底部入口
+- 更新 index.html 加第 21 号卡片，原 COMING SOON 顺延为第 22 号
+- commit `297be21` 推送到 psxdfs/pzz1
+
+---
