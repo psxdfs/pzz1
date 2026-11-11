@@ -292,11 +292,11 @@
         thresholdTime: 200,      // 200ms 内的连续滚动只算一次：防止高速滚动连翻多张
         releaseOnEdges: true,    // 到达边界时把滚轮还给页面（loop 模式无边界，主要对非 loop 生效）
       },
-      // creative（电影墙）专属参数——课堂任务二 creative 仿写要求：
-      // prev 上一张缩小左移带角度、next 下一张从右边放大进场（像电影胶片翻页）
+      // creative（电影墙）专属参数——课堂任务二 creative 仿写，参数调独特不撞款：
+      // prev 上一张往右后方飞出+绕底部中心旋转退场；next 从上方砸下来+绕顶部中心旋转进场
       creativeEffect: {
-        prev: { shadow: true, translate: ["-120%", 0, -500], rotate: [0, 0, -5] },
-        next: { shadow: true, translate: ["120%", 0, -500], rotate: [0, 0, 5] },
+        prev: { shadow: true, origin: "bottom center", translate: ["-30%", "80%", -700], rotate: [0, 0, 35] },
+        next: { shadow: true, origin: "top center",    translate: ["30%", "-80%", -700], rotate: [0, 0, -35] },
       },
     });
 
@@ -334,10 +334,10 @@
           thresholdTime: 200,
           releaseOnEdges: true,
         },
-        // creative（电影墙）专属参数——课堂任务二 creative 仿写：prev 左移带角度、next 右移进场
+        // creative（电影墙）专属参数——课堂任务二 creative 仿写，参数调独特不撞款：
         creativeEffect: {
-          prev: { shadow: true, translate: ["-120%", 0, -500], rotate: [0, 0, -5] },
-          next: { shadow: true, translate: ["120%", 0, -500], rotate: [0, 0, 5] },
+          prev: { shadow: true, origin: "bottom center", translate: ["-30%", "80%", -700], rotate: [0, 0, 35] },
+          next: { shadow: true, origin: "top center",    translate: ["30%", "-80%", -700], rotate: [0, 0, -35] },
         },
       });
 
