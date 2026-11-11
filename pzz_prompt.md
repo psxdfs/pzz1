@@ -473,3 +473,21 @@ https://spontaneous-valkyrie-4e4229.netlify.app/swiper-lesson 参考该网页的
 - commit `7fa156c` 推送到 psxdfs/pzz1
 
 ---
+
+## 2026-11-11 19:00
+
+**使用模型**：Trae 专有模型
+
+**用户提示词**：
+```
+任务二参数改一下
+```
+
+**执行记录**：
+- 课堂任务清单里任务二是 creative effect 仿写——creativeEffect 改成"电影胶片翻页"
+- 原参数：`prev rotate[0,0,-90] translate[-125%,0,-800]` + `next rotate[0,0,90] translate[125%,0,-800]`（90° 翻书效果）
+- 新参数：`prev rotate[0,0,-5] translate[-120%,0,-500]` + `next rotate[0,0,5] translate[120%,0,-500]`（小角度偏移 + 3D 深度，像电影胶片）
+- 初始配置和按钮切换重建两处都同步改了
+- commit `a43fd8f` 推送到 psxdfs/pzz1
+
+---
