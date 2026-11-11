@@ -292,10 +292,11 @@
         thresholdTime: 200,      // 200ms 内的连续滚动只算一次：防止高速滚动连翻多张
         releaseOnEdges: true,    // 到达边界时把滚轮还给页面（loop 模式无边界，主要对非 loop 生效）
       },
-      // creative（电影墙）专属参数，参考官方 demo 257-effect-creative 第 5 例；仅 effect="creative" 时生效
+      // creative（电影墙）专属参数——课堂任务二 creative 仿写要求：
+      // prev 上一张缩小左移带角度、next 下一张从右边放大进场（像电影胶片翻页）
       creativeEffect: {
-        prev: { shadow: true, translate: ["-125%", 0, -800], rotate: [0, 0, -90] },
-        next: { shadow: true, translate: ["125%", 0, -800], rotate: [0, 0, 90] },
+        prev: { shadow: true, translate: ["-120%", 0, -500], rotate: [0, 0, -5] },
+        next: { shadow: true, translate: ["120%", 0, -500], rotate: [0, 0, 5] },
       },
     });
 
@@ -333,10 +334,10 @@
           thresholdTime: 200,
           releaseOnEdges: true,
         },
-        // creative（电影墙）专属参数，与初始配置保持一致（其它效果会忽略它）
+        // creative（电影墙）专属参数——课堂任务二 creative 仿写：prev 左移带角度、next 右移进场
         creativeEffect: {
-          prev: { shadow: true, translate: ["-125%", 0, -800], rotate: [0, 0, -90] },
-          next: { shadow: true, translate: ["125%", 0, -800], rotate: [0, 0, 90] },
+          prev: { shadow: true, translate: ["-120%", 0, -500], rotate: [0, 0, -5] },
+          next: { shadow: true, translate: ["120%", 0, -500], rotate: [0, 0, 5] },
         },
       });
 
