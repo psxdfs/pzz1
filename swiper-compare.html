@@ -67,21 +67,39 @@
         .pzz_compare .col_old::before { content: "修改前 · 第一轮（粗糙）"; background: #ef4444; }
         .pzz_compare .col_new::before { content: "修改后 · 第二轮（精确）"; background: #22c55e; }
 
-        /* Swiper 容器 */
+        /* Swiper 容器 —— 关键：3D perspective + cube 高度 */
         .pzz_swiper {
-            width: 100%; height: 240px;
-            border-radius: 6px; overflow: hidden;
+            width: 100%; height: 260px;
+            border-radius: 6px; overflow: visible;
             margin-top: 8px;
+            perspective: 1200px;           /* ← 3D 透视，cube 翻转的核心 */
+        }
+        .pzz_swiper .swiper {
+            width: 100%; height: 100%;
+        }
+        .pzz_swiper .swiper-wrapper {
+            transform-style: preserve-3d;  /* ← 让子元素保持 3D */
         }
         .pzz_swiper .swiper-slide {
             display: flex; align-items: center; justify-content: center;
-            font-size: 26px; font-weight: 700; color: #fff;
+            font-size: 22px; font-weight: 700; color: #fff;
+            border-radius: 4px;
+            /* 每个 slide 加渐变+序号，让用户一眼看出"翻了" */
+            text-shadow: 2px 2px 6px rgba(0,0,0,.3);
+            box-shadow: 0 6px 20px rgba(0,0,0,.18);
         }
-        .pzz_swiper .swiper-slide:nth-child(1) { background: #e9785c; }
-        .pzz_swiper .swiper-slide:nth-child(2) { background: #245b4f; }
-        .pzz_swiper .swiper-slide:nth-child(3) { background: #f59e0b; }
-        .pzz_swiper .swiper-slide:nth-child(4) { background: #7c3aed; }
-        .pzz_swiper .swiper-slide:nth-child(5) { background: #0ea5e9; }
+        .pzz_swiper .swiper-slide::after {
+            /* 右下角大序号，cube 翻转时能看到数字在侧面 */
+            content: attr(data-num);
+            position: absolute; right: 20px; bottom: 10px;
+            font-size: 60px; font-weight: 900;
+            opacity: .25; letter-spacing: -4px;
+        }
+        .pzz_swiper .swiper-slide:nth-child(1) { background: linear-gradient(135deg, #e9785c, #c44536); position: relative; }
+        .pzz_swiper .swiper-slide:nth-child(2) { background: linear-gradient(135deg, #245b4f, #163a30); position: relative; }
+        .pzz_swiper .swiper-slide:nth-child(3) { background: linear-gradient(135deg, #f59e0b, #b45309); position: relative; }
+        .pzz_swiper .swiper-slide:nth-child(4) { background: linear-gradient(135deg, #7c3aed, #4c1d95); position: relative; }
+        .pzz_swiper .swiper-slide:nth-child(5) { background: linear-gradient(135deg, #0ea5e9, #0369a1); position: relative; }
         .pzz_swiper .swiper-pagination-bullet-active { background: #e9785c; }
 
         /* 信息面板 */
@@ -156,11 +174,11 @@
             <div class="pzz_col col_old">
                 <div class="pzz_swiper" id="oldSwiper">
                     <div class="swiper-wrapper">
-                        <div class="swiper-slide">Slide 1</div>
-                        <div class="swiper-slide">Slide 2</div>
-                        <div class="swiper-slide">Slide 3</div>
-                        <div class="swiper-slide">Slide 4</div>
-                        <div class="swiper-slide">Slide 5</div>
+                        <div class="swiper-slide" data-num="01">Cube Face 1<br><span style="font-size:12px;opacity:.7;">红色 · 第一面</span></div>
+                        <div class="swiper-slide" data-num="02">Cube Face 2<br><span style="font-size:12px;opacity:.7;">墨绿 · 第二面</span></div>
+                        <div class="swiper-slide" data-num="03">Cube Face 3<br><span style="font-size:12px;opacity:.7;">橙色 · 第三面</span></div>
+                        <div class="swiper-slide" data-num="04">Cube Face 4<br><span style="font-size:12px;opacity:.7;">紫色 · 第四面</span></div>
+                        <div class="swiper-slide" data-num="05">Cube Face 5<br><span style="font-size:12px;opacity:.7;">蓝色 · 第五面</span></div>
                     </div>
                     <div class="swiper-pagination"></div>
                 </div>
@@ -185,11 +203,11 @@
             <div class="pzz_col col_new">
                 <div class="pzz_swiper" id="newSwiper">
                     <div class="swiper-wrapper">
-                        <div class="swiper-slide">Slide 1</div>
-                        <div class="swiper-slide">Slide 2</div>
-                        <div class="swiper-slide">Slide 3</div>
-                        <div class="swiper-slide">Slide 4</div>
-                        <div class="swiper-slide">Slide 5</div>
+                        <div class="swiper-slide" data-num="01">Cube Face 1<br><span style="font-size:12px;opacity:.7;">红色 · 第一面</span></div>
+                        <div class="swiper-slide" data-num="02">Cube Face 2<br><span style="font-size:12px;opacity:.7;">墨绿 · 第二面</span></div>
+                        <div class="swiper-slide" data-num="03">Cube Face 3<br><span style="font-size:12px;opacity:.7;">橙色 · 第三面</span></div>
+                        <div class="swiper-slide" data-num="04">Cube Face 4<br><span style="font-size:12px;opacity:.7;">紫色 · 第四面</span></div>
+                        <div class="swiper-slide" data-num="05">Cube Face 5<br><span style="font-size:12px;opacity:.7;">蓝色 · 第五面</span></div>
                     </div>
                     <div class="swiper-pagination"></div>
                 </div>
@@ -230,62 +248,72 @@
     <script>
         /* 作者：朴哲震 | 建立时间：2026-11-11 15:30 | 使用模型：Trae 专有模型
            功能：对比页两个 Swiper 实例
-           oldSwiper：粗糙配置，autoplay:true 默认 3s 无限循环
-           newSwiper：精确配置，delay:3200 + stopOnLastSlide:true 一轮后停
-           每 100ms 更新状态面板的播放时长与当前 slide */
+           oldSwiper：loop:true + autoplay:true（默认 3s 无限循环）
+           newSwiper：loop:false + delay:3200 + stopOnLastSlide:true（一轮后停）
+           ⚠ stopOnLastSlide 只能在 loop:false 时生效！*/
 
-        // ---- 左边：修改前 · 粗糙 ----
-        const oldSwiper = new Swiper('#oldSwiper', {
+        // ---- 左边：修改前 · 粗糙（loop + 默认 autoplay） ----
+        var oldEl = document.getElementById('oldSwiper');
+        var oldTimeEl = document.getElementById('old_time');
+        var oldIdxEl  = document.getElementById('old_idx');
+        var oldStopEl = document.getElementById('old_stop');
+
+        const oldSwiper = new Swiper(oldEl, {
             loop: true,
-            autoplay: true,
-            pagination: { clickable: true },
+            autoplay: { delay: 3000, disableOnInteraction: false },
             effect: 'cube',
+            cubeEffect: { slideShadows: true, shadow: true },
+            pagination: { el: oldEl.querySelector('.swiper-pagination'), clickable: true },
             on: {
-                init: function () { startTimer('old', oldSwiper, 0); },
-                slideChange: function () {
-                    document.getElementById('old_idx').textContent =
-                        (oldSwiper.realIndex + 1) + ' / ' + oldSwiper.slides.length;
+                slideChangeTransitionEnd: function () {
+                    oldIdxEl.textContent = (oldSwiper.realIndex + 1) + ' / ' + oldSwiper.slides.length;
                 },
             },
         });
 
-        // ---- 右边：修改后 · 精确 ----
-        const newSwiper = new Swiper('#newSwiper', {
+        // ---- 右边：修改后 · 精确（no loop + 3.2s + stop） ----
+        var newEl = document.getElementById('newSwiper');
+        var newTimeEl = document.getElementById('new_time');
+        var newIdxEl  = document.getElementById('new_idx');
+        var newStopEl = document.getElementById('new_stop');
+
+        const newSwiper = new Swiper(newEl, {
+            loop: false,                              /* ← 关键：必须 false 才能 stopOnLastSlide */
             effect: 'cube',
-            cubeEffect: { slideShadows: false },
-            loop: true,
+            cubeEffect: { slideShadows: false, shadow: false },
             autoplay: {
                 delay: 3200,
-                stopOnLastSlide: true,
+                stopOnLastSlide: true,               /* ← 只有 loop:false 时生效 */
                 disableOnInteraction: false,
             },
-            pagination: { el: '.swiper-pagination', clickable: true },
+            pagination: { el: newEl.querySelector('.swiper-pagination'), clickable: true },
             on: {
-                init: function () { startTimer('new', newSwiper, 2); },
-                slideChange: function () {
-                    document.getElementById('new_idx').textContent =
-                        (newSwiper.realIndex + 1) + ' / ' + newSwiper.slides.length;
+                slideChangeTransitionEnd: function () {
+                    newIdxEl.textContent = (newSwiper.activeIndex + 1) + ' / ' + newSwiper.slides.length;
+                },
+                autoplayStop: function () {
+                    newStopEl.textContent = '✅ 一轮后停止（已停）';
+                    newStopEl.classList.remove('running');
+                    newStopEl.classList.add('stop');
                 },
             },
         });
 
-        /* 通用计时器：更新播放时长 + 自动停止状态 */
-        function startTimer(prefix, swiper, totalSlides) {
+        /* 计时器：每 100ms 更新已播放时长 */
+        function startTimer(swiper, timeEl) {
             var t = 0;
             var timer = setInterval(function () {
                 t += 0.1;
-                document.getElementById(prefix + '_time').textContent = t.toFixed(1) + ' s';
-                if (!swiper.autoplay.running) {
-                    clearInterval(timer);
-                    var el = document.getElementById(prefix + '_stop');
-                    el.textContent = prefix === 'old'
-                        ? '❌ 永远循环（还在跑）'
-                        : '✅ 一轮后停止（已停）';
-                    el.classList.remove('running');
-                    el.classList.add('stop');
-                }
+                timeEl.textContent = t.toFixed(1) + ' s';
+                if (!swiper.autoplay.running) clearInterval(timer);
             }, 100);
         }
+        startTimer(oldSwiper, oldTimeEl);
+        startTimer(newSwiper, newTimeEl);
+
+        // 初始化索引显示
+        oldIdxEl.textContent = '1 / ' + oldSwiper.slides.length;
+        newIdxEl.textContent = '1 / ' + newSwiper.slides.length;
     </script>
 </body>
 </html>
