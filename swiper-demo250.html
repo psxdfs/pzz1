@@ -126,15 +126,16 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f6f8fc;c
 
   <!-- ======== 第 8 个模块：效果切换栏 ======== -->
   <div class="effect-switch">
-    <h3>🎛 一键切换 7 种翻页效果（点按钮即时生效）</h3>
+    <h3>🎛 一键切换 8 种翻页效果（点按钮即时生效）</h3>
     <div class="row">
       <button class="ebtn" data-fx="slide">slide 平推<small>默认·稳重</small></button>
       <button class="ebtn" data-fx="fade">fade 淡入淡出<small>优雅</small></button>
       <button class="ebtn" data-fx="cube">cube 3D 立方体<small>炫酷</small></button>
       <button class="ebtn" data-fx="coverflow">coverflow 画廊堆叠<small>沉浸</small></button>
-      <button class="ebtn active" data-fx="flip">flip 翻页<small>复古</small></button>
+      <button class="ebtn" data-fx="flip">flip 翻页<small>复古</small></button>
       <button class="ebtn" data-fx="cards">cards 卡片<small>俏皮</small></button>
       <button class="ebtn" data-fx="creative">creative 电影墙<small>进阶</small></button>
+      <button class="ebtn active" data-fx="flip">demo 250 · flip<small>官方原版</small></button>
     </div>
   </div>
 
@@ -288,16 +289,18 @@ function pzz_makeSwiper(fx) {
   swiperFlip = new Swiper("#flipSwiper", opts);
 }
 
-/* 效果切换按钮绑定 */
+/* 效果切换按钮绑定（第 8 个按钮 demo 250 · flip 和原 flip 都是 data-fx="flip"，用按钮自身判断 active） */
 function pzz_bindEffectSwitch() {
   var btns = document.querySelectorAll('.effect-switch .ebtn');
+  var activeBtn = document.querySelector('.effect-switch .ebtn.active');
   btns.forEach(function (btn) {
     btn.addEventListener('click', function () {
       var fx = btn.getAttribute('data-fx');
-      if (fx === currentFx) return;
+      if (btn === activeBtn) return;
       // 更新按钮 active 态
       btns.forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
+      activeBtn = btn;
       // 更新状态条
       var names = { slide: '平推', fade: '淡入淡出', cube: '3D 立方体', coverflow: '画廊堆叠', flip: '翻页', cards: '卡片', creative: '电影墙' };
       document.querySelector('.status-bar b:nth-of-type(2)').textContent = fx + '（' + (names[fx] || fx) + '）';
