@@ -1,242 +1,181 @@
-<!--
-    作者：朴哲震
-    建立时间：2026-11-11 15:30
-    使用模型：Trae 专有模型
-    功能名称及简介：任务一 · 效果对比（前 → 后）—— 红蓝两卡并排展示
-      第一轮（粗糙提示词 · 圈了需求）vs 第二轮（精确提示词 · 补齐需求），
-      完全照搬 swiper-task.html 的图片渲染写法（它的 cube + img 一直正常）
--->
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>任务一 · 效果对比（前 → 后）</title>
-<!-- 和 swiper-task.html 完全一致的 CDN -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<title>任务一 · 切换效果修改前后对比（cube → slide）</title>
+<!--
+  作者：朴哲震
+  建立时间：2026-11-11 16:00
+  使用模型：Trae 专有模型
+  功能名称及简介：任务一 · 切换效果修改前后对比（cube → slide）—— 红蓝两卡并排展示，
+  左边是 cube 3D 立方体效果，右边是修正后的 slide 平推效果，带真实飞机图片 + pzz-prompt 入口
+-->
+<!-- Swiper 组件库（本地资源，与 swiper-task.html 同版本 v11，保证两种效果表现一致） -->
+<link rel="stylesheet" href="swiper/swiper-bundle.min.css">
+<script src="swiper/swiper-bundle.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f6f8fc;color:#1f2937;min-height:100vh}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#f6f8fc;color:#1f2937;line-height:1.9}
+  .pzz_wrap{max-width:1100px;margin:0 auto;padding:40px 20px 60px}
 
-.topbar{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:14px 32px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e2d5c1}
-.topbar a{color:#2d3a2e;text-decoration:none;font-size:14px;font-weight:600}
-.topbar .cfentry{padding:6px 14px;background:#245b4f;color:#fffdf8!important;border-radius:4px;font-size:13px}
+  /* 头部 */
+  .pzz_head{background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:20px;padding:34px 38px;color:#fff;margin-bottom:26px;box-shadow:0 12px 30px rgba(15,43,91,.3)}
+  .pzz_head .pzz_badge{display:inline-block;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font-size:13px;letter-spacing:2px;margin-bottom:14px}
+  .pzz_head h1{font-size:28px;letter-spacing:1px;line-height:1.5}
+  .pzz_head h1 b{color:#ffd166}
+  .pzz_head p{margin-top:10px;font-size:14.5px;color:#d9e3f5}
 
-.wrap{max-width:1000px;margin:0 auto;padding:40px 20px 60px}
-.head{text-align:center;margin-bottom:30px}
-.head h1{font-size:28px;color:#111827;margin-bottom:8px}
-.head p{color:#6b7280;font-size:14px}
+  /* 对比双栏 */
+  .pzz_compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+  .pzz_box{background:#fff;border:1px solid #e8ecf5;border-radius:18px;padding:20px 22px 22px;box-shadow:0 4px 14px rgba(31,41,55,.06);position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .pzz_box::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(#0f2b5b,#1d5bbf)}
+  .pzz_box.pzz_after::before{background:linear-gradient(#b45309,#f59e0b)}
+  .pzz_box h2{font-size:17px;color:#111827;margin-bottom:2px}
+  .pzz_box h2 .pzz_no{display:inline-flex;width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,#0f2b5b,#1d5bbf);color:#fff;font-size:13px;font-weight:bold;align-items:center;justify-content:center;margin-right:9px;vertical-align:-5px}
+  .pzz_after h2 .pzz_no{background:linear-gradient(135deg,#b45309,#f59e0b)}
+  .pzz_box .pzz_sub{font-size:12.5px;color:#9ca3af;margin-bottom:12px}
+  .pzz_box .pzz_sub code{background:#eef2ff;color:#1d4ed8;padding:1px 6px;border-radius:5px;font-family:Consolas,monospace;font-size:12px}
 
-/* ======== 红蓝两卡 ======== */
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px}
-@media(max-width:780px){.compare{grid-template-columns:1fr}}
+  /* Swiper 展示台（外层装饰、内层 .swiper 结构，与 swiper-task.html 一致） */
+  .pzz_swiper{width:100%}
+  .pzz_swiper .swiper{border-radius:14px;box-shadow:0 10px 26px rgba(15,43,91,.16)}
+  .pzz_swiper .swiper-slide{position:relative;height:250px}
+  .pzz_swiper .swiper-slide img{width:100%;height:100%;object-fit:cover;display:block}
+  .pzz_swiper .pzz_cap{position:absolute;left:0;right:0;bottom:0;padding:30px 16px 12px;color:#fff;background:linear-gradient(transparent,rgba(5,15,35,.82))}
+  .pzz_swiper .pzz_cap h3{font-size:16px;letter-spacing:1px}
+  .pzz_swiper .pzz_cap p{font-size:12px;color:#dbe6f8;margin-top:3px}
+  .pzz_swiper .swiper-pagination-bullet{background:#0f2b5b;opacity:.35}
+  .pzz_swiper .swiper-pagination-bullet-active{background:#e8890c;opacity:1;width:20px;border-radius:5px}
 
-.card{border-radius:16px;padding:20px 20px 16px;position:relative;border:1px solid}
-.card.bad{background:#fff5f5;border-color:#fecaca}
-.card.good{background:#f0fdf4;border-color:#bbf7d0}
-.card-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.card .num{font-size:18px;font-weight:700}
-.card.bad .num{color:#991b1b}
-.card.good .num{color:#166534}
-.card .tag{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:700}
-.card.bad .tag{background:#fecaca;color:#991b1b}
-.card.good .tag{background:#bbf7d0;color:#166534}
-.card h3{font-size:15px;margin-bottom:6px}
-.card.bad h3{color:#991b1b}
-.card.good h3{color:#166534}
-.prompt-text{font-size:12.5px;color:#6b7280;line-height:1.7;margin-bottom:12px;background:rgba(0,0,0,.04);padding:10px 12px;border-radius:6px;font-style:italic}
+  /* 展示框下面的日志 */
+  .pzz_log{margin-top:14px;background:#f0f5ff;border-left:3px solid #1d5bbf;border-radius:10px;padding:12px 16px;font-size:13.5px;color:#374151}
+  .pzz_after .pzz_log{background:#fff7ed;border-left-color:#f59e0b}
+  .pzz_log .pzz_log_time{display:block;font-size:12px;color:#6b7280;margin-bottom:4px;font-family:Consolas,monospace}
+  .pzz_log q{quotes:"「" "」";color:#111827}
 
-/* ======== Swiper —— 完全照搬 swiper-task.html 能正常显示图片的写法 ======== */
-.my-swiper{width:100%;border-radius:12px;overflow:visible!important;margin:0}
-.my-swiper .swiper{border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.12)}
-.my-swiper .swiper-slide{position:relative;height:200px}
-.my-swiper .swiper-slide img{width:100%;height:100%;object-fit:cover;display:block}
-.my-swiper .cap{
-    position:absolute;left:0;right:0;bottom:0;
-    padding:24px 14px 10px;color:#fff;
-    background:linear-gradient(transparent,rgba(0,0,0,.75));
-}
-.my-swiper .cap h4{font-size:14px;font-weight:700;margin-bottom:2px}
-.my-swiper .cap p{font-size:12px;opacity:.9}
-.my-swiper .swiper-pagination-bullet-active{background:#fff!important;opacity:1;width:16px;border-radius:6px}
+  /* 底部总结 */
+  .pzz_final{background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:18px;padding:22px 30px;color:#fff;font-size:15px;line-height:2.1;margin-top:26px}
+  .pzz_final b{color:#ffd166}
 
-/* 状态行 */
-.status-row{margin-top:10px;font-size:11.5px;color:#6b7280;display:flex;gap:14px;flex-wrap:wrap}
-.status-row b{color:#111827}
-.card .test-line{margin-top:8px;font-size:12px;color:#6b7280;padding:8px 12px;border-radius:6px}
-.card.bad .test-line{background:#fee2e2;color:#991b1b}
-.card.good .test-line{background:#dcfce7;color:#166534}
+  /* 回首页 */
+  .pzz_home_link{display:inline-block;text-decoration:none;color:#0f2b5b;font-size:14.5px;font-weight:bold;background:#fff;border:1px solid #dbe4ff;border-radius:999px;padding:10px 26px;transition:transform .2s,box-shadow .2s}
+  .pzz_home_link:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,43,91,.15)}
+  .pzz_back{text-align:center;margin-top:28px}
+  footer{text-align:center;margin-top:30px;color:#9ca3af;font-size:13px}
 
-/* ======== 需求 → 参数对照表 ======== */
-.table-wrap{background:#fff;border-radius:14px;padding:22px 24px;margin-bottom:28px;border:1px solid #e5e7eb}
-.table-wrap h2{font-size:17px;color:#111827;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.table-wrap h2::before{content:"";display:inline-block;width:4px;height:18px;background:#e9785c;border-radius:2px}
-table.req-table{width:100%;border-collapse:collapse;font-size:13.5px}
-table.req-table th,table.req-table td{padding:10px 14px;text-align:left;border-bottom:1px solid #f3f4f6}
-table.req-table th{background:#f9fafb;color:#374151;font-weight:600;font-size:12.5px}
-table.req-table td code{background:#f3f4f6;color:#7c3aed;padding:1px 7px;border-radius:4px;font-family:Consolas,monospace;font-size:12.5px}
-
-.footer-entry{text-align:center;padding:20px;background:#dce9df;border-radius:10px;border:1px dashed #245b4f}
-.footer-entry a{color:#245b4f;font-weight:600;text-decoration:underline dotted}
-.footer-entry p{font-size:12px;color:#6b7280;margin-top:6px}
+  @media (max-width:860px){
+    .pzz_compare{grid-template-columns:1fr}
+    .pzz_head{padding:26px 22px}
+  }
 </style>
 </head>
 <body>
-
-<nav class="topbar">
-    <a href="index.html" class="pzz_home_link">← 返回课堂目录</a>
-    <a href="pzz_prompt.md" class="cfentry" target="_blank">📄 pzz-prompt</a>
+<nav style="position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:14px 32px;background:rgba(255,255,255,.95);border-bottom:1px solid #e2d5c1">
+  <a href="index.html" style="color:#0f2b5b;text-decoration:none;font-size:14px;font-weight:600">← 返回课堂目录</a>
+  <a href="pzz_prompt.md" target="_blank" rel="noopener" style="padding:6px 14px;background:#245b4f;color:#fff;text-decoration:none;border-radius:4px;font-size:13px">📄 pzz-prompt</a>
 </nav>
+<div class="pzz_wrap">
 
-<main class="wrap">
-    <header class="head">
-        <h1>提示词工程 · 两轮换照</h1>
-        <p>同一组 Swiper 轮播图，第 1 轮提示词漏了 clickable，第 2 轮补一句立刻解决。上、下可直接操作验证。</p>
-    </header>
+  <div class="pzz_head">
+    <span class="pzz_badge">修 改 前 后 · 切 换 效 果 动 态 对 比</span>
+    <h1>任务一 · <b>cube 3D 立方体 → slide 平推</b>真实效果对比</h1>
+    <p>两个轮播均为真实可交互的 Swiper 实例（loop 循环 · 3.2 秒自动翻页 · 圆点可点击），左边是修改前的 cube 效果，右边是修正后的 slide 效果——直接看动画差异，展示框下方附对应日志原文。</p>
+  </div>
 
-    <!-- ======== 红蓝两卡 ======== -->
-    <section class="compare">
+  <div class="pzz_compare">
 
-        <div class="card bad">
-            <div class="card-title">
-                <span class="num">第 1 轮</span>
-                <span class="tag">圈了需求</span>
-            </div>
-            <h3>圆点只能看，不能点</h3>
-            <div class="prompt-text">"帮我写一段 Swiper 配置，让轮播图能自动播放、循环滚动，用圆点分页器，翻页效果用 3D 的。"</div>
-
-            <div class="my-swiper" id="swiperBad">
-                <div class="swiper">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="cap"><h4>天宫空间站</h4><p>2022 年全面建成 · 第 1 轮</p></div></div>
-                        <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="cap"><h4>复兴号动车组</h4><p>350 km/h · 第 1 轮</p></div></div>
-                        <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="cap"><h4>C919 大飞机</h4><p>2023 年商业首航 · 第 1 轮</p></div></div>
-                        <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="cap"><h4>奋斗者号</h4><p>10909 米触底 · 第 1 轮</p></div></div>
-                        <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="cap"><h4>中国天眼 FAST</h4><p>500 米口径 · 第 1 轮</p></div></div>
-                    </div>
-                    <div class="swiper-pagination"></div>
-                </div>
-            </div>
-
-            <div class="status-row">
-                <span>⏱ <b>3000ms 默认</b></span>
-                <span>🔁 <b>loop:true 无限循环</b></span>
-                <span>📍 <b id="badIdx">1 / 5</b></span>
-                <span>⏳ <b id="badTime">0.0s</b></span>
-            </div>
-            <div class="test-line">⚠ 漏了 <code>clickable:true</code>，圆点不能跳</div>
+    <!-- 第一次：cube 效果 -->
+    <div class="pzz_box">
+      <h2><span class="pzz_no">前</span>第一次 · cube 3D 立方体</h2>
+      <p class="pzz_sub">配置：<code>effect: "cube"</code> · 翻页时呈 3D 立方体旋转</p>
+      <div class="pzz_swiper">
+        <div class="swiper" id="pzzSwCube">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="pzz_cap"><h3>天宫空间站</h3><p>试试上面的效果按钮</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号动车组"><div class="pzz_cap"><h3>复兴号动车组</h3><p>同一组照片，七种讲述方式</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919大飞机"><div class="pzz_cap"><h3>C919 大飞机</h3><p>企业官网爱用 fade</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="pzz_cap"><h3>奋斗者号</h3><p>游戏网站爱用 cube</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="pzz_cap"><h3>中国天眼 FAST</h3><p>相册页面爱用 coverflow</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/adora_1.jpg" alt="爱达·魔都号"><div class="pzz_cap"><h3>爱达·魔都号</h3><p>第六件展品 · 光影展新成员</p></div></div>
         </div>
-
-        <div class="card good">
-            <div class="card-title">
-                <span class="num">第 2 轮</span>
-                <span class="tag">补齐需求</span>
-            </div>
-            <h3>圆点是遥控器，不是装饰</h3>
-            <div class="prompt-text">"Swiper 8 写法：① loop:true ② delay:3200 + stopOnLastSlide:true ③ pagination clickable:true ④ effect:cube"</div>
-
-            <div class="my-swiper" id="swiperGood">
-                <div class="swiper">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="cap"><h4>天宫空间站</h4><p>三舱结构 · 第 2 轮</p></div></div>
-                        <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="cap"><h4>复兴号动车组</h4><p>京张高铁智能驾驶 · 第 2 轮</p></div></div>
-                        <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="cap"><h4>C919 大飞机</h4><p>让大飞机梦照进现实 · 第 2 轮</p></div></div>
-                        <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="cap"><h4>奋斗者号</h4><p>深海探测进入中国时代 · 第 2 轮</p></div></div>
-                        <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="cap"><h4>中国天眼 FAST</h4><p>南仁东先生 22 年铸就 · 第 2 轮</p></div></div>
-                    </div>
-                    <div class="swiper-pagination"></div>
-                </div>
-            </div>
-
-            <div class="status-row">
-                <span>⏱ <b>3200ms 精确指定</b></span>
-                <span>🔁 <b>stopOnLastSlide:true 一轮后停</b></span>
-                <span>📍 <b id="goodIdx">1 / 5</b></span>
-                <span>⏳ <b id="goodTime">0.0s</b></span>
-            </div>
-            <div class="test-line">✅ 加了 <code>clickable:true</code>，点第 3 个圆点 → 跳到第 3 张</div>
+        <div class="swiper-pagination" id="pzzPagCube"></div>
         </div>
-    </section>
-
-    <!-- ======== 需求 → 参数对照表 ======== -->
-    <section class="table-wrap">
-        <h2>把中文需求翻译成参数</h2>
-        <table class="req-table">
-            <thead>
-                <tr><th>老师的要求</th><th>对应参数</th><th>说明</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>无缝循环</td><td><code>loop: true</code></td><td>首尾相接，滑到最后一张后接第一张</td></tr>
-                <tr><td>3.2 秒自动翻页</td><td><code>autoplay: { delay: 3200 }</code></td><td>delay 单位毫秒，3200 = 3.2 秒</td></tr>
-                <tr><td>手动操作后不停止</td><td><code>autoplay: { disableOnInteraction: false }</code></td><td>默认 true，用户滑动后自动停止</td></tr>
-                <tr><td>圆点分页器可点击</td><td><code>pagination: { clickable: true }</code></td><td>默认 false，圆点只显示不可点</td></tr>
-                <tr><td>翻页效果 cube</td><td><code>effect: 'cube'</code></td><td>cube / fade / flip / coverflow 等</td></tr>
-                <tr><td>一轮后自动停止</td><td><code>autoplay: { stopOnLastSlide: true }</code></td><td>⚠ 仅在 <code>loop: false</code> 时生效</td></tr>
-            </tbody>
-        </table>
-    </section>
-
-    <div class="footer-entry">
-        <strong>📎 返回完整任务页或查看提示词 →</strong>
-        <a href="swiper-task1.html">完整任务页</a> · <a href="pzz_prompt.md" target="_blank">pzz_prompt.md</a>
+      </div>
+      <div class="pzz_log">
+        <span class="pzz_log_time">日志① · 2026-11-05 14:31:19</span>
+        <q>请生成 new Swiper('#wySw4', {...}) 的 Swiper 配置：开启无缝循环；自动翻页间隔 3200ms，不停止自动播放；分页器为可点击圆点；初始/默认切换效果为 cube。</q>
+      </div>
     </div>
-</main>
+
+    <!-- 第二次：slide 效果 -->
+    <div class="pzz_box pzz_after">
+      <h2><span class="pzz_no">后</span>第二次 · slide 平推（修正后）</h2>
+      <p class="pzz_sub">配置：<code>effect: "slide"</code> · 翻页时横向平推</p>
+      <div class="pzz_swiper">
+        <div class="swiper" id="pzzSwSlide">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="pzz_cap"><h3>天宫空间站</h3><p>试试上面的效果按钮</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号动车组"><div class="pzz_cap"><h3>复兴号动车组</h3><p>同一组照片，七种讲述方式</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919大飞机"><div class="pzz_cap"><h3>C919 大飞机</h3><p>企业官网爱用 fade</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="pzz_cap"><h3>奋斗者号</h3><p>游戏网站爱用 cube</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="pzz_cap"><h3>中国天眼 FAST</h3><p>相册页面爱用 coverflow</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/adora_1.jpg" alt="爱达·魔都号"><div class="pzz_cap"><h3>爱达·魔都号</h3><p>第六件展品 · 光影展新成员</p></div></div>
+        </div>
+        <div class="swiper-pagination" id="pzzPagSlide"></div>
+        </div>
+      </div>
+      <div class="pzz_log">
+        <span class="pzz_log_time">日志② · 2026-11-05 14:42:04</span>
+        <q>初始切换效果修正为silde</q>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="pzz_final">
+    <b>结论（一句话）：</b>两次改动只差一个 <b>effect</b> 参数——cube 让翻页像<b>转动 3D 立方体</b>（立体感强、偏炫酷），slide 是<b>横向平推</b>（稳定直接、最常用）；其余 loop 循环、3200ms 自动播放、可点击圆点在两版中完全一致。
+  </div>
+
+  <div class="pzz_back">
+    <a class="pzz_home_link" href="index.html">← 返回课堂首页</a>
+  </div>
+
+  <footer>任务一 · 切换效果修改前后对比 · 高级网页设计 · 朴哲震 · 2026-11-11</footer>
+<div style="text-align:center;padding:20px;background:#dce9df;border-radius:10px;border:1px dashed #245b4f;margin-top:30px">
+  <strong>📎 查看本次任务提示词 →</strong>
+  <a href="pzz_prompt.md" target="_blank" style="color:#245b4f;font-weight:600;text-decoration:underline dotted">pzz_prompt.md</a>
+</div>
+</div>
 
 <script>
-/* 作者：朴哲震 | 建立时间：2026-11-11 15:30 | 使用模型：Trae 专有模型
-   功能：updateOnImagesReady:true 让 Swiper 等所有 slide 图片加载完再初始化尺寸
-   这是 Swiper 官方提供的图片轮播专用选项 —— swiper-task.html 就是这么用的 */
-
-var swiperBad, swiperGood;
-
-swiperBad = new Swiper('#swiperBad .swiper', {
+/* 作者：朴哲震 | 建立时间：2026-11-11 16:00 | 使用模型：Trae 专有模型
+   功能：pzz_initCompare —— 按修改前后两份配置分别初始化 cube / slide 两个对比轮播 */
+function pzz_initCompare() {
+  /* 公共配置：对应日志要求的 loop 循环、3200ms 自动播放不停止、可点击圆点 */
+  var pzz_common = {
     loop: true,
-    autoplay: { delay: 3000, disableOnInteraction: false },
-    effect: 'cube',
-    cubeEffect: { slideShadows: true, shadow: true },
-    pagination: { clickable: true },
-    updateOnImagesReady: true,
-    on: {
-        slideChange: function () {
-            document.getElementById('badIdx').textContent =
-                (swiperBad.realIndex + 1) + ' / ' + swiperBad.slides.length;
-        },
-    },
-});
+    speed: 800,
+    autoplay: { delay: 3200, disableOnInteraction: false },
+    pagination: { clickable: true }
+  };
 
-swiperGood = new Swiper('#swiperGood .swiper', {
-    loop: false,
-    effect: 'cube',
-    cubeEffect: { slideShadows: false, shadow: false },
-    autoplay: {
-        delay: 3200,
-        stopOnLastSlide: true,
-        disableOnInteraction: false,
-    },
-    pagination: { clickable: true },
-    updateOnImagesReady: true,
-    on: {
-        slideChange: function () {
-            document.getElementById('goodIdx').textContent =
-                (swiperGood.activeIndex + 1) + ' / ' + swiperGood.slides.length;
-        },
-        autoplayStop: function () {
-            document.getElementById('goodIdx').textContent += '（已停）';
-        },
-    },
-});
+  /* 修改前：cube 3D 立方体（日志①要求的效果） */
+  var pzz_cfgCube = Object.assign({}, pzz_common, {
+    effect: "cube",
+    cubeEffect: { shadow: true, slideShadows: true, shadowOffset: 20, shadowScale: 0.94 }
+  });
+  new Swiper("#pzzSwCube", pzz_cfgCube);
 
-function startTimer(swiper, el) {
-    var t = 0;
-    var timer = setInterval(function () {
-        t += 0.1;
-        el.textContent = t.toFixed(1) + 's';
-        if (!swiper.autoplay.running) clearInterval(timer);
-    }, 100);
+  /* 修改后：slide 平推（日志②修正后的效果） */
+  var pzz_cfgSlide = Object.assign({}, pzz_common, {
+    effect: "slide"
+  });
+  new Swiper("#pzzSwSlide", pzz_cfgSlide);
 }
-startTimer(swiperBad, document.getElementById('badTime'));
-startTimer(swiperGood, document.getElementById('goodTime'));
+
+/* 页面就绪后初始化两个对比轮播 */
+document.addEventListener("DOMContentLoaded", pzz_initCompare);
 </script>
 </body>
 </html>
