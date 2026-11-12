@@ -283,6 +283,8 @@
       speed: 800,                                       
       autoplay: { delay: 3200, disableOnInteraction: false }, 
       pagination: { el: "#wyPag4", clickable: true },
+      // demo 250 · flip 专属参数：关翻牌两侧阴影 + 限制旋转角度（初始默认就是 demo 250 按钮）
+      flipEffect: { slideShadows: false, limitRotation: true },
       // mousewheel 滚轮翻页：参数调校让手感自然（每项原理见行尾注释）
       mousewheel: {
         forceToAxis: false,      // 常规鼠标滚轮用默认；触控板横滑时改为 true 更跟手
@@ -325,6 +327,10 @@
         speed: 800,
         autoplay: { delay: 3200, disableOnInteraction: false },
         pagination: { el: "#wyPag4", clickable: true },
+        // demo 250 · flip 专属参数：关翻牌两侧阴影 + 限制旋转角度（和普通 flip 按钮效果不同）
+        flipEffect: (btn.dataset.fx === "flip" && btn.textContent.indexOf("demo 250") !== -1)
+          ? { slideShadows: false, limitRotation: true }
+          : undefined,
         // mousewheel 与初始配置保持一致（阈值过滤连滚，一格一张不跳页）
         mousewheel: {
           forceToAxis: false,
