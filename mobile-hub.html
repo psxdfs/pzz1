@@ -252,8 +252,8 @@
 
     <div class="pzz_z_card">
       <h2>操作录屏</h2>
-      <video class="pzz_z_video" src="media/zoom-demo.mp4" controls playsinline preload="metadata"></video>
-      <p>手机实拍：双指捏合缩放、双指旋转、双击 1x / 2x 切换的真实操作过程。</p>
+      <video class="pzz_z_video" src="media/zoom-demo.mp4" controls playsinline preload="auto"></video>
+      <p>手机实拍：双指捏合缩放、双指旋转、双击 1x / 2x 切换的真实操作过程（点播放键开始）。</p>
     </div>
   </div>
     </section>
@@ -1352,6 +1352,8 @@
         pzzh_demos[i].classList.toggle("pzzh_on", pzzh_demos[i].getAttribute("data-pzzh-key") === key);
       }
       if (pzzh_descMap[key]) { pzzh_descEl.innerHTML = pzzh_descMap[key]; }
+      // 缩放面板从隐藏变可见后要重算尺寸，否则图片会按隐藏时的 0 尺寸缩放而看不见
+      if (key === "zoom" && typeof pzz_z_refresh === "function") { pzz_z_refresh(); }
     }
 
     // 绑定四个标签的点击事件
@@ -1497,14 +1499,30 @@
     /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
        功能：pzz_z_measure —— 读取容器尺寸，并按"完整显示"计算适配倍数 pzz_z_base */
     function pzz_z_measure() {
-      pzz_z_cw = pzz_z_stageEl.clientWidth;
-      pzz_z_ch = pzz_z_stageEl.clientHeight;
+      var cw = pzz_z_stageEl.clientWidth;
+      var ch = pzz_z_stageEl.clientHeight;
+      // 面板隐藏时尺寸为 0，此时不能把适配倍数算成 0，等切换可见后再重算
+      if (!cw || !ch) { return; }
+      pzz_z_cw = cw;
+      pzz_z_ch = ch;
       if (!pzz_z_imgEl.naturalWidth || !pzz_z_imgEl.naturalHeight) { return; }
       // contain：取宽高两个方向较小的比例，保证整张图都能看见
       pzz_z_base = Math.min(
         pzz_z_cw / pzz_z_imgEl.naturalWidth,
         pzz_z_ch / pzz_z_imgEl.naturalHeight
       );
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 16:12 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_refresh —— 面板从隐藏切到可见后重算尺寸并重绘，避免隐藏时测量得到 0 导致图片不可见 */
+    function pzz_z_refresh() {
+      pzz_z_measure();
+      if (pzz_z_scale === 1 && Math.abs(pzz_z_angle) < 0.01) {
+        pzz_z_center(false);
+      } else {
+        pzz_z_hardClamp();
+        pzz_z_apply();
+      }
     }
 
     /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
