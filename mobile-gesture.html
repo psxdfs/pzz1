@@ -79,6 +79,7 @@
       position: relative;
       height: 340px;
       touch-action: pan-y;
+      cursor: grab;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -249,7 +250,7 @@
     <p class="pzz_toast" id="pzz_toast"></p>
 
     <p class="pzz_tip">
-      操作说明：手指（或鼠标拖动模拟）左右滑动，横向位移超过 40px 才会切换；
+      操作说明：手机上用手指左右滑动（桌面浏览器按住鼠标拖动同样有效），横向位移超过 40px 才会切换；
       纵向滑动不会切卡，页面照常上下滚动；连续快速滑动有 300ms 冷却，不会一次跳过两张。
     </p>
   </div>
@@ -296,20 +297,8 @@
     }
 
     /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
-       功能：touchstart 监听 —— 记录手指按下的起点坐标，作为横向位移的计算基准 */
-    document.getElementById("pzz_stage").addEventListener("touchstart", function (e) {
-      var touch = e.changedTouches[0];
-      pzz_startX = touch.clientX;
-      pzz_startY = touch.clientY;
-    }, { passive: true });
-
-    /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
-       功能：touchend 监听 —— 用 changedTouches[0] 计算横向位移，判定左滑 / 右滑并处理边界与冷却 */
-    document.getElementById("pzz_stage").addEventListener("touchend", function (e) {
-      var touch = e.changedTouches[0];
-      var dx = touch.clientX - pzz_startX;   // 横向位移：正数右滑，负数左滑
-      var dy = touch.clientY - pzz_startY;   // 纵向位移
-
+       功能：pzz_judge —— 统一的滑动判定，接收横向/纵向位移，处理方向过滤、40px 阈值、300ms 冷却与首尾边界 */
+    function pzz_judge(dx, dy) {
       // 纵向位移大于横向，说明用户在上下滚动页面，不当作切卡手势
       if (Math.abs(dy) > Math.abs(dx)) { return; }
       // 横向位移不足 40px，视为轻微误触，不切换
@@ -336,7 +325,36 @@
       }
 
       pzz_lastTime = now;  // 记录本次切换时间，供下一次冷却判断使用
+    }
+
+    var pzz_stageEl = document.getElementById("pzz_stage");
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
+       功能：touchstart 监听 —— 记录手指按下的起点坐标，作为横向位移的计算基准 */
+    pzz_stageEl.addEventListener("touchstart", function (e) {
+      var touch = e.changedTouches[0];
+      pzz_startX = touch.clientX;
+      pzz_startY = touch.clientY;
     }, { passive: true });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
+       功能：touchend 监听 —— 用 changedTouches[0] 计算横向位移，交给 pzz_judge 判定左滑 / 右滑 */
+    pzz_stageEl.addEventListener("touchend", function (e) {
+      var touch = e.changedTouches[0];
+      pzz_judge(touch.clientX - pzz_startX, touch.clientY - pzz_startY);
+    }, { passive: true });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
+       功能：鼠标拖拽兼容 —— 桌面浏览器没有触摸事件，用 mousedown / mouseup 记录并计算位移，
+             让电脑上按住卡片左右拖动也能切卡（手机上仍走 touch 事件） */
+    pzz_stageEl.addEventListener("mousedown", function (e) {
+      pzz_startX = e.clientX;
+      pzz_startY = e.clientY;
+    });
+
+    pzz_stageEl.addEventListener("mouseup", function (e) {
+      pzz_judge(e.clientX - pzz_startX, e.clientY - pzz_startY);
+    });
   </script>
 </body>
 </html>
