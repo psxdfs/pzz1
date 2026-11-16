@@ -1,0 +1,519 @@
+<!--
+  作者：朴哲震
+  建立时间：2026-11-16 14:52
+  使用模型：DeepSeek-V4.1-Flash
+  功能名称及简介：摇一摇抽今日菜谱 —— 监听 devicemotion，用 accelerationIncludingGravity 计算合成加速度，
+                超过阈值判定摇动并抽菜；含 1.5 秒冷却、iOS 权限申请、无传感器设备降级与实时加速度可视化
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>摇一摇 · 今日菜谱 | 朴哲震</title>
+  <style>
+    /* 全局重置 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+      background: radial-gradient(circle at 20% 0%, #2a1f14 0%, #17120d 55%, #0b0906 100%);
+      color: #f2ece4;
+      min-height: 100vh;
+      padding: 24px 16px 50px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .pzz_wrap { max-width: 540px; margin: 0 auto; }
+
+    /* 返回课堂目录 */
+    .pzz_home_link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+      padding: 8px 14px;
+      border: 1px solid rgba(242, 236, 228, .16);
+      border-radius: 999px;
+      color: #cfc3b4;
+      font-size: 13px;
+      text-decoration: none;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+
+    .pzz_home_link:hover {
+      color: #ffc57a;
+      border-color: rgba(255, 197, 122, .5);
+      background: rgba(255, 197, 122, .08);
+    }
+
+    .pzz_head { margin-bottom: 18px; }
+
+    .pzz_head .pzz_kicker {
+      font-size: 11px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #c08c4d;
+      margin-bottom: 8px;
+    }
+
+    .pzz_head h1 { font-size: 24px; font-weight: 700; }
+
+    .pzz_head .pzz_sub {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #a3958a;
+    }
+
+    /* 摇一摇主面板 */
+    .pzz_panel {
+      position: relative;
+      padding: 26px 20px 22px;
+      border: 1px solid rgba(255, 197, 122, .18);
+      border-radius: 20px;
+      background: linear-gradient(165deg, rgba(255, 197, 122, .1), rgba(255, 255, 255, .02) 60%);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .pzz_panel .pzz_phone {
+      font-size: 34px;
+      line-height: 1;
+      margin-bottom: 10px;
+      animation: pzz_swing 1.8s ease-in-out infinite;
+      transform-origin: 50% 90%;
+    }
+
+    /* 手机图标来回轻晃，暗示"摇一摇" */
+    @keyframes pzz_swing {
+      0%, 100% { transform: rotate(-12deg); }
+      50% { transform: rotate(12deg); }
+    }
+
+    .pzz_panel .pzz_tip_text {
+      font-size: 14px;
+      color: #d9cbb9;
+      margin-bottom: 18px;
+    }
+
+    /* 菜品结果卡 */
+    .pzz_dish {
+      padding: 20px 16px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, .32);
+      border: 1px dashed rgba(255, 197, 122, .28);
+    }
+
+    .pzz_dish .pzz_dish_name {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: #ffd9a3;
+    }
+
+    .pzz_dish .pzz_dish_desc {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #a99b8c;
+    }
+
+    /* 抽中时的一次性弹出动画 */
+    .pzz_dish.pzz_pop { animation: pzz_pop .5s cubic-bezier(.18, 1.5, .4, 1); }
+
+    @keyframes pzz_pop {
+      0% { transform: scale(.72); opacity: .2; }
+      60% { transform: scale(1.06); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 实时加速度条：验收截图能直观看到阈值 */
+    .pzz_meter { margin-top: 18px; text-align: left; }
+
+    .pzz_meter .pzz_meter_top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #9d8f80;
+      margin-bottom: 6px;
+    }
+
+    .pzz_meter .pzz_meter_track {
+      position: relative;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .1);
+      overflow: hidden;
+    }
+
+    .pzz_meter .pzz_meter_fill {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #8a6a3d, #ffc06a);
+      transition: width .08s linear;
+    }
+
+    /* 阈值刻度线：18 的位置 */
+    .pzz_meter .pzz_meter_line {
+      position: absolute;
+      top: -2px;
+      bottom: -2px;
+      width: 2px;
+      background: rgba(255, 92, 92, .85);
+    }
+
+    /* 状态行：触发次数 / 冷却 */
+    .pzz_status {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 14px;
+      font-size: 12px;
+      color: #8f8275;
+    }
+
+    .pzz_status b { color: #ffc57a; font-weight: 600; }
+
+    /* 主按钮（iOS 授权 / 点我抽一次） */
+    .pzz_btn {
+      margin-top: 16px;
+      padding: 11px 24px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffb457, #ef8b32);
+      color: #241708;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .2s;
+      box-shadow: 0 8px 20px rgba(239, 139, 50, .32);
+    }
+
+    .pzz_btn:active { transform: scale(.96); }
+
+    /* 不支持提示 / 降级区 */
+    .pzz_fallback {
+      display: none;
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(255, 92, 92, .1);
+      border: 1px solid rgba(255, 92, 92, .28);
+      font-size: 13px;
+      line-height: 1.7;
+      color: #ffb3b3;
+      text-align: left;
+    }
+
+    .pzz_fallback.pzz_show { display: block; }
+
+    /* 说明卡 */
+    .pzz_card {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 1px solid rgba(242, 236, 228, .1);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .pzz_card h2 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #ffc57a;
+    }
+
+    .pzz_card p, .pzz_card li {
+      font-size: 13px;
+      line-height: 1.85;
+      color: #a89a8c;
+    }
+
+    .pzz_card ol, .pzz_card ul { padding-left: 18px; }
+
+    .pzz_card code {
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(255, 197, 122, .12);
+      color: #ffd9a3;
+      font-size: 12px;
+    }
+
+    /* 页脚：学号姓名 + 提示词入口 */
+    .pzz_footer {
+      margin-top: 26px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(242, 236, 228, .08);
+      font-size: 12px;
+      color: #7d7166;
+      line-height: 1.9;
+    }
+
+    .pzz_footer a { color: #ffc57a; text-decoration: none; }
+    .pzz_footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="pzz_wrap">
+    <a class="pzz_home_link" href="index.html">← 返回课堂目录</a>
+
+    <header class="pzz_head">
+      <p class="pzz_kicker">TASK · DEVICEMOTION</p>
+      <h1>摇一摇 · 今日菜谱</h1>
+      <p class="pzz_sub">摇一摇手机，随机抽一道今天的菜；没有加速度传感器的设备会自动降级为手动抽取。</p>
+    </header>
+
+    <!-- 主面板 -->
+    <section class="pzz_panel">
+      <div class="pzz_phone" aria-hidden="true">▮</div>
+      <p class="pzz_tip_text" id="pzz_tip_text">摇一摇手机，抽今日菜谱</p>
+
+      <div class="pzz_dish" id="pzz_dish">
+        <div class="pzz_dish_name" id="pzz_dish_name">？</div>
+        <div class="pzz_dish_desc" id="pzz_dish_desc">摇动手机或点下方按钮，看看今天吃什么</div>
+      </div>
+
+      <!-- 实时加速度条：静止约 9.8，摇动超过 18 触发 -->
+      <div class="pzz_meter">
+        <div class="pzz_meter_top">
+          <span>实时合成加速度</span>
+          <span id="pzz_meter_value">-- m/s²</span>
+        </div>
+        <div class="pzz_meter_track">
+          <div class="pzz_meter_fill" id="pzz_meter_fill"></div>
+          <!-- 阈值刻度：18 / 40 满量程 -->
+          <div class="pzz_meter_line" id="pzz_meter_line" style="left:45%"></div>
+        </div>
+      </div>
+
+      <div class="pzz_status">
+        <span>已抽取 <b id="pzz_count">0</b> 次</span>
+        <span>阈值 <b>18</b> m/s²</span>
+        <span>冷却 <b>1.5</b> s</span>
+      </div>
+
+      <!-- iOS 需要在用户点击后申请运动权限，按钮默认隐藏 -->
+      <button class="pzz_btn" id="pzz_auth_btn" type="button" style="display:none">开启体感 · 授权</button>
+
+      <!-- 手动抽取按钮，始终可用（降级 / 桌面调试） -->
+      <button class="pzz_btn" id="pzz_draw_btn" type="button">点我抽一次</button>
+
+      <!-- 不支持时的降级提示 -->
+      <div class="pzz_fallback" id="pzz_fallback">
+        当前设备不支持，请用手机打开。<br>
+        已为你降级为手动模式：点上面的「点我抽一次」同样可以抽取菜谱。
+      </div>
+    </section>
+
+    <div class="pzz_card">
+      <h2>accelerationIncludingGravity 与 acceleration 的区别</h2>
+      <p>
+        <code>acceleration</code> 是设备<strong>自身运动</strong>产生的加速度，静止放在桌上时约为 0；
+        <code>accelerationIncludingGravity</code> 则把<strong>重力</strong>也算进去，静止时约 9.8 m/s²（朝下的那根轴）。
+        摇一摇要判断"有没有被晃动"，用后者更稳：静止基线是 9.8，合成值超过 18 就说明明显在晃；
+        而 <code>acceleration</code> 在部分机型上不提供或恒为 0，容易误判，所以本页取 <code>accelerationIncludingGravity</code>。
+      </p>
+    </div>
+
+    <div class="pzz_card">
+      <h2>为什么必须做降级</h2>
+      <ol>
+        <li>桌面浏览器和部分安卓设备没有加速度传感器，<code>devicemotion</code> 要么不触发、要么数值全为 0，页面会一直"抽不出来"，看起来像坏了。</li>
+        <li>iOS 13+ 要求用户<strong>点击</strong>后才能申请运动权限，直接监听永远拿不到数据。</li>
+        <li>手机可能在浏览器设置里关闭了"运动与方向"权限，同样收不到事件。</li>
+        <li>所以本页做了两层兜底：1.5 秒内没收到有效数据就提示"当前设备不支持，请用手机打开"，并保留「点我抽一次」手动按钮，保证任何设备都能完成一次抽取。</li>
+      </ol>
+    </div>
+
+    <div class="pzz_card">
+      <h2>踩过的坑与解决办法</h2>
+      <p>
+        <strong>坑：</strong>一开始只用"是否收到过 devicemotion 事件"判断设备是否支持，结果桌面 Chrome 也会触发事件，
+        但三根轴的值<strong>全是 0</strong>，页面既不提示不支持、也永远摇不出结果，看起来像坏了。<br>
+        <strong>办法：</strong>加了有效性过滤——合成加速度大于 0.5 才算"收到了真实数据"，
+        并且 1.5 秒内没有有效数据就判定不支持、显示降级提示；同时按钮始终可用，任何设备都能完成抽取。
+      </p>
+    </div>
+
+    <div class="pzz_card">
+      <h2>实现要点</h2>
+      <ul>
+        <li>合成加速度：<code>√(x² + y² + z²)</code>，静止约 9.8，超过 18 判定为摇动。</li>
+        <li>冷却：记录上次触发时间，1.5 秒内的后续事件直接忽略，保证"一次摇动只抽一次"。</li>
+        <li>事件节流：用 <code>requestAnimationFrame</code> 控制加速度条刷新，避免高频重绘。</li>
+      </ul>
+    </div>
+
+    <footer class="pzz_footer">
+      学号：24001010606　姓名：朴哲震<br>
+      提示词记录：<a href="pzz_prompt.md">pzz_prompt.md</a>　·　<a href="index.html">返回课堂目录</a>
+    </footer>
+  </div>
+
+  <script>
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz 常量与状态区 —— 菜谱库、阈值、冷却时间，以及触发次数 / 是否收到有效数据等运行时状态 */
+    var PZZ_THRESHOLD = 18;       // 判定摇动的合成加速度阈值（m/s²），静止约 9.8
+    var PZZ_COOLDOWN = 1500;      // 冷却时间：1.5 秒内只触发一次
+    var PZZ_METER_MAX = 40;       // 加速度条满量程，与阈值刻度线对应
+    var PZZ_WAIT = 1500;          // 等待有效数据的时长，超时即判定"设备不支持"
+
+    // 菜谱库：名称 + 一句描述
+    var pzz_dishes = [
+      { name: "红烧肉", desc: "肥而不腻，配一碗白饭刚好" },
+      { name: "兰州牛肉面", desc: "一清二白三红四绿，汤头最要紧" },
+      { name: "宫保鸡丁", desc: "酸甜微辣，花生米要最后放" },
+      { name: "清蒸鲈鱼", desc: "姜丝葱段一蒸，鲜味最直白" },
+      { name: "麻婆豆腐", desc: "麻、辣、烫、香、酥、嫩、鲜、活" },
+      { name: "北京烤鸭", desc: "片皮蘸糖，卷饼抹酱加葱丝" },
+      { name: "广式虾饺", desc: "澄面皮透亮，一口一只" },
+      { name: "番茄炒蛋", desc: "家常天花板，糖和盐都要一点" },
+      { name: "酸菜鱼", desc: "酸辣开胃，鱼片要薄" },
+      { name: "小笼包", desc: "先开窗、后喝汤，小心烫嘴" }
+    ];
+
+    var pzz_dishIndex = -1;       // 当前菜品下标，保证下次不重复抽到同一道
+    var pzz_shakeCount = 0;       // 累计抽取次数
+    var pzz_lastShake = 0;        // 上次触发时间戳，用于冷却判断
+    var pzz_hasMotion = false;    // 是否收到过有效加速度数据
+    var pzz_waitTimer = null;     // "设备不支持"的判定定时器
+    var pzz_meterPending = false; // 加速度条的帧节流标记
+
+    var pzz_dishEl = document.getElementById("pzz_dish");
+    var pzz_dishNameEl = document.getElementById("pzz_dish_name");
+    var pzz_dishDescEl = document.getElementById("pzz_dish_desc");
+    var pzz_countEl = document.getElementById("pzz_count");
+    var pzz_meterValueEl = document.getElementById("pzz_meter_value");
+    var pzz_meterFillEl = document.getElementById("pzz_meter_fill");
+    var pzz_meterLineEl = document.getElementById("pzz_meter_line");
+    var pzz_fallbackEl = document.getElementById("pzz_fallback");
+    var pzz_tipEl = document.getElementById("pzz_tip_text");
+    var pzz_authBtn = document.getElementById("pzz_auth_btn");
+    var pzz_drawBtn = document.getElementById("pzz_draw_btn");
+
+    // 阈值刻度线位置：18 / 40 = 45%
+    pzz_meterLineEl.style.left = (PZZ_THRESHOLD / PZZ_METER_MAX * 100) + "%";
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_showUnsupported —— 显示"当前设备不支持，请用手机打开"，并保证手动抽菜按钮可用 */
+    function pzz_showUnsupported() {
+      pzz_fallbackEl.classList.add("pzz_show");
+      pzz_tipEl.textContent = "当前设备不支持体感，改用下方按钮抽取";
+      pzz_meterValueEl.textContent = "无数据";
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_drawDish —— 随机抽一道菜（避开上一道），写入结果卡并重放弹出动画 */
+    function pzz_drawDish() {
+      var next = pzz_dishIndex;
+      // 最多尝试 10 次，保证和上一道不同；只有一道菜时允许重复
+      for (var i = 0; i < 10 && (next === pzz_dishIndex); i++) {
+        next = Math.floor(Math.random() * pzz_dishes.length);
+      }
+      pzz_dishIndex = next;
+
+      pzz_dishNameEl.textContent = pzz_dishes[next].name;
+      pzz_dishDescEl.textContent = pzz_dishes[next].desc;
+
+      // 先移除动画类并强制重排，再加回去，动画才能每次都重新播放
+      pzz_dishEl.classList.remove("pzz_pop");
+      void pzz_dishEl.offsetWidth;
+      pzz_dishEl.classList.add("pzz_pop");
+
+      pzz_shakeCount++;
+      pzz_countEl.textContent = pzz_shakeCount;
+      pzz_tipEl.textContent = "今日推荐已更新，继续摇一摇换一道";
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_requestDraw —— 手动抽取入口，无传感器或桌面调试时使用（不受冷却限制，方便演示） */
+    function pzz_requestDraw() {
+      pzz_drawDish();
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_onMotion —— devicemotion 回调：算合成加速度，超阈值且过了冷却才抽菜，并刷新加速度条 */
+    function pzz_onMotion(e) {
+      var acc = e.accelerationIncludingGravity;
+      if (!acc) { return; }
+
+      var x = acc.x || 0;
+      var y = acc.y || 0;
+      var z = acc.z || 0;
+      var magnitude = Math.sqrt(x * x + y * y + z * z);   // 合成加速度
+
+      // 数值全为 0 说明设备没有真实传感器（常见于桌面浏览器），仍按"不支持"处理
+      if (magnitude > 0.5) {
+        pzz_hasMotion = true;
+        pzz_fallbackEl.classList.remove("pzz_show");
+      }
+
+      // 用 rAF 节流刷新加速度条，避免每个事件都写 DOM
+      if (!pzz_meterPending) {
+        pzz_meterPending = true;
+        requestAnimationFrame(function () {
+          pzz_meterPending = false;
+          var percent = Math.min(1, magnitude / PZZ_METER_MAX) * 100;
+          pzz_meterFillEl.style.width = percent + "%";
+          pzz_meterValueEl.textContent = magnitude.toFixed(1) + " m/s²";
+        });
+      }
+
+      // 阈值判断 + 1.5 秒冷却：一次摇动只会抽一次
+      if (magnitude < PZZ_THRESHOLD) { return; }
+      var now = Date.now();
+      if (now - pzz_lastShake < PZZ_COOLDOWN) { return; }
+      pzz_lastShake = now;
+      pzz_drawDish();
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_startMotion —— 绑定 devicemotion 并启动 1.5 秒兜底计时，超时没数据就判定设备不支持 */
+    function pzz_startMotion() {
+      window.addEventListener("devicemotion", pzz_onMotion);
+      pzz_waitTimer = setTimeout(function () {
+        if (!pzz_hasMotion) { pzz_showUnsupported(); }
+      }, PZZ_WAIT);
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_init —— 检测 devicemotion 支持情况：iOS 需要按钮授权，其他浏览器直接监听，
+             完全不支持时立刻显示降级提示 */
+    function pzz_init() {
+      // 浏览器根本没有 devicemotion 事件：直接降级
+      if (typeof DeviceMotionEvent === "undefined") {
+        pzz_showUnsupported();
+        return;
+      }
+
+      // iOS 13+ 必须由用户点击触发权限申请
+      if (typeof DeviceMotionEvent.requestPermission === "function") {
+        pzz_authBtn.style.display = "inline-block";
+        pzz_authBtn.addEventListener("click", function () {
+          DeviceMotionEvent.requestPermission().then(function (state) {
+            pzz_authBtn.style.display = "none";
+            if (state === "granted") {
+              pzz_startMotion();
+            } else {
+              // 用户拒绝授权：同样走降级，不报错、不白屏
+              pzz_showUnsupported();
+            }
+          }).catch(function () {
+            pzz_showUnsupported();
+          });
+        });
+        return;
+      }
+
+      // 其他浏览器：直接监听，由 1.5 秒兜底判断是否真有传感器
+      pzz_startMotion();
+    }
+
+    pzz_drawBtn.addEventListener("click", pzz_requestDraw);
+    pzz_init();
+  </script>
+</body>
+</html>
