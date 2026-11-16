@@ -1,0 +1,465 @@
+<!--
+  作者：朴哲震
+  建立时间：2026-11-16 15:10
+  使用模型：DeepSeek-V4.1-Flash
+  功能名称及简介：倾斜视差页 —— 监听 deviceorientation 用 beta/gamma 驱动五层景物以不同系数位移形成视差，
+                含首帧基线校准、lerp 平滑、位移上限、iOS 权限申请与无传感器时的鼠标模拟降级
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>倾斜视差 | 朴哲震</title>
+  <style>
+    /* 全局重置 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+      background: radial-gradient(circle at 20% 0%, #10203a 0%, #0b1524 55%, #060a11 100%);
+      color: #e9f1fa;
+      min-height: 100vh;
+      padding: 24px 16px 50px;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .pzz_wrap { max-width: 560px; margin: 0 auto; }
+
+    /* 返回课堂目录 */
+    .pzz_home_link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+      padding: 8px 14px;
+      border: 1px solid rgba(233, 241, 250, .16);
+      border-radius: 999px;
+      color: #c2d2e4;
+      font-size: 13px;
+      text-decoration: none;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+
+    .pzz_home_link:hover {
+      color: #7fd8ff;
+      border-color: rgba(127, 216, 255, .5);
+      background: rgba(127, 216, 255, .08);
+    }
+
+    .pzz_head { margin-bottom: 16px; }
+
+    .pzz_head .pzz_kicker {
+      font-size: 11px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #4f93bb;
+      margin-bottom: 8px;
+    }
+
+    .pzz_head h1 { font-size: 24px; font-weight: 700; }
+
+    .pzz_head .pzz_sub {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #8fa3b8;
+    }
+
+    /* 舞台：超出部分裁掉，各层在里面按不同系数位移 */
+    .pzz_scene {
+      position: relative;
+      width: 100%;
+      height: 58vh;
+      min-height: 320px;
+      max-height: 500px;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #0a1524;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, .5);
+      touch-action: none;
+      user-select: none;
+    }
+
+    /* 每一层都比舞台大一圈，位移时才不会露出边缘（最大位移 46×1.7≈78px，留足 16% 余量） */
+    .pzz_layer {
+      position: absolute;
+      inset: -16%;
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+    }
+
+    /* 第 1 层：天空渐变 */
+    .pzz_sky {
+      background: linear-gradient(180deg, #123a63 0%, #1d5a86 38%, #3d86a8 62%, #8cc0cf 100%);
+    }
+
+    /* 第 2 层：太阳光晕 */
+    .pzz_sun {
+      background: radial-gradient(circle at 62% 34%, rgba(255, 224, 168, .95) 0%, rgba(255, 196, 120, .55) 9%, rgba(255, 170, 90, .16) 22%, rgba(255, 170, 90, 0) 42%);
+    }
+
+    /* 第 3 层：远处雪山（clip-path 折线） */
+    .pzz_far {
+      background: linear-gradient(180deg, #6d93ad 0%, #4c7590 100%);
+      clip-path: polygon(0 48%, 9% 40%, 17% 46%, 26% 30%, 35% 44%, 44% 34%, 53% 46%, 63% 33%, 72% 45%, 81% 37%, 90% 47%, 100% 39%, 100% 100%, 0 100%);
+      opacity: .85;
+    }
+
+    /* 第 4 层：中景山体，颜色更深 */
+    .pzz_mid {
+      background: linear-gradient(180deg, #2f5876 0%, #1d3d55 100%);
+      clip-path: polygon(0 62%, 12% 52%, 23% 60%, 34% 47%, 46% 58%, 57% 49%, 68% 59%, 79% 51%, 90% 60%, 100% 53%, 100% 100%, 0 100%);
+    }
+
+    /* 第 5 层：近景水面与倒影 */
+    .pzz_near {
+      inset: 52% -16% -16% -16%;
+      background: linear-gradient(180deg, rgba(10, 32, 52, .9) 0%, rgba(6, 20, 34, .98) 100%);
+    }
+
+    /* 第 6 层：前景文字，位移最大，视差感最强 */
+    .pzz_front {
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .pzz_front h2 {
+      font-size: 28px;
+      letter-spacing: .12em;
+      text-shadow: 0 6px 22px rgba(0, 0, 0, .55);
+    }
+
+    .pzz_front p {
+      font-size: 12.5px;
+      letter-spacing: .18em;
+      color: rgba(233, 241, 250, .72);
+      text-transform: uppercase;
+    }
+
+    /* 左上角数值浮层：beta / gamma 实时显示 */
+    .pzz_readout {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(5, 12, 20, .55);
+      backdrop-filter: blur(6px);
+      font-size: 12px;
+      line-height: 1.7;
+      color: #cfe6f7;
+      pointer-events: none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pzz_readout b { color: #7fd8ff; font-weight: 600; }
+
+    /* 状态提示（降级 / 授权） */
+    .pzz_state {
+      position: absolute;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(5, 12, 20, .66);
+      backdrop-filter: blur(6px);
+      font-size: 12px;
+      white-space: nowrap;
+      color: #d5e6f5;
+      transition: opacity .35s;
+    }
+
+    .pzz_state.pzz_hide { opacity: 0; }
+
+    /* 按钮通用样式 */
+    .pzz_btn {
+      margin-top: 14px;
+      padding: 11px 24px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #58c4f0, #2f8ac0);
+      color: #06131d;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform .15s;
+      box-shadow: 0 8px 22px rgba(47, 138, 192, .34);
+    }
+
+    .pzz_btn:active { transform: scale(.96); }
+
+    /* 说明卡 */
+    .pzz_card {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 1px solid rgba(233, 241, 250, .1);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .pzz_card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #7fd8ff;
+    }
+
+    .pzz_card p, .pzz_card li {
+      font-size: 13px;
+      line-height: 1.85;
+      color: #9db0c3;
+    }
+
+    .pzz_card ol, .pzz_card ul { padding-left: 18px; }
+
+    .pzz_card code {
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(127, 216, 255, .12);
+      color: #a9e2ff;
+      font-size: 12px;
+    }
+
+    /* 页脚 */
+    .pzz_footer {
+      margin-top: 26px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(233, 241, 250, .08);
+      font-size: 12px;
+      color: #74869a;
+      line-height: 1.9;
+    }
+
+    .pzz_footer a { color: #7fd8ff; text-decoration: none; }
+    .pzz_footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="pzz_wrap">
+    <a class="pzz_home_link" href="index.html">← 返回课堂目录</a>
+
+    <header class="pzz_head">
+      <p class="pzz_kicker">TASK · DEVICEORIENTATION</p>
+      <h1>倾斜视差</h1>
+      <p class="pzz_sub">左倾右倾、前俯后仰，五层景物以不同速度移动，形成纵深视差。</p>
+    </header>
+
+    <!-- 视差舞台：六个层共用一套 translate，系数不同 -->
+    <section class="pzz_scene" id="pzz_scene">
+      <div class="pzz_layer pzz_sky" data-pzz-factor="0.12"></div>
+      <div class="pzz_layer pzz_sun" data-pzz-factor="0.25"></div>
+      <div class="pzz_layer pzz_far" data-pzz-factor="0.45"></div>
+      <div class="pzz_layer pzz_mid" data-pzz-factor="0.8"></div>
+      <div class="pzz_layer pzz_near" data-pzz-factor="1.2"></div>
+
+      <div class="pzz_layer pzz_front" data-pzz-factor="1.7">
+        <h2>倾斜视差</h2>
+        <p>Parallax · deviceorientation</p>
+      </div>
+
+      <!-- 实时角度读数 -->
+      <div class="pzz_readout">
+        beta（前后）<b id="pzz_beta">--</b>°　gamma（左右）<b id="pzz_gamma">--</b>°
+      </div>
+
+      <!-- 状态提示 -->
+      <div class="pzz_state" id="pzz_state">倾斜手机试试</div>
+    </section>
+
+    <!-- iOS 授权按钮，默认隐藏 -->
+    <button class="pzz_btn" id="pzz_auth_btn" type="button" style="display:none">开启体感 · 授权</button>
+
+    <div class="pzz_card">
+      <h3>alpha / beta / gamma 分别是什么</h3>
+      <p>
+        <code>alpha</code> 是绕垂直轴的旋转（0~360°，像转盘旋转，指南针方向）；
+        <code>beta</code> 是绕左右轴的旋转（-180~180°，手机前后俯仰，屏幕朝自己时约 0°）；
+        <code>gamma</code> 是绕前后轴的旋转（-90~90°，手机左右侧倾）。
+        本页用 <code>beta</code> 控制纵向位移、<code>gamma</code> 控制横向位移，<code>alpha</code> 不参与。
+      </p>
+    </div>
+
+    <div class="pzz_card">
+      <h3>为什么要做基线校准</h3>
+      <p>
+        手机拿在手里本来就不是水平的，直接拿 beta/gamma 当位移会让画面一打开就偏到一边。
+        所以代码在收到第一帧时把当时的 beta/gamma 记成"零点"，之后只用<strong>相对变化量</strong>，
+        拿手机的姿势再随意，画面也能保持居中。
+      </p>
+    </div>
+
+    <div class="pzz_card">
+      <h3>为什么不会抖</h3>
+      <ul>
+        <li>传感器事件频率很高（每秒几十次），如果直接写 transform，画面会跟着传感器噪声抖。</li>
+        <li>所以只把角度换算成<strong>目标位移</strong>，再用 <code>requestAnimationFrame</code> 每帧向目标 lerp（系数 0.12），运动自然顺滑。</li>
+        <li>位移还做了 ±46px 上限，倾斜再狠也不会把景物拖出舞台。</li>
+      </ul>
+    </div>
+
+    <div class="pzz_card">
+      <h3>无传感器时怎么办</h3>
+      <p>
+        电脑或没有陀螺仪的设备收不到 <code>deviceorientation</code>，页面会在 1.5 秒后自动切换成
+        <strong>鼠标模拟</strong>：鼠标在页面上移动即可看到同样的视差，不会白屏也不会报错。
+      </p>
+    </div>
+
+    <footer class="pzz_footer">
+      学号：24001010606　姓名：朴哲震<br>
+      提示词记录：<a href="pzz_prompt.md">pzz_prompt.md</a>　·　<a href="index.html">返回课堂目录</a>
+    </footer>
+  </div>
+
+  <script>
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz 常量与状态区 —— 位移上限、每层系数、基线角度、目标与当前位移，以及降级相关状态 */
+    var PZZ_MAX_SHIFT = 46;     // 单层最大位移（px），超出就夹住，避免景物被拖出舞台
+    var PZZ_SMOOTH = 0.12;      // lerp 平滑系数：越小越"慢半拍"，越大越跟手
+    var PZZ_ANGLE_RANGE = 45;   // 倾角到位移的映射范围：±45° 对应满位移
+    var PZZ_WAIT = 1500;        // 等待有效角度数据的时长，超时就切鼠标模拟
+
+    var pzz_layers = [];        // [{ el, factor }]，factor 越大越"近"，动得越多
+    var pzz_baseBeta = null;    // 基线 beta：首帧角度，作为零点
+    var pzz_baseGamma = null;   // 基线 gamma
+    var pzz_targetX = 0;        // 目标位移 X
+    var pzz_targetY = 0;        // 目标位移 Y
+    var pzz_curX = 0;           // 当前位移 X（每帧向目标逼近）
+    var pzz_curY = 0;           // 当前位移 Y
+    var pzz_hasOrientation = false; // 是否收到过有效角度数据
+    var pzz_waitTimer = null;   // 超时降级定时器
+
+    var pzz_sceneEl = document.getElementById("pzz_scene");
+    var pzz_stateEl = document.getElementById("pzz_state");
+    var pzz_betaEl = document.getElementById("pzz_beta");
+    var pzz_gammaEl = document.getElementById("pzz_gamma");
+    var pzz_authBtn = document.getElementById("pzz_auth_btn");
+
+    // 收集所有图层及各自的视差系数
+    var pzz_nodes = pzz_sceneEl.querySelectorAll("[data-pzz-factor]");
+    for (var pzz_i = 0; pzz_i < pzz_nodes.length; pzz_i++) {
+      pzz_layers.push({
+        el: pzz_nodes[pzz_i],
+        factor: parseFloat(pzz_nodes[pzz_i].getAttribute("data-pzz-factor"))
+      });
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_clampShift —— 把位移限制在 ±PZZ_MAX_SHIFT 内，防止倾斜过大把图层拖出舞台 */
+    function pzz_clampShift(v) {
+      return Math.max(-PZZ_MAX_SHIFT, Math.min(PZZ_MAX_SHIFT, v));
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_loop —— 每帧把当前位移向目标位移 lerp，再按各层系数写入 transform（平滑防抖的核心） */
+    function pzz_loop() {
+      pzz_curX += (pzz_targetX - pzz_curX) * PZZ_SMOOTH;
+      pzz_curY += (pzz_targetY - pzz_curY) * PZZ_SMOOTH;
+
+      for (var i = 0; i < pzz_layers.length; i++) {
+        var layer = pzz_layers[i];
+        // 系数不同的层位移不同 → 近层快、远层慢，形成纵深
+        var x = (pzz_curX * layer.factor).toFixed(2);
+        var y = (pzz_curY * layer.factor).toFixed(2);
+        layer.el.style.transform = "translate3d(" + x + "px," + y + "px,0)";
+      }
+      requestAnimationFrame(pzz_loop);
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_onOrientation —— deviceorientation 回调：首帧记基线，之后把相对角度换算成目标位移 */
+    function pzz_onOrientation(e) {
+      // beta / gamma 为 null 说明设备没有陀螺仪，交给超时降级处理
+      if (e.beta === null && e.gamma === null) { return; }
+
+      var beta = e.beta || 0;
+      var gamma = e.gamma || 0;
+
+      // 第一帧：记录当前姿势作为零点，之后只看相对变化
+      if (pzz_baseBeta === null) {
+        pzz_baseBeta = beta;
+        pzz_baseGamma = gamma;
+      }
+
+      pzz_hasOrientation = true;
+      pzz_stateEl.classList.add("pzz_hide");
+
+      // 相对角归一化到 -1~1，再乘上限得到目标位移；方向取反，画面朝倾斜的反方向移动更自然
+      var nx = Math.max(-1, Math.min(1, (gamma - pzz_baseGamma) / PZZ_ANGLE_RANGE));
+      var ny = Math.max(-1, Math.min(1, (beta - pzz_baseBeta) / PZZ_ANGLE_RANGE));
+      pzz_targetX = pzz_clampShift(-nx * PZZ_MAX_SHIFT);
+      pzz_targetY = pzz_clampShift(ny * PZZ_MAX_SHIFT);
+
+      // 读数：显示相对基线的角度变化
+      pzz_betaEl.textContent = (beta - pzz_baseBeta).toFixed(1);
+      pzz_gammaEl.textContent = (gamma - pzz_baseGamma).toFixed(1);
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_enableMouse —— 无传感器降级：用鼠标位置模拟倾斜，保证任何设备都能看到视差效果 */
+    function pzz_enableMouse() {
+      pzz_stateEl.textContent = "当前设备没有陀螺仪，已切换为鼠标模拟";
+      pzz_stateEl.classList.remove("pzz_hide");
+
+      window.addEventListener("mousemove", function (e) {
+        // 鼠标相对屏幕中心的位置归一化到 -1~1
+        var nx = (e.clientX / window.innerWidth - 0.5) * 2;
+        var ny = (e.clientY / window.innerHeight - 0.5) * 2;
+        pzz_targetX = pzz_clampShift(-nx * PZZ_MAX_SHIFT);
+        pzz_targetY = pzz_clampShift(ny * PZZ_MAX_SHIFT);
+        pzz_betaEl.textContent = "鼠标";
+        pzz_gammaEl.textContent = "模拟";
+      });
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_startOrientation —— 绑定 deviceorientation，并启动 1.5 秒兜底计时，超时没数据就切鼠标模拟 */
+    function pzz_startOrientation() {
+      window.addEventListener("deviceorientation", pzz_onOrientation);
+      pzz_waitTimer = setTimeout(function () {
+        if (!pzz_hasOrientation) { pzz_enableMouse(); }
+      }, PZZ_WAIT);
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_init —— 检测 deviceorientation 支持情况：iOS 需按钮授权，其他浏览器直接监听，
+             完全不支持则立即切鼠标模拟 */
+    function pzz_init() {
+      if (typeof DeviceOrientationEvent === "undefined") {
+        pzz_enableMouse();
+      } else if (typeof DeviceOrientationEvent.requestPermission === "function") {
+        // iOS 13+：必须由用户点击后才能申请权限
+        pzz_authBtn.style.display = "inline-block";
+        pzz_stateEl.textContent = "点下方按钮开启体感";
+        pzz_authBtn.addEventListener("click", function () {
+          DeviceOrientationEvent.requestPermission().then(function (state) {
+            pzz_authBtn.style.display = "none";
+            if (state === "granted") {
+              pzz_startOrientation();
+            } else {
+              pzz_enableMouse();   // 拒绝授权也走降级，不报错
+            }
+          }).catch(function () {
+            pzz_enableMouse();
+          });
+        });
+      } else {
+        pzz_startOrientation();
+      }
+
+      requestAnimationFrame(pzz_loop);   // 渲染循环一直跑，只做 lerp，开销很小
+    }
+
+    pzz_init();
+  </script>
+</body>
+</html>

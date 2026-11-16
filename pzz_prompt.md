@@ -585,6 +585,28 @@ iOS 13+ 检测到 `DeviceMotionEvent.requestPermission` 就显示「开启体感
 
 ---
 
+## 2026-11-16 15:10
+
+**所用模型**：DeepSeek-V4.1-Flash
+
+**对话原文**：
+```
+任务四的倾斜视差也要做
+```
+
+**做了啥**：
+任务四原为「摇一摇 / 倾斜视差」二选一，这次把 B 方案也补上，新建 `mobile-tilt.html`。
+监听 `deviceorientation`，用 `beta`（前后俯仰）控纵向、`gamma`（左右侧倾）控横向；收到第一帧时把当前角度记成基线，之后只用相对变化量，避免拿手机姿势不同导致画面一开就偏。
+舞台里放六层景物（天空 0.12、太阳 0.25、远山 0.45、中景 0.8、水面 1.2、标题 1.7），同一份位移乘不同系数，近层动得多、远层动得少，形成视差。
+防抖：事件里只算目标位移，`requestAnimationFrame` 每帧按 0.12 lerp 逼近，位移上下限 ±46px。
+iOS 13+ 走 `DeviceOrientationEvent.requestPermission` 授权按钮；1.5 秒没有有效角度（`beta`/`gamma` 为 null）就切鼠标模拟，页面不会白屏。
+图层 `inset: -16%`，保证最大位移（46×1.7≈78px）时也不会露出边缘。
+说明卡写了 alpha/beta/gamma 区别、基线校准原因、lerp 防抖原理；页脚学号 24001010606、姓名 朴哲震。
+`index.html` 新增 24 号卡片，COMING SOON 顺延 25 号，进度改为 24 已完成。
+
+---
+
+
 
 
 
