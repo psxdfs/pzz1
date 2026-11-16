@@ -665,3 +665,33 @@ iframe 高度 `clamp(560px, 76vh, 900px)`，四个页面各自的样式与脚本
 
 
 
+
+## 2026-11-16 16:04
+
+**所用模型**：DeepSeek-V4.1-Flash
+
+**对话原文**：
+```
+把这个加入到倾斜视差下面
+```
+
+**做了啥**：
+把上传的录屏复制为 `media/tilt-demo.mp4`，在 `mobile-hub.html` 倾斜视差模块末尾新增「操作录屏」卡片，`<video class="pzz_t_video" controls playsinline preload="auto">` 引用该文件，配套 `.pzz_t_video` 样式（宽度铺满、最大高度 460px、圆角 12px、黑底、`object-fit: contain`）。
+浏览器实测：切到「倾斜视差」滚到底可见视频，播放后画面持续显示、`readyState` 正常、控制台无报错。
+
+---
+
+## 2026-11-16 16:10
+
+**所用模型**：DeepSeek-V4.1-Flash
+
+**对话原文**：
+```
+把这个加入到摇一摇下面
+```
+
+**做了啥**：
+把上传的录屏复制为 `media/shake-demo.mp4`，在 `mobile-hub.html` 摇一摇菜谱模块底部（「实现要点」卡片之后）新增「操作录屏」卡片，`<video class="pzz_s_video" controls playsinline preload="auto">` 引用该文件，配套 `.pzz_s_video` 样式，与缩放、视差两处录屏保持同一视觉规格。
+浏览器实测：切到「摇一摇菜谱」滚到底可见视频，播放后 `currentTime` 正常推进（视频 720×1280、时长约 5.4 秒）、画面为真实操作内容、控制台无报错。
+
+---

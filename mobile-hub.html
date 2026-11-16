@@ -349,6 +349,12 @@
       </ul>
     </div>
 
+    <div class="pzz_s_card">
+      <h2>操作录屏</h2>
+      <video class="pzz_s_video" src="media/shake-demo.mp4" controls playsinline preload="auto"></video>
+      <p>手机实拍：拿起手机摇一摇，松手后随机抽出一道菜，冷却期间再次摇动不会重复抽取（点播放键开始）。</p>
+    </div>
+
     
   </div>
     </section>
@@ -422,6 +428,12 @@
         电脑或没有陀螺仪的设备收不到 <code>deviceorientation</code>，页面会在 1.5 秒后自动切换成
         <strong>鼠标模拟</strong>：鼠标在页面上移动即可看到同样的视差，不会白屏也不会报错。
       </p>
+    </div>
+
+    <div class="pzz_t_card">
+      <h3>操作录屏</h3>
+      <video class="pzz_t_video" src="media/tilt-demo.mp4" controls playsinline preload="auto"></video>
+      <p>手机实拍：倾斜手机时六层景物按不同系数移动，回正后画面跟着回到原位（点播放键开始）。</p>
     </div>
 
     
@@ -1083,6 +1095,17 @@
       font-size: 12px;
     }
 
+    /* 操作录屏：竖屏视频按卡片宽度铺满，限制最大高度避免占满整屏 */
+    .pzz_s_video {
+      display: block;
+      width: 100%;
+      max-height: 460px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      background: #000;
+      object-fit: contain;
+    }
+
     /* 页脚：学号姓名 + 提示词入口 */
     .pzz_s_footer {
       margin-top: 26px;
@@ -1296,6 +1319,17 @@
       font-weight: 600;
       margin-bottom: 10px;
       color: #7fd8ff;
+    }
+
+    /* 操作录屏：竖屏视频按卡片宽度铺满，限制最大高度避免占满整屏 */
+    .pzz_t_video {
+      display: block;
+      width: 100%;
+      max-height: 460px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      background: #000;
+      object-fit: contain;
     }
 
     .pzz_t_card p, .pzz_t_card li {
