@@ -2,8 +2,8 @@
   作者：朴哲震
   建立时间：2026-11-16 15:26
   使用模型：DeepSeek-V4.1-Flash
-  功能名称及简介：移动端移动专题合集 —— 把手势切卡、双指缩放、摇一摇、倾斜视差四个页面
-                用标签页 + iframe 归拢到同一个网页里，切换标签即可查看，无需来回跳转
+  功能名称及简介：移动端专题合集 —— 手势切卡、双指缩放、摇一摇、倾斜视差四个练习已全部内联在本页，
+                用标签切换展示；每个练习的类名/变量带独立前缀，样式与脚本互不干扰
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -23,10 +23,9 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    .pzz_wrap { max-width: 960px; margin: 0 auto; }
+    .pzzh_wrap { max-width: 960px; margin: 0 auto; }
 
-    /* 顶部返回 */
-    .pzz_home_link {
+    .pzzh_home_link {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -40,15 +39,15 @@
       transition: border-color .2s, color .2s, background .2s;
     }
 
-    .pzz_home_link:hover {
+    .pzzh_home_link:hover {
       color: #8fd8ff;
       border-color: rgba(143, 216, 255, .5);
       background: rgba(143, 216, 255, .08);
     }
 
-    .pzz_head { margin-bottom: 16px; }
+    .pzzh_head { margin-bottom: 16px; }
 
-    .pzz_head .pzz_kicker {
+    .pzzh_head .pzzh_kicker {
       font-size: 11px;
       letter-spacing: .22em;
       text-transform: uppercase;
@@ -56,24 +55,18 @@
       margin-bottom: 8px;
     }
 
-    .pzz_head h1 { font-size: 24px; font-weight: 700; }
+    .pzzh_head h1 { font-size: 24px; font-weight: 700; }
 
-    .pzz_head .pzz_sub {
+    .pzzh_head .pzzh_sub {
       margin-top: 8px;
       font-size: 13px;
       line-height: 1.7;
       color: #93a5bb;
     }
 
-    /* 标签栏 */
-    .pzz_tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
+    .pzzh_tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 
-    .pzz_tab {
+    .pzzh_tab {
       padding: 9px 16px;
       border: 1px solid rgba(232, 238, 248, .14);
       border-radius: 999px;
@@ -86,10 +79,9 @@
       white-space: nowrap;
     }
 
-    .pzz_tab:hover { color: #d9e8f8; border-color: rgba(143, 216, 255, .4); }
+    .pzzh_tab:hover { color: #d9e8f8; border-color: rgba(143, 216, 255, .4); }
 
-    /* 选中的标签：蓝色高亮 */
-    .pzz_tab.pzz_on {
+    .pzzh_tab.pzzh_on {
       background: linear-gradient(135deg, #58c4f0, #2f8ac0);
       border-color: transparent;
       color: #06131d;
@@ -97,39 +89,28 @@
       box-shadow: 0 8px 20px rgba(47, 138, 192, .3);
     }
 
-    /* 当前标签的一句话说明 */
-    .pzz_desc {
+    .pzzh_desc {
       margin-bottom: 10px;
       font-size: 12.5px;
       line-height: 1.7;
       color: #8fa3b8;
     }
 
-    .pzz_desc b { color: #8fd8ff; font-weight: 600; }
+    .pzzh_desc b { color: #8fd8ff; font-weight: 600; }
 
-    /* iframe 容器：四个页面各自保留自己的样式，互不干扰 */
-    .pzz_frame_box {
-      position: relative;
-      width: 100%;
-      height: clamp(560px, 76vh, 900px);
-      border: 1px solid rgba(232, 238, 248, .12);
+    /* 四个练习的包裹层：同一时间只显示一个 */
+    .pzzh_demo {
+      display: none;
       border-radius: 18px;
       overflow: hidden;
-      background: #0b1220;
+      border: 1px solid rgba(232, 238, 248, .12);
       box-shadow: 0 22px 50px rgba(0, 0, 0, .45);
+      min-height: 0 !important;
     }
 
-    .pzz_frame {
-      display: none;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+    .pzzh_demo.pzzh_on { display: block; }
 
-    .pzz_frame.pzz_on { display: block; }
-
-    /* 提示条 */
-    .pzz_note {
+    .pzzh_note {
       margin-top: 12px;
       padding: 12px 16px;
       border: 1px solid rgba(143, 216, 255, .18);
@@ -140,8 +121,7 @@
       color: #9db4c9;
     }
 
-    /* 页脚 */
-    .pzz_footer {
+    .pzzh_footer {
       margin-top: 22px;
       padding-top: 14px;
       border-top: 1px solid rgba(232, 238, 248, .08);
@@ -150,85 +130,2045 @@
       line-height: 1.9;
     }
 
-    .pzz_footer a { color: #8fd8ff; text-decoration: none; }
-    .pzz_footer a:hover { text-decoration: underline; }
+    .pzzh_footer a { color: #8fd8ff; text-decoration: none; }
+    .pzzh_footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <div class="pzz_wrap">
-    <a class="pzz_home_link" href="index.html">← 返回课堂目录</a>
+  <div class="pzzh_wrap">
+    <a class="pzzh_home_link" href="index.html">← 返回课堂目录</a>
 
-    <header class="pzz_head">
-      <p class="pzz_kicker">MOBILE · 04 PAGES IN ONE</p>
+    <header class="pzzh_head">
+      <p class="pzzh_kicker">MOBILE · 04 DEMOS IN ONE PAGE</p>
       <h1>移动端专题合集</h1>
-      <p class="pzz_sub">手势切卡、双指缩放、摇一摇、倾斜视差四个页面已归拢到这里，点标签切换即可查看。</p>
+      <p class="pzzh_sub">手势切卡、双指缩放、摇一摇、倾斜视差四个练习已全部内联在本页，点标签切换即可查看。</p>
     </header>
 
-    <!-- 标签栏：data-pzz-key 与 iframe 的 data-pzz-key 对应 -->
-    <div class="pzz_tabs" role="tablist">
-      <button class="pzz_tab pzz_on" type="button" data-pzz-key="gesture" role="tab">手势切卡</button>
-      <button class="pzz_tab" type="button" data-pzz-key="zoom" role="tab">双指缩放</button>
-      <button class="pzz_tab" type="button" data-pzz-key="sensor" role="tab">摇一摇菜谱</button>
-      <button class="pzz_tab" type="button" data-pzz-key="tilt" role="tab">倾斜视差</button>
+    <div class="pzzh_tabs" role="tablist">
+      <button class="pzzh_tab pzzh_on" type="button" data-pzzh-key="gesture" role="tab">手势切卡</button>
+      <button class="pzzh_tab" type="button" data-pzzh-key="zoom" role="tab">双指缩放</button>
+      <button class="pzzh_tab" type="button" data-pzzh-key="sensor" role="tab">摇一摇菜谱</button>
+      <button class="pzzh_tab" type="button" data-pzzh-key="tilt" role="tab">倾斜视差</button>
     </div>
 
-    <p class="pzz_desc" id="pzz_desc"><b>手势切卡：</b>左右拖动切换菜品卡片，含 40px 误触阈值、300ms 连滑冷却与边界提示。</p>
+    <p class="pzzh_desc" id="pzzh_desc"><b>手势切卡：</b>左右拖动切换菜品卡片，含 40px 误触阈值、300ms 连滑冷却与边界提示。</p>
 
-    <!-- 四个页面用 iframe 各自运行，样式和脚本互不影响 -->
-    <div class="pzz_frame_box">
-      <iframe class="pzz_frame pzz_on" data-pzz-key="gesture" src="mobile-gesture.html" title="手势切卡"></iframe>
-      <iframe class="pzz_frame" data-pzz-key="zoom" src="mobile-zoom.html" title="双指缩放" loading="lazy"></iframe>
-      <iframe class="pzz_frame" data-pzz-key="sensor" src="mobile-sensor.html" title="摇一摇菜谱" loading="lazy"></iframe>
-      <iframe class="pzz_frame" data-pzz-key="tilt" src="mobile-tilt.html" title="倾斜视差" loading="lazy"></iframe>
+    <!-- 手势切卡 -->
+    <section class="pzz_g_page pzzh_demo pzzh_on" data-pzzh-key="gesture">
+<div class="pzz_g_wrap">
+    
+
+    <header class="pzz_g_head">
+      <p class="pzz_g_kicker">TASK 2 · MOBILE GESTURE</p>
+      <h1>中华美食卡片</h1>
+      <p class="pzz_g_sub">左右滑动切换上一道 / 下一道菜，滑到头会给出提示。</p>
+    </header>
+
+    <!-- 卡片舞台：四张卡片绝对定位叠放在同一位置，靠 pzz_g_on 类决定谁显示 -->
+    <div class="pzz_g_stage" id="pzz_g_stage">
+      <article class="pzz_g_card pzz_g_card--1 pzz_g_on">
+        <span class="pzz_g_no">01</span>
+        <span class="pzz_g_tag">京菜 · 烤制</span>
+        <h2>北京烤鸭</h2>
+        <p>果木炭火挂炉烤制，鸭皮酥脆透亮、片薄如纸，配荷叶饼、葱丝与甜面酱卷食。</p>
+      </article>
+
+      <article class="pzz_g_card pzz_g_card--2">
+        <span class="pzz_g_no">02</span>
+        <span class="pzz_g_tag">陇菜 · 汤面</span>
+        <h2>兰州牛肉面</h2>
+        <p>一清二白三红四绿五黄，手工拉制出毛细到大宽九种粗细，牛肉汤清而不淡。</p>
+      </article>
+
+      <article class="pzz_g_card pzz_g_card--3">
+        <span class="pzz_g_no">03</span>
+        <span class="pzz_g_tag">粤菜 · 蒸点</span>
+        <h2>广式虾饺</h2>
+        <p>澄面做皮薄透见馅，捏出十数道褶，鲜虾笋丁馅弹牙多汁，是早茶里的头牌。</p>
+      </article>
+
+      <article class="pzz_g_card pzz_g_card--4">
+        <span class="pzz_g_no">04</span>
+        <span class="pzz_g_tag">川菜 · 烧制</span>
+        <h2>麻婆豆腐</h2>
+        <p>讲麻、辣、烫、香、酥、嫩、鲜、活八字诀，郫县豆瓣与花椒面缺一不可。</p>
+      </article>
     </div>
 
-    <div class="pzz_note">
-      体感相关功能（摇一摇、倾斜视差）需用手机打开；iOS 要在页面内点「授权」按钮后才生效。
+    <!-- 底部计数与边界提示 -->
+    <p class="pzz_g_counter" id="pzz_g_counter">第 1 / 4 张</p>
+    <p class="pzz_g_toast" id="pzz_g_toast"></p>
+
+    <p class="pzz_g_tip">
+      操作说明：手机上用手指左右滑动（桌面浏览器按住鼠标拖动同样有效），横向位移超过 40px 才会切换；
+      纵向滑动不会切卡，页面照常上下滚动；连续快速滑动有 300ms 冷却，不会一次跳过两张。
+    </p>
+  </div>
+    </section>
+    <!-- 双指缩放 -->
+    <section class="pzz_z_page pzzh_demo" data-pzzh-key="zoom">
+<div class="pzz_z_wrap">
+    
+
+    <header class="pzz_z_head">
+      <p class="pzz_z_kicker">TASK 3 · MULTI TOUCH</p>
+      <h1>图片查看器</h1>
+      <p class="pzz_z_sub">爱达·魔都号 —— 双指捏合缩放、双击放大、放大后拖动查看细节。</p>
+    </header>
+
+    <!-- 图片容器：手势全部绑定在这个节点上 -->
+    <div class="pzz_z_stage" id="pzz_z_stage">
+      <img class="pzz_z_img" id="pzz_z_img" src="swiper-imgs/adora_1.jpg" alt="爱达·魔都号大型邮轮">
+
+      <!-- 缩放比例指示器（加分项） -->
+      <div class="pzz_z_zoom_badge">
+        <span id="pzz_z_zoom_text">100%</span>
+        <span class="pzz_z_zoom_bar"><i id="pzz_z_zoom_fill"></i></span>
+      </div>
+
+      <!-- 打开页面时的提示，4 秒后淡出 -->
+      <div class="pzz_z_hint" id="pzz_z_hint">双指缩放 / 旋转请用手机打开（电脑可用滚轮 / 双击）</div>
+    </div>
+
+    <!-- 复位按钮：旋转或放大后一键恢复 -->
+    <button class="pzz_z_reset" id="pzz_z_reset" type="button">复位 1x</button>
+
+    <div class="pzz_z_card">
+      <h2>操作方式</h2>
+      <p>双指捏合 → 缩放 1~4 倍；双指旋转 → 任意角度转动（旋转时可能轻微越界，松手自动拉回）；双击 → 1x / 2x 切换；放大后单指拖动 → 查看细节。</p>
+    </div>
+
+    <div class="pzz_z_card">
+      <h2>如何保证"缩放不跳"（答辩用）</h2>
+      <ol>
+        <li>先算两指中点，再把中点换算成<strong>图片坐标</strong>：<code>u = (中点 - 平移量) / 当前总缩放</code>，这个点就是手指按住的画面内容。</li>
+        <li>缩放后重新反推平移量：<code>t = 中点 - u × 新总缩放</code>。中点下面的那块画面始终不动，所以不会跳。</li>
+        <li>所有缩放都以 <code>transform-origin: 0 0</code> 为基准，数学上只有一个平移量需要修正，不会出现原点半途变化。</li>
+        <li>捏合过程中超出边界用阻尼（0.3 倍系数）软化，松手后统一硬夹紧并补 0.25s 过渡，所以边缘手感是"顶一下再弹回"。</li>
+        <li>横竖屏切换只重算容器尺寸与适配比例，<strong>保留当前 scale、角度和平移量</strong>再夹紧，状态不丢。</li>
+        <li>双指旋转同一套思路：<code>θ = θ₀ + (atan2 差值)</code>，再按 <code>t = 中点 - s × R(θ) × u</code> 反推平移，旋转中心同样钉在两指中点。</li>
+      </ol>
+    </div>
+  </div>
+    </section>
+    <!-- 摇一摇菜谱 -->
+    <section class="pzz_s_page pzzh_demo" data-pzzh-key="sensor">
+<div class="pzz_s_wrap">
+    
+
+    <header class="pzz_s_head">
+      <p class="pzz_s_kicker">TASK · DEVICEMOTION</p>
+      <h1>摇一摇 · 今日菜谱</h1>
+      <p class="pzz_s_sub">摇一摇手机，随机抽一道今天的菜；没有加速度传感器的设备会自动降级为手动抽取。</p>
+    </header>
+
+    <!-- 主面板 -->
+    <section class="pzz_s_panel">
+      <div class="pzz_s_phone" aria-hidden="true">▮</div>
+      <p class="pzz_s_tip_text" id="pzz_s_tip_text">摇一摇手机，抽今日菜谱</p>
+
+      <div class="pzz_s_dish" id="pzz_s_dish">
+        <div class="pzz_s_dish_name" id="pzz_s_dish_name">？</div>
+        <div class="pzz_s_dish_desc" id="pzz_s_dish_desc">摇动手机或点下方按钮，看看今天吃什么</div>
+      </div>
+
+      <!-- 实时加速度条：静止约 9.8，摇动超过 18 触发 -->
+      <div class="pzz_s_meter">
+        <div class="pzz_s_meter_top">
+          <span>实时合成加速度</span>
+          <span id="pzz_s_meter_value">-- m/s²</span>
+        </div>
+        <div class="pzz_s_meter_track">
+          <div class="pzz_s_meter_fill" id="pzz_s_meter_fill"></div>
+          <!-- 阈值刻度：18 / 40 满量程 -->
+          <div class="pzz_s_meter_line" id="pzz_s_meter_line" style="left:45%"></div>
+        </div>
+      </div>
+
+      <div class="pzz_s_status">
+        <span>已抽取 <b id="pzz_s_count">0</b> 次</span>
+        <span>阈值 <b>18</b> m/s²</span>
+        <span>冷却 <b>1.5</b> s</span>
+      </div>
+
+      <!-- iOS 需要在用户点击后申请运动权限，按钮默认隐藏 -->
+      <button class="pzz_s_btn" id="pzz_s_auth_btn" type="button" style="display:none">开启体感 · 授权</button>
+
+      <!-- 手动抽取按钮，始终可用（降级 / 桌面调试） -->
+      <button class="pzz_s_btn" id="pzz_s_draw_btn" type="button">点我抽一次</button>
+
+      <!-- 不支持时的降级提示 -->
+      <div class="pzz_s_fallback" id="pzz_s_fallback">
+        当前设备不支持，请用手机打开。<br>
+        已为你降级为手动模式：点上面的「点我抽一次」同样可以抽取菜谱。
+      </div>
+    </section>
+
+    <div class="pzz_s_card">
+      <h2>accelerationIncludingGravity 与 acceleration 的区别</h2>
+      <p>
+        <code>acceleration</code> 是设备<strong>自身运动</strong>产生的加速度，静止放在桌上时约为 0；
+        <code>accelerationIncludingGravity</code> 则把<strong>重力</strong>也算进去，静止时约 9.8 m/s²（朝下的那根轴）。
+        摇一摇要判断"有没有被晃动"，用后者更稳：静止基线是 9.8，合成值超过 18 就说明明显在晃；
+        而 <code>acceleration</code> 在部分机型上不提供或恒为 0，容易误判，所以本页取 <code>accelerationIncludingGravity</code>。
+      </p>
+    </div>
+
+    <div class="pzz_s_card">
+      <h2>为什么必须做降级</h2>
+      <ol>
+        <li>桌面浏览器和部分安卓设备没有加速度传感器，<code>devicemotion</code> 要么不触发、要么数值全为 0，页面会一直"抽不出来"，看起来像坏了。</li>
+        <li>iOS 13+ 要求用户<strong>点击</strong>后才能申请运动权限，直接监听永远拿不到数据。</li>
+        <li>手机可能在浏览器设置里关闭了"运动与方向"权限，同样收不到事件。</li>
+        <li>所以本页做了两层兜底：1.5 秒内没收到有效数据就提示"当前设备不支持，请用手机打开"，并保留「点我抽一次」手动按钮，保证任何设备都能完成一次抽取。</li>
+      </ol>
+    </div>
+
+    <div class="pzz_s_card">
+      <h2>踩过的坑与解决办法</h2>
+      <p>
+        <strong>坑：</strong>一开始只用"是否收到过 devicemotion 事件"判断设备是否支持，结果桌面 Chrome 也会触发事件，
+        但三根轴的值<strong>全是 0</strong>，页面既不提示不支持、也永远摇不出结果，看起来像坏了。<br>
+        <strong>办法：</strong>加了有效性过滤——合成加速度大于 0.5 才算"收到了真实数据"，
+        并且 1.5 秒内没有有效数据就判定不支持、显示降级提示；同时按钮始终可用，任何设备都能完成抽取。
+      </p>
+    </div>
+
+    <div class="pzz_s_card">
+      <h2>实现要点</h2>
+      <ul>
+        <li>合成加速度：<code>√(x² + y² + z²)</code>，静止约 9.8，超过 18 判定为摇动。</li>
+        <li>冷却：记录上次触发时间，1.5 秒内的后续事件直接忽略，保证"一次摇动只抽一次"。</li>
+        <li>事件节流：用 <code>requestAnimationFrame</code> 控制加速度条刷新，避免高频重绘。</li>
+      </ul>
+    </div>
+
+    
+  </div>
+    </section>
+    <!-- 倾斜视差 -->
+    <section class="pzz_t_page pzzh_demo" data-pzzh-key="tilt">
+<div class="pzz_t_wrap">
+    
+
+    <header class="pzz_t_head">
+      <p class="pzz_t_kicker">TASK · DEVICEORIENTATION</p>
+      <h1>倾斜视差</h1>
+      <p class="pzz_t_sub">左倾右倾、前俯后仰，五层景物以不同速度移动，形成纵深视差。</p>
+    </header>
+
+    <!-- 视差舞台：六个层共用一套 translate，系数不同 -->
+    <section class="pzz_t_scene" id="pzz_t_scene">
+      <div class="pzz_t_layer pzz_t_sky" data-pzz-factor="0.12"></div>
+      <div class="pzz_t_layer pzz_t_sun" data-pzz-factor="0.25"></div>
+      <div class="pzz_t_layer pzz_t_far" data-pzz-factor="0.45"></div>
+      <div class="pzz_t_layer pzz_t_mid" data-pzz-factor="0.8"></div>
+      <div class="pzz_t_layer pzz_t_near" data-pzz-factor="1.2"></div>
+
+      <div class="pzz_t_layer pzz_t_front" data-pzz-factor="1.7">
+        <h2>倾斜视差</h2>
+        <p>Parallax · deviceorientation</p>
+      </div>
+
+      <!-- 实时角度读数 -->
+      <div class="pzz_t_readout">
+        beta（前后）<b id="pzz_t_beta">--</b>°　gamma（左右）<b id="pzz_t_gamma">--</b>°
+      </div>
+
+      <!-- 状态提示 -->
+      <div class="pzz_t_state" id="pzz_t_state">倾斜手机试试</div>
+    </section>
+
+    <!-- iOS 授权按钮，默认隐藏 -->
+    <button class="pzz_t_btn" id="pzz_t_auth_btn" type="button" style="display:none">开启体感 · 授权</button>
+
+    <div class="pzz_t_card">
+      <h3>alpha / beta / gamma 分别是什么</h3>
+      <p>
+        <code>alpha</code> 是绕垂直轴的旋转（0~360°，像转盘旋转，指南针方向）；
+        <code>beta</code> 是绕左右轴的旋转（-180~180°，手机前后俯仰，屏幕朝自己时约 0°）；
+        <code>gamma</code> 是绕前后轴的旋转（-90~90°，手机左右侧倾）。
+        本页用 <code>beta</code> 控制纵向位移、<code>gamma</code> 控制横向位移，<code>alpha</code> 不参与。
+      </p>
+    </div>
+
+    <div class="pzz_t_card">
+      <h3>为什么要做基线校准</h3>
+      <p>
+        手机拿在手里本来就不是水平的，直接拿 beta/gamma 当位移会让画面一打开就偏到一边。
+        所以代码在收到第一帧时把当时的 beta/gamma 记成"零点"，之后只用<strong>相对变化量</strong>，
+        拿手机的姿势再随意，画面也能保持居中。
+      </p>
+    </div>
+
+    <div class="pzz_t_card">
+      <h3>为什么不会抖</h3>
+      <ul>
+        <li>传感器事件频率很高（每秒几十次），如果直接写 transform，画面会跟着传感器噪声抖。</li>
+        <li>所以只把角度换算成<strong>目标位移</strong>，再用 <code>requestAnimationFrame</code> 每帧向目标 lerp（系数 0.12），运动自然顺滑。</li>
+        <li>位移还做了 ±46px 上限，倾斜再狠也不会把景物拖出舞台。</li>
+      </ul>
+    </div>
+
+    <div class="pzz_t_card">
+      <h3>无传感器时怎么办</h3>
+      <p>
+        电脑或没有陀螺仪的设备收不到 <code>deviceorientation</code>，页面会在 1.5 秒后自动切换成
+        <strong>鼠标模拟</strong>：鼠标在页面上移动即可看到同样的视差，不会白屏也不会报错。
+      </p>
+    </div>
+
+    
+  </div>
+    </section>
+
+    <div class="pzzh_note">
+      体感相关功能（摇一摇、倾斜视差）需用手机打开；iOS 要在对应模块内点「授权」按钮后才生效。
       电脑端会自动降级：手势与缩放可用鼠标拖动、滚轮模拟，倾斜视差可用鼠标移动模拟。
     </div>
 
-    <footer class="pzz_footer">
+    <footer class="pzzh_footer">
       学号：24001010606　姓名：朴哲震<br>
       提示词记录：<a href="pzz_prompt.md">pzz_prompt.md</a>　·　<a href="index.html">返回课堂目录</a>
     </footer>
   </div>
 
+  <style>
+    /* ===== 手势切卡（mobile-gesture.html 内联） ===== */
+/* 全局重置：去掉默认外边距，字体走系统字体栈 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    .pzz_g_page {
+      font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+      background: radial-gradient(circle at 20% 0%, #2b2118 0%, #16120f 55%, #0d0b09 100%);
+      color: #f5efe6;
+      min-height: 100vh;
+      padding: 28px 18px 60px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 页面主容器：限制最大宽度并居中 */
+    .pzz_g_wrap { max-width: 520px; margin: 0 auto; }
+
+    /* 返回课堂目录链接：与项目其它页面统一的样式 */
+    .pzz_g_home_link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 22px;
+      padding: 8px 14px;
+      border: 1px solid rgba(245, 239, 230, .18);
+      border-radius: 999px;
+      color: #d8cdbe;
+      font-size: 13px;
+      text-decoration: none;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+
+    .pzz_g_home_link:hover {
+      color: #ffd08a;
+      border-color: rgba(255, 208, 138, .55);
+      background: rgba(255, 208, 138, .08);
+    }
+
+    /* 页头标题区 */
+    .pzz_g_head { margin-bottom: 18px; }
+
+    .pzz_g_head .pzz_g_kicker {
+      font-size: 11px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #c08a4a;
+      margin-bottom: 8px;
+    }
+
+    .pzz_g_head h1 {
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: .01em;
+    }
+
+    .pzz_g_head .pzz_g_sub {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #9d948a;
+    }
+
+    /* 卡片舞台：position:relative 作为绝对定位卡片的参照容器
+       touch-action: pan-y 只把纵向手势交给浏览器，横向手势由我们自己的 JS 处理，
+       这样左右滑动切卡时页面不会跟着上下抖动，上下滑动仍可正常滚动页面 */
+    .pzz_g_stage {
+      position: relative;
+      height: 340px;
+      touch-action: pan-y;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* 单张美食卡片：默认隐藏并轻微右移下沉，切换时靠 transition 平滑过渡 */
+    .pzz_g_card {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 26px 24px;
+      border-radius: 22px;
+      opacity: 0;
+      transform: translateX(38px) scale(.965);
+      transition: transform .3s ease, opacity .3s ease;
+      pointer-events: none;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+    }
+
+    /* 当前卡片：完全显示、回到原位 */
+    .pzz_g_card.pzz_g_on {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+    }
+
+    /* 卡片顶部序号：右上角大号半透明数字 */
+    .pzz_g_card .pzz_g_no {
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1;
+      color: rgba(255, 255, 255, .22);
+      letter-spacing: -.04em;
+    }
+
+    /* 菜名 */
+    .pzz_g_card h2 {
+      position: relative;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, .35);
+    }
+
+    /* 菜系标签 */
+    .pzz_g_card .pzz_g_tag {
+      position: relative;
+      display: inline-block;
+      align-self: flex-start;
+      margin-bottom: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .2);
+      font-size: 11px;
+      letter-spacing: .08em;
+      backdrop-filter: blur(4px);
+    }
+
+    /* 简介文字 */
+    .pzz_g_card p {
+      position: relative;
+      font-size: 14px;
+      line-height: 1.75;
+      color: rgba(255, 255, 255, .92);
+      text-shadow: 0 1px 10px rgba(0, 0, 0, .3);
+    }
+
+    /* 四张卡片各自的渐变底色，营造不同菜系氛围 */
+    .pzz_g_card--1 { background: linear-gradient(145deg, #b23a2f 0%, #7a2318 60%, #4a120c 100%); }
+    .pzz_g_card--2 { background: linear-gradient(145deg, #d98b28 0%, #a85f14 60%, #6d3a08 100%); }
+    .pzz_g_card--3 { background: linear-gradient(145deg, #2f8f7a 0%, #1c6153 60%, #0e3b32 100%); }
+    .pzz_g_card--4 { background: linear-gradient(145deg, #8e3fa0 0%, #5e2370 60%, #331040 100%); }
+
+    /* 底部计数："第 1 / 4 张" */
+    .pzz_g_counter {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 14px;
+      letter-spacing: .08em;
+      color: #cbbfae;
+    }
+
+    /* 边界提示气泡：默认透明隐藏，出现时淡入 */
+    .pzz_g_toast {
+      margin-top: 12px;
+      min-height: 22px;
+      text-align: center;
+      font-size: 13px;
+      color: #ffd08a;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity .2s, transform .2s;
+    }
+
+    .pzz_g_toast.pzz_g_show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* 操作提示 */
+    .pzz_g_tip {
+      margin-top: 26px;
+      padding: 14px 16px;
+      border: 1px dashed rgba(245, 239, 230, .16);
+      border-radius: 14px;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #8f857a;
+    }
+
+    /* 小屏微调：卡片矮一点，标题小一号 */
+    @media (max-width: 420px) {
+      .pzz_g_stage { height: 300px; }
+      .pzz_g_head h1 { font-size: 22px; }
+      .pzz_g_card h2 { font-size: 22px; }
+      .pzz_g_card .pzz_g_no { font-size: 52px; }
+    }
+
+    /* ===== 双指缩放（mobile-zoom.html 内联） ===== */
+/* 全局重置 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    .pzz_z_page {
+      font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+      background: radial-gradient(circle at 15% 0%, #1d2430 0%, #12161c 55%, #0a0c10 100%);
+      color: #e8edf3;
+      min-height: 100vh;
+      padding: 24px 16px 50px;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .pzz_z_wrap { max-width: 560px; margin: 0 auto; }
+
+    /* 返回课堂目录 */
+    .pzz_z_home_link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+      padding: 8px 14px;
+      border: 1px solid rgba(232, 237, 243, .16);
+      border-radius: 999px;
+      color: #c3ccd8;
+      font-size: 13px;
+      text-decoration: none;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+
+    .pzz_z_home_link:hover {
+      color: #8fd3ff;
+      border-color: rgba(143, 211, 255, .5);
+      background: rgba(143, 211, 255, .08);
+    }
+
+    /* 页头 */
+    .pzz_z_head { margin-bottom: 16px; }
+
+    .pzz_z_head .pzz_z_kicker {
+      font-size: 11px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #5f9ec4;
+      margin-bottom: 8px;
+    }
+
+    .pzz_z_head h1 { font-size: 24px; font-weight: 700; }
+
+    .pzz_z_head .pzz_z_sub {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #8b97a6;
+    }
+
+    /* 图片容器：overflow:hidden 裁掉超出部分，touch-action:none 禁止浏览器接管手势，
+       user-select:none 避免长按选中图片，三件套是自研手势的前提 */
+    .pzz_z_stage {
+      position: relative;
+      width: 100%;
+      height: 60vh;
+      min-height: 320px;
+      max-height: 520px;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      border-radius: 18px;
+      background: #0e1116;
+      box-shadow: 0 18px 44px rgba(0, 0, 0, .5);
+    }
+
+    /* 图片本体：以左上角为变换原点，平移 + 缩放全部由 JS 写入 transform */
+    .pzz_z_img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-origin: 0 0;
+      display: block;
+      max-width: none;
+      will-change: transform;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+
+    /* 需要动画时临时加这个类：过渡 0.25s，双击切换与回弹共用同一套过渡 */
+    .pzz_z_img.pzz_z_anim {
+      transition: transform .25s ease;
+    }
+
+    /* 缩放比例指示器：右上角浮层，含百分比文字与进度条 */
+    .pzz_z_zoom_badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(8, 11, 15, .62);
+      backdrop-filter: blur(6px);
+      font-size: 12px;
+      letter-spacing: .04em;
+      color: #cfe4f5;
+      pointer-events: none;
+    }
+
+    /* 进度条：宽度按 1~4 倍映射 */
+    .pzz_z_zoom_bar {
+      position: relative;
+      width: 54px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(207, 228, 245, .22);
+      overflow: hidden;
+    }
+
+    .pzz_z_zoom_bar i {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #4aa8e0, #8fd3ff);
+      transition: width .1s linear;
+    }
+
+    /* 复位按钮：一键回到 1 倍、角度归零、图片居中 */
+    .pzz_z_reset {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 8px 16px;
+      border: 1px solid rgba(143, 211, 255, .35);
+      border-radius: 999px;
+      background: rgba(143, 211, 255, .08);
+      color: #a9dcff;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+
+    .pzz_z_reset:hover {
+      background: rgba(143, 211, 255, .16);
+      border-color: rgba(143, 211, 255, .6);
+    }
+
+    /* 打开页面时的提示条，4 秒后自动淡出 */
+    .pzz_z_hint {
+      position: absolute;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(8, 11, 15, .74);
+      backdrop-filter: blur(6px);
+      font-size: 12.5px;
+      white-space: nowrap;
+      color: #dbe7f2;
+      transition: opacity .4s;
+    }
+
+    .pzz_z_hint.pzz_z_hide { opacity: 0; }
+
+    /* 操作说明 / 原理说明卡片 */
+    .pzz_z_card {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 1px solid rgba(232, 237, 243, .1);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .pzz_z_card h2 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #8fd3ff;
+    }
+
+    .pzz_z_card p,
+    .pzz_z_card li {
+      font-size: 13px;
+      line-height: 1.85;
+      color: #9aa7b6;
+    }
+
+    .pzz_z_card ol { padding-left: 18px; }
+
+    .pzz_z_card code {
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(143, 211, 255, .12);
+      color: #a9dcff;
+      font-size: 12px;
+    }
+
+    @media (max-width: 420px) {
+      .pzz_z_stage { height: 52vh; }
+      .pzz_z_head h1 { font-size: 21px; }
+    }
+
+    /* ===== 摇一摇菜谱（mobile-sensor.html 内联） ===== */
+/* 全局重置 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    .pzz_s_page {
+      font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+      background: radial-gradient(circle at 20% 0%, #2a1f14 0%, #17120d 55%, #0b0906 100%);
+      color: #f2ece4;
+      min-height: 100vh;
+      padding: 24px 16px 50px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .pzz_s_wrap { max-width: 540px; margin: 0 auto; }
+
+    /* 返回课堂目录 */
+    .pzz_s_home_link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+      padding: 8px 14px;
+      border: 1px solid rgba(242, 236, 228, .16);
+      border-radius: 999px;
+      color: #cfc3b4;
+      font-size: 13px;
+      text-decoration: none;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+
+    .pzz_s_home_link:hover {
+      color: #ffc57a;
+      border-color: rgba(255, 197, 122, .5);
+      background: rgba(255, 197, 122, .08);
+    }
+
+    .pzz_s_head { margin-bottom: 18px; }
+
+    .pzz_s_head .pzz_s_kicker {
+      font-size: 11px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #c08c4d;
+      margin-bottom: 8px;
+    }
+
+    .pzz_s_head h1 { font-size: 24px; font-weight: 700; }
+
+    .pzz_s_head .pzz_s_sub {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #a3958a;
+    }
+
+    /* 摇一摇主面板 */
+    .pzz_s_panel {
+      position: relative;
+      padding: 26px 20px 22px;
+      border: 1px solid rgba(255, 197, 122, .18);
+      border-radius: 20px;
+      background: linear-gradient(165deg, rgba(255, 197, 122, .1), rgba(255, 255, 255, .02) 60%);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .pzz_s_panel .pzz_s_phone {
+      font-size: 34px;
+      line-height: 1;
+      margin-bottom: 10px;
+      animation: pzz_s_swing 1.8s ease-in-out infinite;
+      transform-origin: 50% 90%;
+    }
+
+    /* 手机图标来回轻晃，暗示"摇一摇" */
+    @keyframes pzz_s_swing {
+      0%, 100% { transform: rotate(-12deg); }
+      50% { transform: rotate(12deg); }
+    }
+
+    .pzz_s_panel .pzz_s_tip_text {
+      font-size: 14px;
+      color: #d9cbb9;
+      margin-bottom: 18px;
+    }
+
+    /* 菜品结果卡 */
+    .pzz_s_dish {
+      padding: 20px 16px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, .32);
+      border: 1px dashed rgba(255, 197, 122, .28);
+    }
+
+    .pzz_s_dish .pzz_s_dish_name {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: #ffd9a3;
+    }
+
+    .pzz_s_dish .pzz_s_dish_desc {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #a99b8c;
+    }
+
+    /* 抽中时的一次性弹出动画 */
+    .pzz_s_dish.pzz_s_pop { animation: pzz_s_pop .5s cubic-bezier(.18, 1.5, .4, 1); }
+
+    @keyframes pzz_s_pop {
+      0% { transform: scale(.72); opacity: .2; }
+      60% { transform: scale(1.06); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 实时加速度条：验收截图能直观看到阈值 */
+    .pzz_s_meter { margin-top: 18px; text-align: left; }
+
+    .pzz_s_meter .pzz_s_meter_top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #9d8f80;
+      margin-bottom: 6px;
+    }
+
+    .pzz_s_meter .pzz_s_meter_track {
+      position: relative;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .1);
+      overflow: hidden;
+    }
+
+    .pzz_s_meter .pzz_s_meter_fill {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #8a6a3d, #ffc06a);
+      transition: width .08s linear;
+    }
+
+    /* 阈值刻度线：18 的位置 */
+    .pzz_s_meter .pzz_s_meter_line {
+      position: absolute;
+      top: -2px;
+      bottom: -2px;
+      width: 2px;
+      background: rgba(255, 92, 92, .85);
+    }
+
+    /* 状态行：触发次数 / 冷却 */
+    .pzz_s_status {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 14px;
+      font-size: 12px;
+      color: #8f8275;
+    }
+
+    .pzz_s_status b { color: #ffc57a; font-weight: 600; }
+
+    /* 主按钮（iOS 授权 / 点我抽一次） */
+    .pzz_s_btn {
+      margin-top: 16px;
+      padding: 11px 24px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffb457, #ef8b32);
+      color: #241708;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .2s;
+      box-shadow: 0 8px 20px rgba(239, 139, 50, .32);
+    }
+
+    .pzz_s_btn:active { transform: scale(.96); }
+
+    /* 不支持提示 / 降级区 */
+    .pzz_s_fallback {
+      display: none;
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(255, 92, 92, .1);
+      border: 1px solid rgba(255, 92, 92, .28);
+      font-size: 13px;
+      line-height: 1.7;
+      color: #ffb3b3;
+      text-align: left;
+    }
+
+    .pzz_s_fallback.pzz_s_show { display: block; }
+
+    /* 说明卡 */
+    .pzz_s_card {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 1px solid rgba(242, 236, 228, .1);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .pzz_s_card h2 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #ffc57a;
+    }
+
+    .pzz_s_card p, .pzz_s_card li {
+      font-size: 13px;
+      line-height: 1.85;
+      color: #a89a8c;
+    }
+
+    .pzz_s_card ol, .pzz_s_card ul { padding-left: 18px; }
+
+    .pzz_s_card code {
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(255, 197, 122, .12);
+      color: #ffd9a3;
+      font-size: 12px;
+    }
+
+    /* 页脚：学号姓名 + 提示词入口 */
+    .pzz_s_footer {
+      margin-top: 26px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(242, 236, 228, .08);
+      font-size: 12px;
+      color: #7d7166;
+      line-height: 1.9;
+    }
+
+    .pzz_s_footer a { color: #ffc57a; text-decoration: none; }
+    .pzz_s_footer a:hover { text-decoration: underline; }
+
+    /* ===== 倾斜视差（mobile-tilt.html 内联） ===== */
+/* 全局重置 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    .pzz_t_page {
+      font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+      background: radial-gradient(circle at 20% 0%, #10203a 0%, #0b1524 55%, #060a11 100%);
+      color: #e9f1fa;
+      min-height: 100vh;
+      padding: 24px 16px 50px;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .pzz_t_wrap { max-width: 560px; margin: 0 auto; }
+
+    /* 返回课堂目录 */
+    .pzz_t_home_link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+      padding: 8px 14px;
+      border: 1px solid rgba(233, 241, 250, .16);
+      border-radius: 999px;
+      color: #c2d2e4;
+      font-size: 13px;
+      text-decoration: none;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+
+    .pzz_t_home_link:hover {
+      color: #7fd8ff;
+      border-color: rgba(127, 216, 255, .5);
+      background: rgba(127, 216, 255, .08);
+    }
+
+    .pzz_t_head { margin-bottom: 16px; }
+
+    .pzz_t_head .pzz_t_kicker {
+      font-size: 11px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #4f93bb;
+      margin-bottom: 8px;
+    }
+
+    .pzz_t_head h1 { font-size: 24px; font-weight: 700; }
+
+    .pzz_t_head .pzz_t_sub {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #8fa3b8;
+    }
+
+    /* 舞台：超出部分裁掉，各层在里面按不同系数位移 */
+    .pzz_t_scene {
+      position: relative;
+      width: 100%;
+      height: 58vh;
+      min-height: 320px;
+      max-height: 500px;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #0a1524;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, .5);
+      touch-action: none;
+      user-select: none;
+    }
+
+    /* 每一层都比舞台大一圈，位移时才不会露出边缘（最大位移 46×1.7≈78px，留足 16% 余量） */
+    .pzz_t_layer {
+      position: absolute;
+      inset: -16%;
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+    }
+
+    /* 第 1 层：天空渐变 */
+    .pzz_t_sky {
+      background: linear-gradient(180deg, #123a63 0%, #1d5a86 38%, #3d86a8 62%, #8cc0cf 100%);
+    }
+
+    /* 第 2 层：太阳光晕 */
+    .pzz_t_sun {
+      background: radial-gradient(circle at 62% 34%, rgba(255, 224, 168, .95) 0%, rgba(255, 196, 120, .55) 9%, rgba(255, 170, 90, .16) 22%, rgba(255, 170, 90, 0) 42%);
+    }
+
+    /* 第 3 层：远处雪山（clip-path 折线） */
+    .pzz_t_far {
+      background: linear-gradient(180deg, #6d93ad 0%, #4c7590 100%);
+      clip-path: polygon(0 48%, 9% 40%, 17% 46%, 26% 30%, 35% 44%, 44% 34%, 53% 46%, 63% 33%, 72% 45%, 81% 37%, 90% 47%, 100% 39%, 100% 100%, 0 100%);
+      opacity: .85;
+    }
+
+    /* 第 4 层：中景山体，颜色更深 */
+    .pzz_t_mid {
+      background: linear-gradient(180deg, #2f5876 0%, #1d3d55 100%);
+      clip-path: polygon(0 62%, 12% 52%, 23% 60%, 34% 47%, 46% 58%, 57% 49%, 68% 59%, 79% 51%, 90% 60%, 100% 53%, 100% 100%, 0 100%);
+    }
+
+    /* 第 5 层：近景水面与倒影 */
+    .pzz_t_near {
+      inset: 52% -16% -16% -16%;
+      background: linear-gradient(180deg, rgba(10, 32, 52, .9) 0%, rgba(6, 20, 34, .98) 100%);
+    }
+
+    /* 第 6 层：前景文字，位移最大，视差感最强 */
+    .pzz_t_front {
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .pzz_t_front h2 {
+      font-size: 28px;
+      letter-spacing: .12em;
+      text-shadow: 0 6px 22px rgba(0, 0, 0, .55);
+    }
+
+    .pzz_t_front p {
+      font-size: 12.5px;
+      letter-spacing: .18em;
+      color: rgba(233, 241, 250, .72);
+      text-transform: uppercase;
+    }
+
+    /* 左上角数值浮层：beta / gamma 实时显示 */
+    .pzz_t_readout {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(5, 12, 20, .55);
+      backdrop-filter: blur(6px);
+      font-size: 12px;
+      line-height: 1.7;
+      color: #cfe6f7;
+      pointer-events: none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pzz_t_readout b { color: #7fd8ff; font-weight: 600; }
+
+    /* 状态提示（降级 / 授权） */
+    .pzz_t_state {
+      position: absolute;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(5, 12, 20, .66);
+      backdrop-filter: blur(6px);
+      font-size: 12px;
+      white-space: nowrap;
+      color: #d5e6f5;
+      transition: opacity .35s;
+    }
+
+    .pzz_t_state.pzz_t_hide { opacity: 0; }
+
+    /* 按钮通用样式 */
+    .pzz_t_btn {
+      margin-top: 14px;
+      padding: 11px 24px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #58c4f0, #2f8ac0);
+      color: #06131d;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform .15s;
+      box-shadow: 0 8px 22px rgba(47, 138, 192, .34);
+    }
+
+    .pzz_t_btn:active { transform: scale(.96); }
+
+    /* 说明卡 */
+    .pzz_t_card {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 1px solid rgba(233, 241, 250, .1);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .pzz_t_card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #7fd8ff;
+    }
+
+    .pzz_t_card p, .pzz_t_card li {
+      font-size: 13px;
+      line-height: 1.85;
+      color: #9db0c3;
+    }
+
+    .pzz_t_card ol, .pzz_t_card ul { padding-left: 18px; }
+
+    .pzz_t_card code {
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(127, 216, 255, .12);
+      color: #a9e2ff;
+      font-size: 12px;
+    }
+
+    /* 页脚 */
+    .pzz_t_footer {
+      margin-top: 26px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(233, 241, 250, .08);
+      font-size: 12px;
+      color: #74869a;
+      line-height: 1.9;
+    }
+
+    .pzz_t_footer a { color: #7fd8ff; text-decoration: none; }
+    .pzz_t_footer a:hover { text-decoration: underline; }
+  </style>
+
   <script>
     /* 作者：朴哲震 | 建立时间：2026-11-16 15:26 | 使用模型：DeepSeek-V4.1-Flash
-       功能：pzz_tabs —— 标签切换：同步按钮高亮、显示对应 iframe、更新说明文字 */
-    var pzz_tabBtns = document.querySelectorAll(".pzz_tab");
-    var pzz_frames = document.querySelectorAll(".pzz_frame");
-    var pzz_descEl = document.getElementById("pzz_desc");
-
-    // 每个标签对应的说明文字
-    var pzz_descMap = {
+       功能：pzzh 标签切换 —— 同步标签高亮、练习面板显隐与说明文字 */
+    var pzzh_tabs = document.querySelectorAll(".pzzh_tab");
+    var pzzh_demos = document.querySelectorAll(".pzzh_demo");
+    var pzzh_descEl = document.getElementById("pzzh_desc");
+    var pzzh_descMap = {
       gesture: "<b>手势切卡：</b>左右拖动切换菜品卡片，含 40px 误触阈值、300ms 连滑冷却与边界提示。",
       zoom: "<b>双指缩放：</b>以两指中点缩放 1~4 倍、双指旋转，双击 1x/2x，越界带阻尼回弹。",
       sensor: "<b>摇一摇菜谱：</b>合成加速度超过 18 判定摇动，1.5 秒冷却防重复触发，无传感器自动降级。",
-      tilt: "<b>倾斜视差：</b>beta/gamma 驱动六层景物不同系数位移，基线校准 + lerp 平滑防抖。"
+      tilt: "<b>倾斜视差：</b>beta/gamma 驱动六层景物不同系数位移，基线校准 + lerp 平滑防抖。",
     };
 
     /* 作者：朴哲震 | 建立时间：2026-11-16 15:26 | 使用模型：DeepSeek-V4.1-Flash
-       功能：pzz_switch —— 按 key 切换标签页：高亮对应按钮、显示对应 iframe、替换说明文字 */
-    function pzz_switch(key) {
+       功能：pzzh_switch —— 按 key 切换：高亮标签、显示对应练习面板、更新说明文字 */
+    function pzzh_switch(key) {
       var i;
-      for (i = 0; i < pzz_tabBtns.length; i++) {
-        var btn = pzz_tabBtns[i];
-        btn.classList.toggle("pzz_on", btn.getAttribute("data-pzz-key") === key);
+      for (i = 0; i < pzzh_tabs.length; i++) {
+        pzzh_tabs[i].classList.toggle("pzzh_on", pzzh_tabs[i].getAttribute("data-pzzh-key") === key);
       }
-      for (i = 0; i < pzz_frames.length; i++) {
-        var frame = pzz_frames[i];
-        frame.classList.toggle("pzz_on", frame.getAttribute("data-pzz-key") === key);
+      for (i = 0; i < pzzh_demos.length; i++) {
+        pzzh_demos[i].classList.toggle("pzzh_on", pzzh_demos[i].getAttribute("data-pzzh-key") === key);
       }
-      if (pzz_descMap[key]) { pzz_descEl.innerHTML = pzz_descMap[key]; }
+      if (pzzh_descMap[key]) { pzzh_descEl.innerHTML = pzzh_descMap[key]; }
     }
 
-    // 给所有标签绑定点击事件
-    for (var pzz_i = 0; pzz_i < pzz_tabBtns.length; pzz_i++) {
-      pzz_tabBtns[pzz_i].addEventListener("click", function () {
-        pzz_switch(this.getAttribute("data-pzz-key"));
+    // 绑定四个标签的点击事件
+    for (var pzzh_i = 0; pzzh_i < pzzh_tabs.length; pzzh_i++) {
+      pzzh_tabs[pzzh_i].addEventListener("click", function () {
+        pzzh_switch(this.getAttribute("data-pzzh-key"));
       });
     }
+
+    /* ===== 手势切卡 脚本 ===== */
+/* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
+       功能：全局状态 —— 记录当前卡片索引、触点起点、上次切换时间，集中管理三个阈值常量 */
+    var pzz_g_cards = document.querySelectorAll(".pzz_g_card");   // 四张卡片
+    var pzz_g_counterEl = document.getElementById("pzz_g_counter"); // 底部计数
+    var pzz_g_toastEl = document.getElementById("pzz_g_toast");     // 边界提示
+    var pzz_g_index = 0;          // 当前显示第几张（0 起算）
+    var pzz_g_startX = 0;         // touchstart 时的横坐标
+    var pzz_g_startY = 0;         // touchstart 时的纵坐标
+    var pzz_g_lastTime = 0;       // 上次成功切换的时间戳
+    var pzz_g_toastTimer = null;  // 提示气泡的隐藏定时器
+
+    var PZZ_G_THRESHOLD = 40;     // 横向位移阈值：小于 40px 视为误触，不切换
+    var PZZ_G_COOLDOWN = 300;     // 冷却时间：两次切换至少间隔 300ms，防连滑跳张
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_g_switchCard —— 切换到目标索引的卡片，并同步更新底部"第 x / 4 张"计数 */
+    function pzz_g_switchCard(next) {
+      // 全部卡片先去掉激活类，再给目标卡片加上，transition 会自动完成 0.3s 过渡
+      for (var i = 0; i < pzz_g_cards.length; i++) {
+        pzz_g_cards[i].classList.remove("pzz_g_on");
+      }
+      pzz_g_cards[next].classList.add("pzz_g_on");
+
+      pzz_g_index = next;
+      pzz_g_counterEl.textContent = "第 " + (next + 1) + " / " + pzz_g_cards.length + " 张";
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_g_showToast —— 在底部显示一条提示文字，1.2 秒后自动淡出 */
+    function pzz_g_showToast(text) {
+      pzz_g_toastEl.textContent = text;
+      pzz_g_toastEl.classList.add("pzz_g_show");
+
+      // 先清掉上一次的定时器，避免多条提示叠加时提前消失
+      if (pzz_g_toastTimer) { clearTimeout(pzz_g_toastTimer); }
+      pzz_g_toastTimer = setTimeout(function () {
+        pzz_g_toastEl.classList.remove("pzz_g_show");
+      }, 1200);
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_g_judge —— 统一的滑动判定，接收横向/纵向位移，处理方向过滤、40px 阈值、300ms 冷却与首尾边界 */
+    function pzz_g_judge(dx, dy) {
+      // 纵向位移大于横向，说明用户在上下滚动页面，不当作切卡手势
+      if (Math.abs(dy) > Math.abs(dx)) { return; }
+      // 横向位移不足 40px，视为轻微误触，不切换
+      if (Math.abs(dx) < PZZ_G_THRESHOLD) { return; }
+
+      // 冷却判断：距离上次成功切换不足 300ms 直接忽略，防止快速连滑一次跳两张
+      var now = Date.now();
+      if (now - pzz_g_lastTime < PZZ_G_COOLDOWN) { return; }
+
+      if (dx < 0) {
+        // 向左滑 → 下一张；已经在最后一张则提示
+        if (pzz_g_index >= pzz_g_cards.length - 1) {
+          pzz_g_showToast("已经是最后一张");
+          return;
+        }
+        pzz_g_switchCard(pzz_g_index + 1);
+      } else {
+        // 向右滑 → 上一张；已经在第一张则提示
+        if (pzz_g_index <= 0) {
+          pzz_g_showToast("已经是第一张");
+          return;
+        }
+        pzz_g_switchCard(pzz_g_index - 1);
+      }
+
+      pzz_g_lastTime = now;  // 记录本次切换时间，供下一次冷却判断使用
+    }
+
+    var pzz_g_stageEl = document.getElementById("pzz_g_stage");
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
+       功能：touchstart 监听 —— 记录手指按下的起点坐标，作为横向位移的计算基准 */
+    pzz_g_stageEl.addEventListener("touchstart", function (e) {
+      var touch = e.changedTouches[0];
+      pzz_g_startX = touch.clientX;
+      pzz_g_startY = touch.clientY;
+    }, { passive: true });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
+       功能：touchend 监听 —— 用 changedTouches[0] 计算横向位移，交给 pzz_g_judge 判定左滑 / 右滑 */
+    pzz_g_stageEl.addEventListener("touchend", function (e) {
+      var touch = e.changedTouches[0];
+      pzz_g_judge(touch.clientX - pzz_g_startX, touch.clientY - pzz_g_startY);
+    }, { passive: true });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 13:51 | 使用模型：DeepSeek-V4.1-Flash
+       功能：鼠标拖拽兼容 —— 桌面浏览器没有触摸事件，用 mousedown / mouseup 记录并计算位移，
+             让电脑上按住卡片左右拖动也能切卡（手机上仍走 touch 事件） */
+    pzz_g_stageEl.addEventListener("mousedown", function (e) {
+      pzz_g_startX = e.clientX;
+      pzz_g_startY = e.clientY;
+    });
+
+    pzz_g_stageEl.addEventListener("mouseup", function (e) {
+      pzz_g_judge(e.clientX - pzz_g_startX, e.clientY - pzz_g_startY);
+    });
+
+    /* ===== 双指缩放 脚本 ===== */
+/* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz 变量区 —— 容器/图片/指示器节点、容器尺寸、适配基准、当前缩放倍数与平移量 */
+    var pzz_z_stageEl = document.getElementById("pzz_z_stage");
+    var pzz_z_imgEl = document.getElementById("pzz_z_img");
+    var pzz_z_zoomTextEl = document.getElementById("pzz_z_zoom_text");
+    var pzz_z_zoomFillEl = document.getElementById("pzz_z_zoom_fill");
+    var pzz_z_hintEl = document.getElementById("pzz_z_hint");
+    var pzz_z_resetEl = document.getElementById("pzz_z_reset");
+
+    var PZZ_Z_MIN_SCALE = 1;      // 最小缩放：1 倍（整张图适配容器）
+    var PZZ_Z_MAX_SCALE = 4;      // 最大缩放：4 倍
+    var PZZ_Z_DAMPING = 0.3;      // 越界阻尼系数：越小越"顶手"，松手回弹
+    var PZZ_Z_TAP_MOVE = 12;      // 按下到抬起的位移小于 12px 才算"点击"（用于双击判断）
+    var PZZ_Z_TAP_GAP = 300;      // 两次点击间隔小于 300ms 视为双击
+
+    var pzz_z_cw = 0;             // 容器宽
+    var pzz_z_ch = 0;             // 容器高
+    var pzz_z_base = 1;           // 适配倍数：让原图完整放进容器
+    var pzz_z_scale = 1;          // 用户缩放倍数（1~4）
+    var pzz_z_angle = 0;          // 旋转角度（弧度，顺时针为正）
+    var pzz_z_tx = 0;             // 图片平移 X
+    var pzz_z_ty = 0;             // 图片平移 Y
+
+    // 手势过程中的临时状态
+    var pzz_z_mode = "none";      // "none" | "pan" | "pinch"
+    var pzz_z_pointer = null;     // 单指/单鼠标拖动时的起点
+    var pzz_z_pinch = null;       // 双指捏合时的起点信息
+    var pzz_z_lastTap = 0;        // 上次点击时间戳
+    var pzz_z_lastTapPos = { x: 0, y: 0 };  // 上次点击位置
+    var pzz_z_animTimer = null;   // 过渡类移除定时器
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_measure —— 读取容器尺寸，并按"完整显示"计算适配倍数 pzz_z_base */
+    function pzz_z_measure() {
+      pzz_z_cw = pzz_z_stageEl.clientWidth;
+      pzz_z_ch = pzz_z_stageEl.clientHeight;
+      if (!pzz_z_imgEl.naturalWidth || !pzz_z_imgEl.naturalHeight) { return; }
+      // contain：取宽高两个方向较小的比例，保证整张图都能看见
+      pzz_z_base = Math.min(
+        pzz_z_cw / pzz_z_imgEl.naturalWidth,
+        pzz_z_ch / pzz_z_imgEl.naturalHeight
+      );
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_apply —— 把当前缩放和平移写入 transform，并同步更新缩放指示器 */
+    function pzz_z_apply() {
+      var total = pzz_z_base * pzz_z_scale;   // 实际渲染倍数 = 适配倍数 × 用户缩放
+      // 顺序固定为 平移 → 旋转 → 缩放：先转到目标角度，再以左上角为原点放大
+      pzz_z_imgEl.style.transform =
+        "translate(" + pzz_z_tx + "px," + pzz_z_ty + "px) rotate(" + pzz_z_angle + "rad) scale(" + total + ")";
+
+      // 指示器：百分比 + 进度条（1~4 倍映射到 0~100%），有旋转时追加角度
+      var text = Math.round(pzz_z_scale * 100) + "%";
+      var deg = Math.round(pzz_z_angle * 180 / Math.PI);
+      if (deg !== 0) { text += " · " + deg + "°"; }
+      pzz_z_zoomTextEl.textContent = text;
+      pzz_z_zoomFillEl.style.width =
+        ((pzz_z_scale - PZZ_Z_MIN_SCALE) / (PZZ_Z_MAX_SCALE - PZZ_Z_MIN_SCALE) * 100) + "%";
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_rot —— 二维向量按弧度旋转，正角度为屏幕顺时针；用于图片坐标与屏幕坐标互转 */
+    function pzz_z_rot(x, y, rad) {
+      var c = Math.cos(rad);
+      var s = Math.sin(rad);
+      return { x: x * c - y * s, y: x * s + y * c };
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_bounds —— 按"旋转后的包围盒"计算平移合法区间；包围盒比容器小则该轴固定居中 */
+    function pzz_z_bounds() {
+      var w = pzz_z_imgEl.naturalWidth * pzz_z_base * pzz_z_scale;
+      var h = pzz_z_imgEl.naturalHeight * pzz_z_base * pzz_z_scale;
+      var c = Math.cos(pzz_z_angle);
+      var s = Math.sin(pzz_z_angle);
+
+      // 图片四角（相对平移量）旋转后取包络，得到旋转后占用的宽高范围
+      var xs = [0, w * c, -h * s, w * c - h * s];
+      var ys = [0, w * s, h * c, w * s + h * c];
+      var minX = Math.min.apply(null, xs);
+      var maxX = Math.max.apply(null, xs);
+      var minY = Math.min.apply(null, ys);
+      var maxY = Math.max.apply(null, ys);
+      var bw = maxX - minX;
+      var bh = maxY - minY;
+
+      // 包围盒比容器大：平移量必须让包络覆盖容器；比容器小：固定在居中位置
+      var loX = bw >= pzz_z_cw ? pzz_z_cw - maxX : (pzz_z_cw - bw) / 2 - minX;
+      var hiX = bw >= pzz_z_cw ? -minX : (pzz_z_cw - bw) / 2 - minX;
+      var loY = bh >= pzz_z_ch ? pzz_z_ch - maxY : (pzz_z_ch - bh) / 2 - minY;
+      var hiY = bh >= pzz_z_ch ? -minY : (pzz_z_ch - bh) / 2 - minY;
+
+      return { minX: loX, maxX: hiX, minY: loY, maxY: hiY };
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_softClamp —— 越界时按阻尼系数压缩超出量，产生"顶手"的橡皮筋手感 */
+    function pzz_z_softClamp(value, min, max) {
+      if (value < min) { return min + (value - min) * PZZ_Z_DAMPING; }
+      if (value > max) { return max + (value - max) * PZZ_Z_DAMPING; }
+      return value;
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_hardClamp —— 把手动拖动或捏合后的平移量硬夹回边界内，松手时调用 */
+    function pzz_z_hardClamp() {
+      var b = pzz_z_bounds();
+      pzz_z_tx = Math.min(b.maxX, Math.max(b.minX, pzz_z_tx));
+      pzz_z_ty = Math.min(b.maxY, Math.max(b.minY, pzz_z_ty));
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_animateOnce —— 临时挂上 0.25s 过渡类，让本次变化平滑完成后再移除，避免影响手指实时拖动 */
+    function pzz_z_animateOnce() {
+      pzz_z_imgEl.classList.add("pzz_z_anim");
+      if (pzz_z_animTimer) { clearTimeout(pzz_z_animTimer); }
+      pzz_z_animTimer = setTimeout(function () {
+        pzz_z_imgEl.classList.remove("pzz_z_anim");
+      }, 260);
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_center —— 重置为 1 倍并居中显示（可带动画），供双击缩回与初始化使用 */
+    function pzz_z_center(animated) {
+      pzz_z_scale = 1;
+      pzz_z_angle = 0;   // 复位同时把旋转角度归零
+      var w = pzz_z_imgEl.naturalWidth * pzz_z_base;
+      var h = pzz_z_imgEl.naturalHeight * pzz_z_base;
+      pzz_z_tx = (pzz_z_cw - w) / 2;
+      pzz_z_ty = (pzz_z_ch - h) / 2;
+      if (animated) { pzz_z_animateOnce(); }
+      pzz_z_apply();
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_zoomAt —— 以容器内某点为基准缩放到目标倍数（核心防跳公式），可带动画 */
+    function pzz_z_zoomAt(px, py, targetScale, animated) {
+      var oldTotal = pzz_z_base * pzz_z_scale;
+      // ① 把屏幕点换算成"这个点下面是图片的哪一块"：先反向旋转，再除以总缩放
+      var v = pzz_z_rot(px - pzz_z_tx, py - pzz_z_ty, -pzz_z_angle);
+      var ux = v.x / oldTotal;
+      var uy = v.y / oldTotal;
+
+      // ② 更新倍数后反推平移：先按当前角度旋转回去，再加中点偏移
+      pzz_z_scale = Math.min(PZZ_Z_MAX_SCALE, Math.max(PZZ_Z_MIN_SCALE, targetScale));
+      var newTotal = pzz_z_base * pzz_z_scale;
+      var rv = pzz_z_rot(ux, uy, pzz_z_angle);
+      pzz_z_tx = px - rv.x * newTotal;
+      pzz_z_ty = py - rv.y * newTotal;
+
+      // ③ 收尾夹紧，避免缩放后图片被拖到容器外
+      pzz_z_hardClamp();
+      if (animated) { pzz_z_animateOnce(); }
+      pzz_z_apply();
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_toggleZoom —— 双击时在 1x 与 2x 之间切换，放大的基准点就是双击位置 */
+    function pzz_z_toggleZoom(px, py) {
+      if (pzz_z_scale > 1.05) {
+        pzz_z_center(true);          // 已放大 → 回到 1 倍并居中
+      } else {
+        pzz_z_zoomAt(px, py, 2, true); // 1 倍 → 以双击点为中心放大到 2 倍
+      }
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_dist / pzz_z_mid —— 计算两指距离与中点，捏合缩放的输入数据 */
+    function pzz_z_dist(a, b) {
+      var dx = a.clientX - b.clientX;
+      var dy = a.clientY - b.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function pzz_z_mid(a, b) {
+      // 中点要换算成相对容器的坐标，才能直接参与平移计算
+      var rect = pzz_z_stageEl.getBoundingClientRect();
+      return {
+        x: (a.clientX + b.clientX) / 2 - rect.left,
+        y: (a.clientY + b.clientY) / 2 - rect.top
+      };
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_touchStart —— 记录单指/双指状态：单指记起点，双指记初始距离、初始倍数与中点下的图片坐标 */
+    pzz_z_stageEl.addEventListener("touchstart", function (e) {
+      pzz_z_hintEl.classList.add("pzz_z_hide");   // 用户开始操作后收起提示
+
+      if (e.touches.length === 2) {
+        var mid = pzz_z_mid(e.touches[0], e.touches[1]);
+        var total = pzz_z_base * pzz_z_scale;
+        // 把中点换算成图片坐标：先反向旋转（去掉已有角度），再除以总缩放
+        var v = pzz_z_rot(mid.x - pzz_z_tx, mid.y - pzz_z_ty, -pzz_z_angle);
+        pzz_z_pinch = {
+          dist: pzz_z_dist(e.touches[0], e.touches[1]),
+          // 两指连线角度（atan2 求），后续按角度差做旋转
+          angle: Math.atan2(
+            e.touches[1].clientY - e.touches[0].clientY,
+            e.touches[1].clientX - e.touches[0].clientX
+          ),
+          scale: pzz_z_scale,
+          rot: pzz_z_angle,
+          // 记下中点正下方的那块图片内容，缩放+旋转全程盯住它不动
+          ux: v.x / total,
+          uy: v.y / total,
+          mid: mid
+        };
+        pzz_z_mode = "pinch";
+        pzz_z_pointer = null;
+      } else if (e.touches.length === 1) {
+        var t = e.touches[0];
+        var rect = pzz_z_stageEl.getBoundingClientRect();
+        pzz_z_pointer = {
+          x: t.clientX - rect.left,
+          y: t.clientY - rect.top,
+          tx: pzz_z_tx,
+          ty: pzz_z_ty
+        };
+        // 只有放大状态下单指才允许拖动；1 倍时图片铺满容器不动，天然拖不出边界
+        pzz_z_mode = pzz_z_scale > 1 ? "pan" : "none";
+      }
+    }, { passive: false });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_touchMove —— 双指按距离比例缩放并实时锁定中点；单指放大状态跟随拖动 */
+    pzz_z_stageEl.addEventListener("touchmove", function (e) {
+      // 手势期间阻止页面滚动与浏览器默认缩放
+      if (pzz_z_mode !== "none" || e.touches.length === 2) { e.preventDefault(); }
+
+      if (e.touches.length === 2 && pzz_z_pinch) {
+        var mid = pzz_z_mid(e.touches[0], e.touches[1]);
+        var ratio = pzz_z_dist(e.touches[0], e.touches[1]) / pzz_z_pinch.dist; // 距离比例
+        var next = Math.min(PZZ_Z_MAX_SCALE, Math.max(PZZ_Z_MIN_SCALE, pzz_z_pinch.scale * ratio));
+
+        // 旋转：当前两指连线角度 - 起始角度，叠加到起始旋转角上
+        var nowAngle = Math.atan2(
+          e.touches[1].clientY - e.touches[0].clientY,
+          e.touches[1].clientX - e.touches[0].clientX
+        );
+        var nextAngle = pzz_z_pinch.rot + (nowAngle - pzz_z_pinch.angle);
+
+        var total = pzz_z_base * next;
+        // 用"记住的图片坐标"反推平移：中点下的画面钉死 → 缩放、旋转都不跳
+        var rv = pzz_z_rot(pzz_z_pinch.ux, pzz_z_pinch.uy, nextAngle);
+        pzz_z_tx = mid.x - rv.x * total;
+        pzz_z_ty = mid.y - rv.y * total;
+
+        // 捏合过程中越界只做阻尼，不硬夹，松手再回弹
+        pzz_z_angle = nextAngle;
+        var b = pzz_z_bounds();
+        pzz_z_tx = pzz_z_softClamp(pzz_z_tx, b.minX, b.maxX);
+        pzz_z_ty = pzz_z_softClamp(pzz_z_ty, b.minY, b.maxY);
+
+        pzz_z_scale = next;
+        pzz_z_apply();
+        return;
+      }
+
+      if (e.touches.length === 1 && pzz_z_mode === "pan" && pzz_z_pointer) {
+        var t = e.touches[0];
+        var rect = pzz_z_stageEl.getBoundingClientRect();
+        var dx = (t.clientX - rect.left) - pzz_z_pointer.x;
+        var dy = (t.clientY - rect.top) - pzz_z_pointer.y;
+
+        pzz_z_tx = pzz_z_pointer.tx + dx;
+        pzz_z_ty = pzz_z_pointer.ty + dy;
+
+        // 拖动时同样先走阻尼，手指顶到边缘有"拉不住"的手感
+        var bd = pzz_z_bounds();
+        pzz_z_tx = pzz_z_softClamp(pzz_z_tx, bd.minX, bd.maxX);
+        pzz_z_ty = pzz_z_softClamp(pzz_z_ty, bd.minY, bd.maxY);
+
+        pzz_z_apply();
+      }
+    }, { passive: false });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_touchEnd —— 松手后硬夹紧回弹，并识别双击切换 1x / 2x */
+    pzz_z_stageEl.addEventListener("touchend", function (e) {
+      // 捏合结束：停留位置必须落在边界内（带 0.25s 过渡回到边界）
+      if (pzz_z_mode === "pinch") {
+        if (e.touches.length === 0) {
+          pzz_z_animateOnce();
+          pzz_z_hardClamp();
+          pzz_z_apply();
+          pzz_z_mode = "none";
+          pzz_z_pinch = null;
+        }
+        return;
+      }
+
+      // 单指抬起：判断是否为点击（位移很小），再结合时间间隔判断双击
+      if (pzz_z_pointer) {
+        pzz_z_animateOnce();
+        pzz_z_hardClamp();
+        pzz_z_apply();
+
+        var t = e.changedTouches[0];
+        var rect = pzz_z_stageEl.getBoundingClientRect();
+        var px = t.clientX - rect.left;
+        var py = t.clientY - rect.top;
+        var moved = Math.hypot(px - pzz_z_pointer.x, py - pzz_z_pointer.y);
+
+        if (moved < PZZ_Z_TAP_MOVE) {
+          var now = Date.now();
+          if (now - pzz_z_lastTap < PZZ_Z_TAP_GAP) {
+            pzz_z_toggleZoom(px, py);   // 双击 → 1x / 2x 切换
+            pzz_z_lastTap = 0;          // 重置，避免三连击触发两次
+          } else {
+            pzz_z_lastTap = now;
+            pzz_z_lastTapPos = { x: px, y: py };
+          }
+        }
+      }
+
+      pzz_z_mode = "none";
+      pzz_z_pointer = null;
+      if (e.touches.length === 0) { pzz_z_pinch = null; }
+    }, { passive: false });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：桌面端兼容 —— 鼠标拖动平移、滚轮以指针为中心缩放、双击切换 1x/2x，便于在电脑上验证 */
+    pzz_z_stageEl.addEventListener("mousedown", function (e) {
+      pzz_z_hintEl.classList.add("pzz_z_hide");
+      var rect = pzz_z_stageEl.getBoundingClientRect();
+      pzz_z_pointer = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        tx: pzz_z_tx,
+        ty: pzz_z_ty
+      };
+      pzz_z_mode = pzz_z_scale > 1 ? "pan" : "none";
+    });
+
+    pzz_z_stageEl.addEventListener("mousemove", function (e) {
+      if (pzz_z_mode !== "pan" || !pzz_z_pointer) { return; }
+      var rect = pzz_z_stageEl.getBoundingClientRect();
+      pzz_z_tx = pzz_z_pointer.tx + ((e.clientX - rect.left) - pzz_z_pointer.x);
+      pzz_z_ty = pzz_z_pointer.ty + ((e.clientY - rect.top) - pzz_z_pointer.y);
+      var b = pzz_z_bounds();
+      pzz_z_tx = pzz_z_softClamp(pzz_z_tx, b.minX, b.maxX);
+      pzz_z_ty = pzz_z_softClamp(pzz_z_ty, b.minY, b.maxY);
+      pzz_z_apply();
+    });
+
+    pzz_z_stageEl.addEventListener("mouseup", function () {
+      if (pzz_z_mode === "pan") {
+        pzz_z_animateOnce();
+        pzz_z_hardClamp();
+        pzz_z_apply();
+      }
+      pzz_z_mode = "none";
+      pzz_z_pointer = null;
+    });
+
+    pzz_z_stageEl.addEventListener("dblclick", function (e) {
+      var rect = pzz_z_stageEl.getBoundingClientRect();
+      pzz_z_toggleZoom(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    pzz_z_stageEl.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      pzz_z_hintEl.classList.add("pzz_z_hide");
+      var rect = pzz_z_stageEl.getBoundingClientRect();
+      // 滚轮一格按 0.15 倍步进，指针位置作为缩放基准
+      var step = e.deltaY < 0 ? 0.15 : -0.15;
+      pzz_z_zoomAt(e.clientX - rect.left, e.clientY - rect.top, pzz_z_scale + step, false);
+    }, { passive: false });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_z_reflow —— 屏幕旋转 / 容器尺寸变化时重算适配倍数，保留缩放与平移再夹紧，状态不丢 */
+    function pzz_z_reflow() {
+      var oldCw = pzz_z_cw;
+      var oldCh = pzz_z_ch;
+      if (!oldCw || !oldCh) { return; }
+      // 记录旧容器中心点对应的图片坐标（反向旋转后除以总缩放），重排后仍把它放在新中心
+      var oldTotal = pzz_z_base * pzz_z_scale;
+      var v = pzz_z_rot(pzz_z_cw / 2 - pzz_z_tx, pzz_z_ch / 2 - pzz_z_ty, -pzz_z_angle);
+      var ux = v.x / oldTotal;
+      var uy = v.y / oldTotal;
+
+      pzz_z_measure();
+      var newTotal = pzz_z_base * pzz_z_scale;
+      var rv = pzz_z_rot(ux, uy, pzz_z_angle);
+      pzz_z_tx = pzz_z_cw / 2 - rv.x * newTotal;
+      pzz_z_ty = pzz_z_ch / 2 - rv.y * newTotal;
+
+      if (pzz_z_scale === 1 && Math.abs(pzz_z_angle) < 0.01) {
+        pzz_z_center(false);   // 未缩放也未旋转时直接居中，避免留白
+      } else {
+        pzz_z_hardClamp();
+        pzz_z_apply();
+      }
+    }
+
+    window.addEventListener("resize", pzz_z_reflow);
+    window.addEventListener("orientationchange", function () {
+      setTimeout(pzz_z_reflow, 120);   // 旋转后容器尺寸要等一帧才稳定
+    });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：复位按钮 —— 一键回到 1 倍、角度归零并居中（旋转后可直接用这个按钮还原） */
+    pzz_z_resetEl.addEventListener("click", function () {
+      pzz_z_center(true);
+    });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：初始化 —— 图片加载完成后测量容器、居中显示，并让提示条 4 秒后自动淡出 */
+    function pzz_z_init() {
+      pzz_z_measure();
+      pzz_z_center(false);
+      setTimeout(function () { pzz_z_hintEl.classList.add("pzz_z_hide"); }, 4000);
+    }
+
+    if (pzz_z_imgEl.complete && pzz_z_imgEl.naturalWidth) {
+      pzz_z_init();
+    } else {
+      pzz_z_imgEl.addEventListener("load", pzz_z_init);
+    }
+
+    /* ===== 摇一摇菜谱 脚本 ===== */
+/* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz 常量与状态区 —— 菜谱库、阈值、冷却时间，以及触发次数 / 是否收到有效数据等运行时状态 */
+    var PZZ_S_THRESHOLD = 18;       // 判定摇动的合成加速度阈值（m/s²），静止约 9.8
+    var PZZ_S_COOLDOWN = 1500;      // 冷却时间：1.5 秒内只触发一次
+    var PZZ_S_METER_MAX = 40;       // 加速度条满量程，与阈值刻度线对应
+    var PZZ_S_WAIT = 1500;          // 等待有效数据的时长，超时即判定"设备不支持"
+
+    // 菜谱库：名称 + 一句描述
+    var pzz_s_dishes = [
+      { name: "红烧肉", desc: "肥而不腻，配一碗白饭刚好" },
+      { name: "兰州牛肉面", desc: "一清二白三红四绿，汤头最要紧" },
+      { name: "宫保鸡丁", desc: "酸甜微辣，花生米要最后放" },
+      { name: "清蒸鲈鱼", desc: "姜丝葱段一蒸，鲜味最直白" },
+      { name: "麻婆豆腐", desc: "麻、辣、烫、香、酥、嫩、鲜、活" },
+      { name: "北京烤鸭", desc: "片皮蘸糖，卷饼抹酱加葱丝" },
+      { name: "广式虾饺", desc: "澄面皮透亮，一口一只" },
+      { name: "番茄炒蛋", desc: "家常天花板，糖和盐都要一点" },
+      { name: "酸菜鱼", desc: "酸辣开胃，鱼片要薄" },
+      { name: "小笼包", desc: "先开窗、后喝汤，小心烫嘴" }
+    ];
+
+    var pzz_s_dishIndex = -1;       // 当前菜品下标，保证下次不重复抽到同一道
+    var pzz_s_shakeCount = 0;       // 累计抽取次数
+    var pzz_s_lastShake = 0;        // 上次触发时间戳，用于冷却判断
+    var pzz_s_hasMotion = false;    // 是否收到过有效加速度数据
+    var pzz_s_waitTimer = null;     // "设备不支持"的判定定时器
+    var pzz_s_meterPending = false; // 加速度条的帧节流标记
+
+    var pzz_s_dishEl = document.getElementById("pzz_s_dish");
+    var pzz_s_dishNameEl = document.getElementById("pzz_s_dish_name");
+    var pzz_s_dishDescEl = document.getElementById("pzz_s_dish_desc");
+    var pzz_s_countEl = document.getElementById("pzz_s_count");
+    var pzz_s_meterValueEl = document.getElementById("pzz_s_meter_value");
+    var pzz_s_meterFillEl = document.getElementById("pzz_s_meter_fill");
+    var pzz_s_meterLineEl = document.getElementById("pzz_s_meter_line");
+    var pzz_s_fallbackEl = document.getElementById("pzz_s_fallback");
+    var pzz_s_tipEl = document.getElementById("pzz_s_tip_text");
+    var pzz_s_authBtn = document.getElementById("pzz_s_auth_btn");
+    var pzz_s_drawBtn = document.getElementById("pzz_s_draw_btn");
+
+    // 阈值刻度线位置：18 / 40 = 45%
+    pzz_s_meterLineEl.style.left = (PZZ_S_THRESHOLD / PZZ_S_METER_MAX * 100) + "%";
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_s_showUnsupported —— 显示"当前设备不支持，请用手机打开"，并保证手动抽菜按钮可用 */
+    function pzz_s_showUnsupported() {
+      pzz_s_fallbackEl.classList.add("pzz_s_show");
+      pzz_s_tipEl.textContent = "当前设备不支持体感，改用下方按钮抽取";
+      pzz_s_meterValueEl.textContent = "无数据";
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_s_drawDish —— 随机抽一道菜（避开上一道），写入结果卡并重放弹出动画 */
+    function pzz_s_drawDish() {
+      var next = pzz_s_dishIndex;
+      // 最多尝试 10 次，保证和上一道不同；只有一道菜时允许重复
+      for (var i = 0; i < 10 && (next === pzz_s_dishIndex); i++) {
+        next = Math.floor(Math.random() * pzz_s_dishes.length);
+      }
+      pzz_s_dishIndex = next;
+
+      pzz_s_dishNameEl.textContent = pzz_s_dishes[next].name;
+      pzz_s_dishDescEl.textContent = pzz_s_dishes[next].desc;
+
+      // 先移除动画类并强制重排，再加回去，动画才能每次都重新播放
+      pzz_s_dishEl.classList.remove("pzz_s_pop");
+      void pzz_s_dishEl.offsetWidth;
+      pzz_s_dishEl.classList.add("pzz_s_pop");
+
+      pzz_s_shakeCount++;
+      pzz_s_countEl.textContent = pzz_s_shakeCount;
+      pzz_s_tipEl.textContent = "今日推荐已更新，继续摇一摇换一道";
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_s_requestDraw —— 手动抽取入口，无传感器或桌面调试时使用（不受冷却限制，方便演示） */
+    function pzz_s_requestDraw() {
+      pzz_s_drawDish();
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_s_onMotion —— devicemotion 回调：算合成加速度，超阈值且过了冷却才抽菜，并刷新加速度条 */
+    function pzz_s_onMotion(e) {
+      var acc = e.accelerationIncludingGravity;
+      if (!acc) { return; }
+
+      var x = acc.x || 0;
+      var y = acc.y || 0;
+      var z = acc.z || 0;
+      var magnitude = Math.sqrt(x * x + y * y + z * z);   // 合成加速度
+
+      // 数值全为 0 说明设备没有真实传感器（常见于桌面浏览器），仍按"不支持"处理
+      if (magnitude > 0.5) {
+        pzz_s_hasMotion = true;
+        pzz_s_fallbackEl.classList.remove("pzz_s_show");
+      }
+
+      // 用 rAF 节流刷新加速度条，避免每个事件都写 DOM
+      if (!pzz_s_meterPending) {
+        pzz_s_meterPending = true;
+        requestAnimationFrame(function () {
+          pzz_s_meterPending = false;
+          var percent = Math.min(1, magnitude / PZZ_S_METER_MAX) * 100;
+          pzz_s_meterFillEl.style.width = percent + "%";
+          pzz_s_meterValueEl.textContent = magnitude.toFixed(1) + " m/s²";
+        });
+      }
+
+      // 阈值判断 + 1.5 秒冷却：一次摇动只会抽一次
+      if (magnitude < PZZ_S_THRESHOLD) { return; }
+      var now = Date.now();
+      if (now - pzz_s_lastShake < PZZ_S_COOLDOWN) { return; }
+      pzz_s_lastShake = now;
+      pzz_s_drawDish();
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_s_startMotion —— 绑定 devicemotion 并启动 1.5 秒兜底计时，超时没数据就判定设备不支持 */
+    function pzz_s_startMotion() {
+      window.addEventListener("devicemotion", pzz_s_onMotion);
+      pzz_s_waitTimer = setTimeout(function () {
+        if (!pzz_s_hasMotion) { pzz_s_showUnsupported(); }
+      }, PZZ_S_WAIT);
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:52 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_s_init —— 检测 devicemotion 支持情况：iOS 需要按钮授权，其他浏览器直接监听，
+             完全不支持时立刻显示降级提示 */
+    function pzz_s_init() {
+      // 浏览器根本没有 devicemotion 事件：直接降级
+      if (typeof DeviceMotionEvent === "undefined") {
+        pzz_s_showUnsupported();
+        return;
+      }
+
+      // iOS 13+ 必须由用户点击触发权限申请
+      if (typeof DeviceMotionEvent.requestPermission === "function") {
+        pzz_s_authBtn.style.display = "inline-block";
+        pzz_s_authBtn.addEventListener("click", function () {
+          DeviceMotionEvent.requestPermission().then(function (state) {
+            pzz_s_authBtn.style.display = "none";
+            if (state === "granted") {
+              pzz_s_startMotion();
+            } else {
+              // 用户拒绝授权：同样走降级，不报错、不白屏
+              pzz_s_showUnsupported();
+            }
+          }).catch(function () {
+            pzz_s_showUnsupported();
+          });
+        });
+        return;
+      }
+
+      // 其他浏览器：直接监听，由 1.5 秒兜底判断是否真有传感器
+      pzz_s_startMotion();
+    }
+
+    pzz_s_drawBtn.addEventListener("click", pzz_s_requestDraw);
+    pzz_s_init();
+
+    /* ===== 倾斜视差 脚本 ===== */
+/* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz 常量与状态区 —— 位移上限、每层系数、基线角度、目标与当前位移，以及降级相关状态 */
+    var PZZ_T_MAX_SHIFT = 46;     // 单层最大位移（px），超出就夹住，避免景物被拖出舞台
+    var PZZ_T_SMOOTH = 0.12;      // lerp 平滑系数：越小越"慢半拍"，越大越跟手
+    var PZZ_T_ANGLE_RANGE = 45;   // 倾角到位移的映射范围：±45° 对应满位移
+    var PZZ_T_WAIT = 1500;        // 等待有效角度数据的时长，超时就切鼠标模拟
+
+    var pzz_t_layers = [];        // [{ el, factor }]，factor 越大越"近"，动得越多
+    var pzz_t_baseBeta = null;    // 基线 beta：首帧角度，作为零点
+    var pzz_t_baseGamma = null;   // 基线 gamma
+    var pzz_t_targetX = 0;        // 目标位移 X
+    var pzz_t_targetY = 0;        // 目标位移 Y
+    var pzz_t_curX = 0;           // 当前位移 X（每帧向目标逼近）
+    var pzz_t_curY = 0;           // 当前位移 Y
+    var pzz_t_hasOrientation = false; // 是否收到过有效角度数据
+    var pzz_t_waitTimer = null;   // 超时降级定时器
+
+    var pzz_t_sceneEl = document.getElementById("pzz_t_scene");
+    var pzz_t_stateEl = document.getElementById("pzz_t_state");
+    var pzz_t_betaEl = document.getElementById("pzz_t_beta");
+    var pzz_t_gammaEl = document.getElementById("pzz_t_gamma");
+    var pzz_t_authBtn = document.getElementById("pzz_t_auth_btn");
+
+    // 收集所有图层及各自的视差系数
+    var pzz_t_nodes = pzz_t_sceneEl.querySelectorAll("[data-pzz-factor]");
+    for (var pzz_t_i = 0; pzz_t_i < pzz_t_nodes.length; pzz_t_i++) {
+      pzz_t_layers.push({
+        el: pzz_t_nodes[pzz_t_i],
+        factor: parseFloat(pzz_t_nodes[pzz_t_i].getAttribute("data-pzz-factor"))
+      });
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_t_clampShift —— 把位移限制在 ±PZZ_T_MAX_SHIFT 内，防止倾斜过大把图层拖出舞台 */
+    function pzz_t_clampShift(v) {
+      return Math.max(-PZZ_T_MAX_SHIFT, Math.min(PZZ_T_MAX_SHIFT, v));
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_t_loop —— 每帧把当前位移向目标位移 lerp，再按各层系数写入 transform（平滑防抖的核心） */
+    function pzz_t_loop() {
+      pzz_t_curX += (pzz_t_targetX - pzz_t_curX) * PZZ_T_SMOOTH;
+      pzz_t_curY += (pzz_t_targetY - pzz_t_curY) * PZZ_T_SMOOTH;
+
+      for (var i = 0; i < pzz_t_layers.length; i++) {
+        var layer = pzz_t_layers[i];
+        // 系数不同的层位移不同 → 近层快、远层慢，形成纵深
+        var x = (pzz_t_curX * layer.factor).toFixed(2);
+        var y = (pzz_t_curY * layer.factor).toFixed(2);
+        layer.el.style.transform = "translate3d(" + x + "px," + y + "px,0)";
+      }
+      requestAnimationFrame(pzz_t_loop);
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_t_onOrientation —— deviceorientation 回调：首帧记基线，之后把相对角度换算成目标位移 */
+    function pzz_t_onOrientation(e) {
+      // beta / gamma 为 null 说明设备没有陀螺仪，交给超时降级处理
+      if (e.beta === null && e.gamma === null) { return; }
+
+      var beta = e.beta || 0;
+      var gamma = e.gamma || 0;
+
+      // 第一帧：记录当前姿势作为零点，之后只看相对变化
+      if (pzz_t_baseBeta === null) {
+        pzz_t_baseBeta = beta;
+        pzz_t_baseGamma = gamma;
+      }
+
+      pzz_t_hasOrientation = true;
+      pzz_t_stateEl.classList.add("pzz_t_hide");
+
+      // 相对角归一化到 -1~1，再乘上限得到目标位移；方向取反，画面朝倾斜的反方向移动更自然
+      var nx = Math.max(-1, Math.min(1, (gamma - pzz_t_baseGamma) / PZZ_T_ANGLE_RANGE));
+      var ny = Math.max(-1, Math.min(1, (beta - pzz_t_baseBeta) / PZZ_T_ANGLE_RANGE));
+      pzz_t_targetX = pzz_t_clampShift(-nx * PZZ_T_MAX_SHIFT);
+      pzz_t_targetY = pzz_t_clampShift(ny * PZZ_T_MAX_SHIFT);
+
+      // 读数：显示相对基线的角度变化
+      pzz_t_betaEl.textContent = (beta - pzz_t_baseBeta).toFixed(1);
+      pzz_t_gammaEl.textContent = (gamma - pzz_t_baseGamma).toFixed(1);
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_t_enableMouse —— 无传感器降级：用鼠标位置模拟倾斜，保证任何设备都能看到视差效果 */
+    function pzz_t_enableMouse() {
+      pzz_t_stateEl.textContent = "当前设备没有陀螺仪，已切换为鼠标模拟";
+      pzz_t_stateEl.classList.remove("pzz_t_hide");
+
+      window.addEventListener("mousemove", function (e) {
+        // 鼠标相对屏幕中心的位置归一化到 -1~1
+        var nx = (e.clientX / window.innerWidth - 0.5) * 2;
+        var ny = (e.clientY / window.innerHeight - 0.5) * 2;
+        pzz_t_targetX = pzz_t_clampShift(-nx * PZZ_T_MAX_SHIFT);
+        pzz_t_targetY = pzz_t_clampShift(ny * PZZ_T_MAX_SHIFT);
+        pzz_t_betaEl.textContent = "鼠标";
+        pzz_t_gammaEl.textContent = "模拟";
+      });
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_t_startOrientation —— 绑定 deviceorientation，并启动 1.5 秒兜底计时，超时没数据就切鼠标模拟 */
+    function pzz_t_startOrientation() {
+      window.addEventListener("deviceorientation", pzz_t_onOrientation);
+      pzz_t_waitTimer = setTimeout(function () {
+        if (!pzz_t_hasOrientation) { pzz_t_enableMouse(); }
+      }, PZZ_T_WAIT);
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:10 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_t_init —— 检测 deviceorientation 支持情况：iOS 需按钮授权，其他浏览器直接监听，
+             完全不支持则立即切鼠标模拟 */
+    function pzz_t_init() {
+      if (typeof DeviceOrientationEvent === "undefined") {
+        pzz_t_enableMouse();
+      } else if (typeof DeviceOrientationEvent.requestPermission === "function") {
+        // iOS 13+：必须由用户点击后才能申请权限
+        pzz_t_authBtn.style.display = "inline-block";
+        pzz_t_stateEl.textContent = "点下方按钮开启体感";
+        pzz_t_authBtn.addEventListener("click", function () {
+          DeviceOrientationEvent.requestPermission().then(function (state) {
+            pzz_t_authBtn.style.display = "none";
+            if (state === "granted") {
+              pzz_t_startOrientation();
+            } else {
+              pzz_t_enableMouse();   // 拒绝授权也走降级，不报错
+            }
+          }).catch(function () {
+            pzz_t_enableMouse();
+          });
+        });
+      } else {
+        pzz_t_startOrientation();
+      }
+
+      requestAnimationFrame(pzz_t_loop);   // 渲染循环一直跑，只做 lerp，开销很小
+    }
+
+    pzz_t_init();
   </script>
 </body>
 </html>
