@@ -642,6 +642,23 @@ iframe 高度 `clamp(560px, 76vh, 900px)`，四个页面各自的样式与脚本
 
 ---
 
+## 2026-11-16 15:58
+
+**所用模型**：DeepSeek-V4.1-Flash
+
+**对话原文**：
+```
+把这个加到双指缩放的页面下面
+```
+
+**做了啥**：
+把上传的移动端录屏（720×1280，约 0.6MB）复制为 `media/zoom-demo.mp4`，在 `mobile-hub.html` 的双指缩放模块底部新增「操作录屏」卡片，`<video controls playsinline preload="metadata">` 引用该文件。
+配套样式 `.pzz_z_video`：宽度铺满、最大高度 460px、`object-fit: contain`、圆角 12px、黑色底。
+浏览器实测：切到「双指缩放」滚到底可见视频，播放后 `currentTime` 正常增长、`readyState` 为 4、控制台无报错。
+
+---
+
+
 
 
 

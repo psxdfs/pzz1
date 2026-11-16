@@ -249,6 +249,12 @@
         <li>双指旋转同一套思路：<code>θ = θ₀ + (atan2 差值)</code>，再按 <code>t = 中点 - s × R(θ) × u</code> 反推平移，旋转中心同样钉在两指中点。</li>
       </ol>
     </div>
+
+    <div class="pzz_z_card">
+      <h2>操作录屏</h2>
+      <video class="pzz_z_video" src="media/zoom-demo.mp4" controls playsinline preload="metadata"></video>
+      <p>手机实拍：双指捏合缩放、双指旋转、双击 1x / 2x 切换的真实操作过程。</p>
+    </div>
   </div>
     </section>
     <!-- 摇一摇菜谱 -->
@@ -641,6 +647,17 @@
     }
 
     .pzz_z_wrap { max-width: 560px; margin: 0 auto; }
+
+    /* 操作录屏：竖屏视频按容器宽度铺满，过高的部分保持比例内缩 */
+    .pzz_z_video {
+      display: block;
+      width: 100%;
+      max-height: 460px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      background: #000;
+      object-fit: contain;
+    }
 
     /* 返回课堂目录 */
     .pzz_z_home_link {
