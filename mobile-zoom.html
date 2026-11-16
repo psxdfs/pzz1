@@ -2,8 +2,8 @@
   作者：朴哲震
   建立时间：2026-11-16 14:20
   使用模型：DeepSeek-V4.1-Flash
-  功能名称及简介：移动端图片查看器 —— 双指捏合缩放（1~4 倍，以两指中点为基准）、双击在 1x/2x 间切换、
-                放大后单指拖动查看细节，含边界阻尼回弹、缩放比例指示与横竖屏状态保持
+  功能名称及简介：移动端图片查看器 —— 双指捏合缩放（1~4 倍，以两指中点为基准）、双指旋转（atan2 角度差）、
+                双击在 1x/2x 间切换、放大后单指拖动查看细节，含边界阻尼回弹、缩放比例指示与横竖屏状态保持
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -142,6 +142,28 @@
       transition: width .1s linear;
     }
 
+    /* 复位按钮：一键回到 1 倍、角度归零、图片居中 */
+    .pzz_reset {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 8px 16px;
+      border: 1px solid rgba(143, 211, 255, .35);
+      border-radius: 999px;
+      background: rgba(143, 211, 255, .08);
+      color: #a9dcff;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+
+    .pzz_reset:hover {
+      background: rgba(143, 211, 255, .16);
+      border-color: rgba(143, 211, 255, .6);
+    }
+
     /* 打开页面时的提示条，4 秒后自动淡出 */
     .pzz_hint {
       position: absolute;
@@ -220,12 +242,15 @@
       </div>
 
       <!-- 打开页面时的提示，4 秒后淡出 -->
-      <div class="pzz_hint" id="pzz_hint">双指缩放请用手机打开（电脑可用滚轮 / 双击）</div>
+      <div class="pzz_hint" id="pzz_hint">双指缩放 / 旋转请用手机打开（电脑可用滚轮 / 双击）</div>
     </div>
+
+    <!-- 复位按钮：旋转或放大后一键恢复 -->
+    <button class="pzz_reset" id="pzz_reset" type="button">复位 1x</button>
 
     <div class="pzz_card">
       <h2>操作方式</h2>
-      <p>双指捏合 → 缩放 1~4 倍；双击 → 1x / 2x 切换；放大后单指拖动 → 查看细节。</p>
+      <p>双指捏合 → 缩放 1~4 倍；双指旋转 → 任意角度转动（旋转时可能轻微越界，松手自动拉回）；双击 → 1x / 2x 切换；放大后单指拖动 → 查看细节。</p>
     </div>
 
     <div class="pzz_card">
@@ -235,7 +260,8 @@
         <li>缩放后重新反推平移量：<code>t = 中点 - u × 新总缩放</code>。中点下面的那块画面始终不动，所以不会跳。</li>
         <li>所有缩放都以 <code>transform-origin: 0 0</code> 为基准，数学上只有一个平移量需要修正，不会出现原点半途变化。</li>
         <li>捏合过程中超出边界用阻尼（0.3 倍系数）软化，松手后统一硬夹紧并补 0.25s 过渡，所以边缘手感是"顶一下再弹回"。</li>
-        <li>横竖屏切换只重算容器尺寸与适配比例，<strong>保留当前 scale 和平移量</strong>再夹紧，状态不丢。</li>
+        <li>横竖屏切换只重算容器尺寸与适配比例，<strong>保留当前 scale、角度和平移量</strong>再夹紧，状态不丢。</li>
+        <li>双指旋转同一套思路：<code>θ = θ₀ + (atan2 差值)</code>，再按 <code>t = 中点 - s × R(θ) × u</code> 反推平移，旋转中心同样钉在两指中点。</li>
       </ol>
     </div>
   </div>
@@ -248,6 +274,7 @@
     var pzz_zoomTextEl = document.getElementById("pzz_zoom_text");
     var pzz_zoomFillEl = document.getElementById("pzz_zoom_fill");
     var pzz_hintEl = document.getElementById("pzz_hint");
+    var pzz_resetEl = document.getElementById("pzz_reset");
 
     var PZZ_MIN_SCALE = 1;      // 最小缩放：1 倍（整张图适配容器）
     var PZZ_MAX_SCALE = 4;      // 最大缩放：4 倍
@@ -259,6 +286,7 @@
     var pzz_ch = 0;             // 容器高
     var pzz_base = 1;           // 适配倍数：让原图完整放进容器
     var pzz_scale = 1;          // 用户缩放倍数（1~4）
+    var pzz_angle = 0;          // 旋转角度（弧度，顺时针为正）
     var pzz_tx = 0;             // 图片平移 X
     var pzz_ty = 0;             // 图片平移 Y
 
@@ -287,25 +315,52 @@
        功能：pzz_apply —— 把当前缩放和平移写入 transform，并同步更新缩放指示器 */
     function pzz_apply() {
       var total = pzz_base * pzz_scale;   // 实际渲染倍数 = 适配倍数 × 用户缩放
+      // 顺序固定为 平移 → 旋转 → 缩放：先转到目标角度，再以左上角为原点放大
       pzz_imgEl.style.transform =
-        "translate(" + pzz_tx + "px," + pzz_ty + "px) scale(" + total + ")";
+        "translate(" + pzz_tx + "px," + pzz_ty + "px) rotate(" + pzz_angle + "rad) scale(" + total + ")";
 
-      // 指示器：百分比 + 进度条（1~4 倍映射到 0~100%）
-      pzz_zoomTextEl.textContent = Math.round(pzz_scale * 100) + "%";
+      // 指示器：百分比 + 进度条（1~4 倍映射到 0~100%），有旋转时追加角度
+      var text = Math.round(pzz_scale * 100) + "%";
+      var deg = Math.round(pzz_angle * 180 / Math.PI);
+      if (deg !== 0) { text += " · " + deg + "°"; }
+      pzz_zoomTextEl.textContent = text;
       pzz_zoomFillEl.style.width =
         ((pzz_scale - PZZ_MIN_SCALE) / (PZZ_MAX_SCALE - PZZ_MIN_SCALE) * 100) + "%";
     }
 
     /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
-       功能：pzz_bounds —— 计算当前缩放下平移量的合法区间；图片比容器小则固定居中 */
+       功能：pzz_rot —— 二维向量按弧度旋转，正角度为屏幕顺时针；用于图片坐标与屏幕坐标互转 */
+    function pzz_rot(x, y, rad) {
+      var c = Math.cos(rad);
+      var s = Math.sin(rad);
+      return { x: x * c - y * s, y: x * s + y * c };
+    }
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_bounds —— 按"旋转后的包围盒"计算平移合法区间；包围盒比容器小则该轴固定居中 */
     function pzz_bounds() {
       var w = pzz_imgEl.naturalWidth * pzz_base * pzz_scale;
       var h = pzz_imgEl.naturalHeight * pzz_base * pzz_scale;
-      var minX = w > pzz_cw ? pzz_cw - w : (pzz_cw - w) / 2;
-      var maxX = w > pzz_cw ? 0 : (pzz_cw - w) / 2;
-      var minY = h > pzz_ch ? pzz_ch - h : (pzz_ch - h) / 2;
-      var maxY = h > pzz_ch ? 0 : (pzz_ch - h) / 2;
-      return { minX: minX, maxX: maxX, minY: minY, maxY: maxY };
+      var c = Math.cos(pzz_angle);
+      var s = Math.sin(pzz_angle);
+
+      // 图片四角（相对平移量）旋转后取包络，得到旋转后占用的宽高范围
+      var xs = [0, w * c, -h * s, w * c - h * s];
+      var ys = [0, w * s, h * c, w * s + h * c];
+      var minX = Math.min.apply(null, xs);
+      var maxX = Math.max.apply(null, xs);
+      var minY = Math.min.apply(null, ys);
+      var maxY = Math.max.apply(null, ys);
+      var bw = maxX - minX;
+      var bh = maxY - minY;
+
+      // 包围盒比容器大：平移量必须让包络覆盖容器；比容器小：固定在居中位置
+      var loX = bw >= pzz_cw ? pzz_cw - maxX : (pzz_cw - bw) / 2 - minX;
+      var hiX = bw >= pzz_cw ? -minX : (pzz_cw - bw) / 2 - minX;
+      var loY = bh >= pzz_ch ? pzz_ch - maxY : (pzz_ch - bh) / 2 - minY;
+      var hiY = bh >= pzz_ch ? -minY : (pzz_ch - bh) / 2 - minY;
+
+      return { minX: loX, maxX: hiX, minY: loY, maxY: hiY };
     }
 
     /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
@@ -338,6 +393,7 @@
        功能：pzz_center —— 重置为 1 倍并居中显示（可带动画），供双击缩回与初始化使用 */
     function pzz_center(animated) {
       pzz_scale = 1;
+      pzz_angle = 0;   // 复位同时把旋转角度归零
       var w = pzz_imgEl.naturalWidth * pzz_base;
       var h = pzz_imgEl.naturalHeight * pzz_base;
       pzz_tx = (pzz_cw - w) / 2;
@@ -350,15 +406,17 @@
        功能：pzz_zoomAt —— 以容器内某点为基准缩放到目标倍数（核心防跳公式），可带动画 */
     function pzz_zoomAt(px, py, targetScale, animated) {
       var oldTotal = pzz_base * pzz_scale;
-      // ① 把屏幕点换算成"这个点下面是图片的哪一块"（图片坐标）
-      var ux = (px - pzz_tx) / oldTotal;
-      var uy = (py - pzz_ty) / oldTotal;
+      // ① 把屏幕点换算成"这个点下面是图片的哪一块"：先反向旋转，再除以总缩放
+      var v = pzz_rot(px - pzz_tx, py - pzz_ty, -pzz_angle);
+      var ux = v.x / oldTotal;
+      var uy = v.y / oldTotal;
 
-      // ② 更新倍数后反推平移，保证 ux/uy 那块内容仍停在 px/py 下面 → 视觉上不跳
+      // ② 更新倍数后反推平移：先按当前角度旋转回去，再加中点偏移
       pzz_scale = Math.min(PZZ_MAX_SCALE, Math.max(PZZ_MIN_SCALE, targetScale));
       var newTotal = pzz_base * pzz_scale;
-      pzz_tx = px - ux * newTotal;
-      pzz_ty = py - uy * newTotal;
+      var rv = pzz_rot(ux, uy, pzz_angle);
+      pzz_tx = px - rv.x * newTotal;
+      pzz_ty = py - rv.y * newTotal;
 
       // ③ 收尾夹紧，避免缩放后图片被拖到容器外
       pzz_hardClamp();
@@ -401,12 +459,20 @@
       if (e.touches.length === 2) {
         var mid = pzz_mid(e.touches[0], e.touches[1]);
         var total = pzz_base * pzz_scale;
+        // 把中点换算成图片坐标：先反向旋转（去掉已有角度），再除以总缩放
+        var v = pzz_rot(mid.x - pzz_tx, mid.y - pzz_ty, -pzz_angle);
         pzz_pinch = {
           dist: pzz_dist(e.touches[0], e.touches[1]),
+          // 两指连线角度（atan2 求），后续按角度差做旋转
+          angle: Math.atan2(
+            e.touches[1].clientY - e.touches[0].clientY,
+            e.touches[1].clientX - e.touches[0].clientX
+          ),
           scale: pzz_scale,
-          // 记下中点正下方的那块图片内容，捏合全程盯住它不动
-          ux: (mid.x - pzz_tx) / total,
-          uy: (mid.y - pzz_ty) / total,
+          rot: pzz_angle,
+          // 记下中点正下方的那块图片内容，缩放+旋转全程盯住它不动
+          ux: v.x / total,
+          uy: v.y / total,
           mid: mid
         };
         pzz_mode = "pinch";
@@ -436,12 +502,21 @@
         var ratio = pzz_dist(e.touches[0], e.touches[1]) / pzz_pinch.dist; // 距离比例
         var next = Math.min(PZZ_MAX_SCALE, Math.max(PZZ_MIN_SCALE, pzz_pinch.scale * ratio));
 
+        // 旋转：当前两指连线角度 - 起始角度，叠加到起始旋转角上
+        var nowAngle = Math.atan2(
+          e.touches[1].clientY - e.touches[0].clientY,
+          e.touches[1].clientX - e.touches[0].clientX
+        );
+        var nextAngle = pzz_pinch.rot + (nowAngle - pzz_pinch.angle);
+
         var total = pzz_base * next;
-        // 用"记住的图片坐标"反推平移：中点下的画面钉死 → 缩放不跳
-        pzz_tx = mid.x - pzz_pinch.ux * total;
-        pzz_ty = mid.y - pzz_pinch.uy * total;
+        // 用"记住的图片坐标"反推平移：中点下的画面钉死 → 缩放、旋转都不跳
+        var rv = pzz_rot(pzz_pinch.ux, pzz_pinch.uy, nextAngle);
+        pzz_tx = mid.x - rv.x * total;
+        pzz_ty = mid.y - rv.y * total;
 
         // 捏合过程中越界只做阻尼，不硬夹，松手再回弹
+        pzz_angle = nextAngle;
         var b = pzz_bounds();
         pzz_tx = pzz_softClamp(pzz_tx, b.minX, b.maxX);
         pzz_ty = pzz_softClamp(pzz_ty, b.minY, b.maxY);
@@ -568,17 +643,20 @@
       var oldCw = pzz_cw;
       var oldCh = pzz_ch;
       if (!oldCw || !oldCh) { return; }
-      // 记录图片中心点在旧容器中的相对位置，重排后尽量保持视觉中心
-      var cx = (pzz_cw / 2 - pzz_tx) / pzz_base;
-      var cy = (pzz_ch / 2 - pzz_ty) / pzz_base;
+      // 记录旧容器中心点对应的图片坐标（反向旋转后除以总缩放），重排后仍把它放在新中心
+      var oldTotal = pzz_base * pzz_scale;
+      var v = pzz_rot(pzz_cw / 2 - pzz_tx, pzz_ch / 2 - pzz_ty, -pzz_angle);
+      var ux = v.x / oldTotal;
+      var uy = v.y / oldTotal;
 
       pzz_measure();
       var newTotal = pzz_base * pzz_scale;
-      pzz_tx = pzz_cw / 2 - cx * newTotal;
-      pzz_ty = pzz_ch / 2 - cy * newTotal;
+      var rv = pzz_rot(ux, uy, pzz_angle);
+      pzz_tx = pzz_cw / 2 - rv.x * newTotal;
+      pzz_ty = pzz_ch / 2 - rv.y * newTotal;
 
-      if (pzz_scale === 1) {
-        pzz_center(false);   // 1 倍时直接居中，避免留白
+      if (pzz_scale === 1 && Math.abs(pzz_angle) < 0.01) {
+        pzz_center(false);   // 未缩放也未旋转时直接居中，避免留白
       } else {
         pzz_hardClamp();
         pzz_apply();
@@ -588,6 +666,12 @@
     window.addEventListener("resize", pzz_reflow);
     window.addEventListener("orientationchange", function () {
       setTimeout(pzz_reflow, 120);   // 旋转后容器尺寸要等一帧才稳定
+    });
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
+       功能：复位按钮 —— 一键回到 1 倍、角度归零并居中（旋转后可直接用这个按钮还原） */
+    pzz_resetEl.addEventListener("click", function () {
+      pzz_center(true);
     });
 
     /* 作者：朴哲震 | 建立时间：2026-11-16 14:20 | 使用模型：DeepSeek-V4.1-Flash
