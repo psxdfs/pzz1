@@ -606,6 +606,25 @@ iOS 13+ 走 `DeviceOrientationEvent.requestPermission` 授权按钮；1.5 秒没
 
 ---
 
+## 2026-11-16 15:26
+
+**所用模型**：DeepSeek-V4.1-Flash
+
+**对话原文**：
+```
+把这几个归拢到一个网页
+```
+
+**做了啥**：
+新建 `mobile-hub.html`，用「标签栏 + iframe」把手势切卡、双指缩放、摇一摇、倾斜视差四个页面归拢进同一个网页。
+四个 iframe 同时存在、只显示当前标签对应的那个，切回来时页面状态不丢；默认显示第一个「手势切卡」。
+标签点击时同步按钮高亮、iframe 显隐和下方说明文字，四个 key 用 `data-pzz-key` 对应。
+iframe 高度 `clamp(560px, 76vh, 900px)`，四个页面各自的样式与脚本互不干扰。
+`index.html` 新增 25 号卡片，COMING SOON 顺延 26 号，进度改为 25 已完成。
+
+---
+
+
 
 
 

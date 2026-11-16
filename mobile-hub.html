@@ -1,0 +1,234 @@
+<!--
+  作者：朴哲震
+  建立时间：2026-11-16 15:26
+  使用模型：DeepSeek-V4.1-Flash
+  功能名称及简介：移动端移动专题合集 —— 把手势切卡、双指缩放、摇一摇、倾斜视差四个页面
+                用标签页 + iframe 归拢到同一个网页里，切换标签即可查看，无需来回跳转
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>移动端专题合集 | 朴哲震</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+      background: radial-gradient(circle at 18% 0%, #1b2740 0%, #111a2b 52%, #070b12 100%);
+      color: #e8eef8;
+      min-height: 100vh;
+      padding: 22px 16px 40px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .pzz_wrap { max-width: 960px; margin: 0 auto; }
+
+    /* 顶部返回 */
+    .pzz_home_link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding: 8px 14px;
+      border: 1px solid rgba(232, 238, 248, .16);
+      border-radius: 999px;
+      color: #c3cede;
+      font-size: 13px;
+      text-decoration: none;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+
+    .pzz_home_link:hover {
+      color: #8fd8ff;
+      border-color: rgba(143, 216, 255, .5);
+      background: rgba(143, 216, 255, .08);
+    }
+
+    .pzz_head { margin-bottom: 16px; }
+
+    .pzz_head .pzz_kicker {
+      font-size: 11px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #5b8cb8;
+      margin-bottom: 8px;
+    }
+
+    .pzz_head h1 { font-size: 24px; font-weight: 700; }
+
+    .pzz_head .pzz_sub {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #93a5bb;
+    }
+
+    /* 标签栏 */
+    .pzz_tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .pzz_tab {
+      padding: 9px 16px;
+      border: 1px solid rgba(232, 238, 248, .14);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .04);
+      color: #a9b9cc;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+
+    .pzz_tab:hover { color: #d9e8f8; border-color: rgba(143, 216, 255, .4); }
+
+    /* 选中的标签：蓝色高亮 */
+    .pzz_tab.pzz_on {
+      background: linear-gradient(135deg, #58c4f0, #2f8ac0);
+      border-color: transparent;
+      color: #06131d;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(47, 138, 192, .3);
+    }
+
+    /* 当前标签的一句话说明 */
+    .pzz_desc {
+      margin-bottom: 10px;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: #8fa3b8;
+    }
+
+    .pzz_desc b { color: #8fd8ff; font-weight: 600; }
+
+    /* iframe 容器：四个页面各自保留自己的样式，互不干扰 */
+    .pzz_frame_box {
+      position: relative;
+      width: 100%;
+      height: clamp(560px, 76vh, 900px);
+      border: 1px solid rgba(232, 238, 248, .12);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #0b1220;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, .45);
+    }
+
+    .pzz_frame {
+      display: none;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .pzz_frame.pzz_on { display: block; }
+
+    /* 提示条 */
+    .pzz_note {
+      margin-top: 12px;
+      padding: 12px 16px;
+      border: 1px solid rgba(143, 216, 255, .18);
+      border-radius: 12px;
+      background: rgba(143, 216, 255, .06);
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #9db4c9;
+    }
+
+    /* 页脚 */
+    .pzz_footer {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(232, 238, 248, .08);
+      font-size: 12px;
+      color: #71839a;
+      line-height: 1.9;
+    }
+
+    .pzz_footer a { color: #8fd8ff; text-decoration: none; }
+    .pzz_footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="pzz_wrap">
+    <a class="pzz_home_link" href="index.html">← 返回课堂目录</a>
+
+    <header class="pzz_head">
+      <p class="pzz_kicker">MOBILE · 04 PAGES IN ONE</p>
+      <h1>移动端专题合集</h1>
+      <p class="pzz_sub">手势切卡、双指缩放、摇一摇、倾斜视差四个页面已归拢到这里，点标签切换即可查看。</p>
+    </header>
+
+    <!-- 标签栏：data-pzz-key 与 iframe 的 data-pzz-key 对应 -->
+    <div class="pzz_tabs" role="tablist">
+      <button class="pzz_tab pzz_on" type="button" data-pzz-key="gesture" role="tab">手势切卡</button>
+      <button class="pzz_tab" type="button" data-pzz-key="zoom" role="tab">双指缩放</button>
+      <button class="pzz_tab" type="button" data-pzz-key="sensor" role="tab">摇一摇菜谱</button>
+      <button class="pzz_tab" type="button" data-pzz-key="tilt" role="tab">倾斜视差</button>
+    </div>
+
+    <p class="pzz_desc" id="pzz_desc"><b>手势切卡：</b>左右拖动切换菜品卡片，含 40px 误触阈值、300ms 连滑冷却与边界提示。</p>
+
+    <!-- 四个页面用 iframe 各自运行，样式和脚本互不影响 -->
+    <div class="pzz_frame_box">
+      <iframe class="pzz_frame pzz_on" data-pzz-key="gesture" src="mobile-gesture.html" title="手势切卡"></iframe>
+      <iframe class="pzz_frame" data-pzz-key="zoom" src="mobile-zoom.html" title="双指缩放" loading="lazy"></iframe>
+      <iframe class="pzz_frame" data-pzz-key="sensor" src="mobile-sensor.html" title="摇一摇菜谱" loading="lazy"></iframe>
+      <iframe class="pzz_frame" data-pzz-key="tilt" src="mobile-tilt.html" title="倾斜视差" loading="lazy"></iframe>
+    </div>
+
+    <div class="pzz_note">
+      体感相关功能（摇一摇、倾斜视差）需用手机打开；iOS 要在页面内点「授权」按钮后才生效。
+      电脑端会自动降级：手势与缩放可用鼠标拖动、滚轮模拟，倾斜视差可用鼠标移动模拟。
+    </div>
+
+    <footer class="pzz_footer">
+      学号：24001010606　姓名：朴哲震<br>
+      提示词记录：<a href="pzz_prompt.md">pzz_prompt.md</a>　·　<a href="index.html">返回课堂目录</a>
+    </footer>
+  </div>
+
+  <script>
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:26 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_tabs —— 标签切换：同步按钮高亮、显示对应 iframe、更新说明文字 */
+    var pzz_tabBtns = document.querySelectorAll(".pzz_tab");
+    var pzz_frames = document.querySelectorAll(".pzz_frame");
+    var pzz_descEl = document.getElementById("pzz_desc");
+
+    // 每个标签对应的说明文字
+    var pzz_descMap = {
+      gesture: "<b>手势切卡：</b>左右拖动切换菜品卡片，含 40px 误触阈值、300ms 连滑冷却与边界提示。",
+      zoom: "<b>双指缩放：</b>以两指中点缩放 1~4 倍、双指旋转，双击 1x/2x，越界带阻尼回弹。",
+      sensor: "<b>摇一摇菜谱：</b>合成加速度超过 18 判定摇动，1.5 秒冷却防重复触发，无传感器自动降级。",
+      tilt: "<b>倾斜视差：</b>beta/gamma 驱动六层景物不同系数位移，基线校准 + lerp 平滑防抖。"
+    };
+
+    /* 作者：朴哲震 | 建立时间：2026-11-16 15:26 | 使用模型：DeepSeek-V4.1-Flash
+       功能：pzz_switch —— 按 key 切换标签页：高亮对应按钮、显示对应 iframe、替换说明文字 */
+    function pzz_switch(key) {
+      var i;
+      for (i = 0; i < pzz_tabBtns.length; i++) {
+        var btn = pzz_tabBtns[i];
+        btn.classList.toggle("pzz_on", btn.getAttribute("data-pzz-key") === key);
+      }
+      for (i = 0; i < pzz_frames.length; i++) {
+        var frame = pzz_frames[i];
+        frame.classList.toggle("pzz_on", frame.getAttribute("data-pzz-key") === key);
+      }
+      if (pzz_descMap[key]) { pzz_descEl.innerHTML = pzz_descMap[key]; }
+    }
+
+    // 给所有标签绑定点击事件
+    for (var pzz_i = 0; pzz_i < pzz_tabBtns.length; pzz_i++) {
+      pzz_tabBtns[pzz_i].addEventListener("click", function () {
+        pzz_switch(this.getAttribute("data-pzz-key"));
+      });
+    }
+  </script>
+</body>
+</html>
